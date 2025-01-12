@@ -19,6 +19,9 @@ extern "C" {
 #include "porting.h"
 #include "common/c_internal.h"
 #include "common/c_packer.h"
+#if CHECK_CLIENT_BUILD()
+#include "script/scripting_mainmenu.h"
+#endif
 #include "lua_api/l_base.h"
 
 /******************************************************************************/
