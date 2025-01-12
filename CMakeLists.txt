@@ -31,10 +31,8 @@ if (CMAKE_BUILD_TYPE STREQUAL Debug)
 endif()
 
 # Configuration options
-set(BUILD_CLIENT TRUE CACHE BOOL "Build client")
-set(BUILD_SERVER FALSE CACHE BOOL "Build server")
-set(BUILD_UNITTESTS TRUE CACHE BOOL "Build unittests")
-set(BUILD_BENCHMARKS FALSE CACHE BOOL "Build benchmarks")
+set(BUILD_CLIENT FALSE CACHE BOOL "Build client")
+set(BUILD_SERVER TRUE CACHE BOOL "Build server")
 set(BUILD_DOCUMENTATION TRUE CACHE BOOL "Build documentation")
 
 set(DEFAULT_ENABLE_LTO TRUE)
@@ -71,8 +69,6 @@ set(RUN_IN_PLACE ${DEFAULT_RUN_IN_PLACE} CACHE BOOL
 message(STATUS "*** Will build version ${VERSION_STRING} ***")
 message(STATUS "BUILD_CLIENT: " ${BUILD_CLIENT})
 message(STATUS "BUILD_SERVER: " ${BUILD_SERVER})
-message(STATUS "BUILD_UNITTESTS: " ${BUILD_UNITTESTS})
-message(STATUS "BUILD_BENCHMARKS: " ${BUILD_BENCHMARKS})
 message(STATUS "BUILD_DOCUMENTATION: " ${BUILD_DOCUMENTATION})
 message(STATUS "RUN_IN_PLACE: " ${RUN_IN_PLACE})
 
@@ -287,10 +283,6 @@ if(NOT USE_LUAJIT)
 	add_subdirectory(lib/bitop)
 endif()
 add_subdirectory(lib/sha256)
-
-if(BUILD_UNITTESTS OR BUILD_BENCHMARKS)
-	add_subdirectory(lib/catch2)
-endif()
 
 add_subdirectory(lib/tiniergltf)
 

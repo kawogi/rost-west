@@ -44,6 +44,7 @@
 #define IS_CLIENT_BUILD 0
 #define CHECK_CLIENT_BUILD() 0
 #else
+#define CHECK_CLIENT_BUILD() 0
 #define IS_CLIENT_BUILD 0
 #endif
 #undef MT_BUILDTARGET

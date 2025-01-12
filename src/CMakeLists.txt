@@ -486,20 +486,6 @@ if(ANDROID)
 	list(APPEND common_SRCS porting_android.cpp)
 endif()
 
-if(BUILD_UNITTESTS)
-	add_subdirectory(unittest)
-	list(APPEND common_SRCS ${UNITTEST_SRCS})
-endif()
-
-if(BUILD_BENCHMARKS)
-	add_subdirectory(benchmark)
-	list(APPEND common_SRCS ${BENCHMARK_SRCS})
-endif()
-
-if(BUILD_UNITTESTS OR BUILD_BENCHMARKS)
-	list(APPEND common_SRCS catch.cpp)
-endif()
-
 # This gives us the icon and file version information
 if(WIN32)
 	set(WINRESOURCE_FILE "${CMAKE_CURRENT_SOURCE_DIR}/../misc/winresource.rc")
@@ -523,8 +509,8 @@ endif()
 
 # Client sources
 if (BUILD_CLIENT)
-	add_subdirectory(client)
-	add_subdirectory(gui)
+	# add_subdirectory(client)
+	# add_subdirectory(gui)
 	add_subdirectory(irrlicht_changes)
 endif(BUILD_CLIENT)
 
@@ -744,9 +730,6 @@ if(BUILD_CLIENT)
 	if (USE_OPENSSL)
 		target_link_libraries(${PROJECT_NAME} OpenSSL::Crypto)
 	endif()
-	if(BUILD_UNITTESTS OR BUILD_BENCHMARKS)
-		target_link_libraries(${PROJECT_NAME} Catch2::Catch2)
-	endif()
 	if(BUILD_WITH_TRACY)
 		target_link_libraries(${PROJECT_NAME} Tracy::TracyClient)
 	endif()
@@ -821,9 +804,6 @@ if(BUILD_SERVER)
 			${PROJECT_NAME}server
 			${CURL_LIBRARY}
 		)
-	endif()
-	if(BUILD_UNITTESTS OR BUILD_BENCHMARKS)
-		target_link_libraries(${PROJECT_NAME}server Catch2::Catch2)
 	endif()
 	if(BUILD_WITH_TRACY)
 		target_link_libraries(${PROJECT_NAME}server Tracy::TracyClient)

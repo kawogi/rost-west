@@ -16,8 +16,8 @@
 class Client;
 #endif
 #include "itemgroup.h"
-#include "sound.h" // SoundSpec
-#include "constants.h" // BS
+#include "sound.h"			  // SoundSpec
+#include "constants.h"		  // BS
 #include "texture_override.h" // TextureOverride
 #include "tileanimation.h"
 #include "util/pointabilities.h"
@@ -27,9 +27,6 @@ class ITextureSource;
 class IShaderSource;
 class IGameDef;
 class NodeResolver;
-#if BUILD_UNITTESTS
-class TestSchematic;
-#endif
 
 enum ContentParamType : u8
 {
@@ -83,11 +80,11 @@ enum LiquidType : u8
 
 enum NodeBoxType : u8
 {
-	NODEBOX_REGULAR, // Regular block; allows buildable_to
-	NODEBOX_FIXED, // Static separately defined box(es)
+	NODEBOX_REGULAR,	 // Regular block; allows buildable_to
+	NODEBOX_FIXED,		 // Static separately defined box(es)
 	NODEBOX_WALLMOUNTED, // Box for wall mounted nodes; (top, bottom, side)
-	NODEBOX_LEVELED, // Same as fixed, but with dynamic height from param2. for snow, ...
-	NODEBOX_CONNECTED, // optionally draws nodeboxes if a neighbor node attaches
+	NODEBOX_LEVELED,	 // Same as fixed, but with dynamic height from param2. for snow, ...
+	NODEBOX_CONNECTED,	 // optionally draws nodeboxes if a neighbor node attaches
 };
 
 struct NodeBoxConnected
@@ -123,15 +120,19 @@ struct NodeBox
 	std::shared_ptr<NodeBoxConnected> connected;
 
 	NodeBox()
-	{ reset(); }
+	{
+		reset();
+	}
 	~NodeBox() = default;
 
-	inline NodeBoxConnected &getConnected() {
+	inline NodeBoxConnected &getConnected()
+	{
 		if (!connected)
 			connected = std::make_shared<NodeBoxConnected>();
 		return *connected;
 	}
-	inline const NodeBoxConnected &getConnected() const {
+	inline const NodeBoxConnected &getConnected() const
+	{
 		assert(connected);
 		return *connected;
 	}
@@ -148,26 +149,30 @@ private:
 struct MapNode;
 class NodeMetadata;
 
-enum LeavesStyle {
+enum LeavesStyle
+{
 	LEAVES_FANCY,
 	LEAVES_SIMPLE,
 	LEAVES_OPAQUE,
 };
 
-enum AutoScale : u8 {
+enum AutoScale : u8
+{
 	AUTOSCALE_DISABLE,
 	AUTOSCALE_ENABLE,
 	AUTOSCALE_FORCE,
 };
 
-enum WorldAlignMode : u8 {
+enum WorldAlignMode : u8
+{
 	WORLDALIGN_DISABLE,
 	WORLDALIGN_ENABLE,
 	WORLDALIGN_FORCE,
 	WORLDALIGN_FORCE_NODEBOX,
 };
 
-class TextureSettings {
+class TextureSettings
+{
 public:
 	LeavesStyle leaves_style;
 	WorldAlignMode world_aligned_mode;
@@ -232,11 +237,12 @@ enum NodeDrawType : u8
 };
 
 // Mesh options for NDT_PLANTLIKE with CPT2_MESHOPTIONS
-static const u8 MO_MASK_STYLE          = 0x07;
-static const u8 MO_BIT_RANDOM_OFFSET   = 0x08;
-static const u8 MO_BIT_SCALE_SQRT2     = 0x10;
+static const u8 MO_MASK_STYLE = 0x07;
+static const u8 MO_BIT_RANDOM_OFFSET = 0x08;
+static const u8 MO_BIT_SCALE_SQRT2 = 0x10;
 static const u8 MO_BIT_RANDOM_OFFSET_Y = 0x20;
-enum PlantlikeStyle {
+enum PlantlikeStyle
+{
 	PLANT_STYLE_CROSS,
 	PLANT_STYLE_CROSS2,
 	PLANT_STYLE_STAR,
@@ -244,21 +250,22 @@ enum PlantlikeStyle {
 	PLANT_STYLE_HASH2,
 };
 
-enum AlignStyle : u8 {
+enum AlignStyle : u8
+{
 	ALIGN_STYLE_NODE,
 	ALIGN_STYLE_WORLD,
 	ALIGN_STYLE_USER_DEFINED,
 	AlignStyle_END // Dummy for validity check
 };
 
-enum AlphaMode : u8 {
+enum AlphaMode : u8
+{
 	ALPHAMODE_BLEND,
 	ALPHAMODE_CLIP,
 	ALPHAMODE_OPAQUE,
 	ALPHAMODE_LEGACY_COMPAT, /* only sent by old servers, equals OPAQUE */
-	AlphaMode_END // Dummy for validity check
+	AlphaMode_END			 // Dummy for validity check
 };
-
 
 /*
 	Stand-alone definition of a TileSpec (basically a server-side TileSpec)
@@ -310,7 +317,7 @@ struct ContentFeatures
 	TileSpec tiles[6];
 	// Special tiles
 	TileSpec special_tiles[CF_SPECIAL_COUNT];
-	u8 solidness; // Used when choosing which face is drawn
+	u8 solidness;		 // Used when choosing which face is drawn
 	u8 visual_solidness; // When solidness=0, this tells how it looks like
 	bool backface_culling;
 #endif
@@ -329,7 +336,7 @@ struct ContentFeatures
 
 	// --- GENERAL PROPERTIES ---
 
-	std::string name; // "" = undefined node
+	std::string name;	  // "" = undefined node
 	ItemGroupList groups; // Same as in itemdef
 	// Type of MapNode::param1
 	ContentParamType param_type;
@@ -460,7 +467,8 @@ struct ContentFeatures
 	*/
 	void setDefaultAlphaMode()
 	{
-		switch (drawtype) {
+		switch (drawtype)
+		{
 		case NDT_NORMAL:
 		case NDT_LIQUID:
 		case NDT_FLOWINGLIQUID:
@@ -476,7 +484,8 @@ struct ContentFeatures
 
 	bool needsBackfaceCulling() const
 	{
-		switch (drawtype) {
+		switch (drawtype)
+		{
 		case NDT_TORCHLIKE:
 		case NDT_SIGNLIKE:
 		case NDT_FIRELIKE:
@@ -490,22 +499,26 @@ struct ContentFeatures
 		}
 	}
 
-	bool isLiquid() const{
+	bool isLiquid() const
+	{
 		return (liquid_type != LIQUID_NONE);
 	}
 
-	bool isLiquidRender() const {
+	bool isLiquidRender() const
+	{
 		return (drawtype == NDT_LIQUID || drawtype == NDT_FLOWINGLIQUID);
 	}
 
-	bool sameLiquidRender(const ContentFeatures &f) const {
+	bool sameLiquidRender(const ContentFeatures &f) const
+	{
 		if (!isLiquidRender() || !f.isLiquidRender())
 			return false;
 		return liquid_alternative_flowing_id == f.liquid_alternative_flowing_id &&
-			liquid_alternative_source_id == f.liquid_alternative_source_id;
+			   liquid_alternative_source_id == f.liquid_alternative_source_id;
 	}
 
-	ContentLightingFlags getLightingFlags() const {
+	ContentLightingFlags getLightingFlags() const
+	{
 		ContentLightingFlags flags;
 		flags.has_light = param_type == CPT_LIGHT;
 		flags.light_propagates = light_propagates;
@@ -521,7 +534,7 @@ struct ContentFeatures
 
 #if CHECK_CLIENT_BUILD()
 	void updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc,
-		scene::IMeshManipulator *meshmanip, Client *client, const TextureSettings &tsettings);
+						scene::IMeshManipulator *meshmanip, Client *client, const TextureSettings &tsettings);
 #endif
 
 private:
@@ -542,7 +555,8 @@ private:
  * functions only get `const` pointers to it, to prevent modification of
  * registered nodes.
  */
-class NodeDefManager {
+class NodeDefManager
+{
 public:
 	/*!
 	 * Creates a NodeDefManager, and registers three ContentFeatures:
@@ -557,10 +571,9 @@ public:
 	 * @return properties of the given content type, or \ref CONTENT_UNKNOWN
 	 * if the given content type is not registered.
 	 */
-	inline const ContentFeatures& get(content_t c) const {
-		return
-			(c < m_content_features.size() && !m_content_features[c].name.empty()) ?
-				m_content_features[c] : m_content_features[CONTENT_UNKNOWN];
+	inline const ContentFeatures &get(content_t c) const
+	{
+		return (c < m_content_features.size() && !m_content_features[c].name.empty()) ? m_content_features[c] : m_content_features[CONTENT_UNKNOWN];
 	}
 
 	/*!
@@ -569,16 +582,19 @@ public:
 	 * @return properties of the given node or @ref CONTENT_UNKNOWN if the
 	 * given content type is not registered.
 	 */
-	inline const ContentFeatures& get(const MapNode &n) const {
+	inline const ContentFeatures &get(const MapNode &n) const
+	{
 		return get(n.getContent());
 	}
 
-	inline ContentLightingFlags getLightingFlags(content_t c) const {
+	inline ContentLightingFlags getLightingFlags(content_t c) const
+	{
 		// No bound check is necessary, since the array's length is CONTENT_MAX + 1.
 		return m_content_lighting_flag_cache[c];
 	}
 
-	inline ContentLightingFlags getLightingFlags(const MapNode &n) const {
+	inline ContentLightingFlags getLightingFlags(const MapNode &n) const
+	{
 		return getLightingFlags(n.getContent());
 	}
 
@@ -588,7 +604,7 @@ public:
 	 * @return properties of the given node or @ref CONTENT_UNKNOWN if
 	 * not found
 	 */
-	const ContentFeatures& get(const std::string &name) const;
+	const ContentFeatures &get(const std::string &name) const;
 
 	/*!
 	 * Returns the content ID for the given name.
@@ -621,7 +637,8 @@ public:
 	 * contains all nodes' selection boxes. The returned box might be larger
 	 * than the minimal size if the largest node is removed from the manager.
 	 */
-	inline core::aabbox3d<s16> getSelectionBoxIntUnion() const {
+	inline core::aabbox3d<s16> getSelectionBoxIntUnion() const
+	{
 		return m_selection_box_int_union;
 	}
 
@@ -635,7 +652,7 @@ public:
 	 * @return true if the node connects, false otherwise
 	 */
 	bool nodeboxConnects(MapNode from, MapNode to,
-			u8 connect_face) const;
+						 u8 connect_face) const;
 
 	/*!
 	 * Registers a NodeResolver to wait for the registration of
@@ -719,7 +736,8 @@ public:
 	 * Used to indicate that node registration has finished.
 	 * @param completed tells whether registration is complete
 	 */
-	inline void setNodeRegistrationStatus(bool completed) {
+	inline void setNodeRegistrationStatus(bool completed)
+	{
 		m_node_registration_complete = completed;
 	}
 
@@ -839,7 +857,8 @@ NodeDefManager *createNodeDefManager();
 
 // NodeResolver: Queue for node names which are then translated
 // to content_t after the NodeDefManager was initialized
-class NodeResolver {
+class NodeResolver
+{
 public:
 	NodeResolver();
 	virtual ~NodeResolver();
@@ -850,10 +869,10 @@ public:
 	void cloneTo(NodeResolver *res) const;
 
 	bool getIdFromNrBacklog(content_t *result_out,
-		const std::string &node_alt, content_t c_fallback,
-		bool error_on_fallback = true);
+							const std::string &node_alt, content_t c_fallback,
+							bool error_on_fallback = true);
 	bool getIdsFromNrBacklog(std::vector<content_t> *result_out,
-		bool all_required = false, content_t c_fallback = CONTENT_IGNORE);
+							 bool all_required = false, content_t c_fallback = CONTENT_IGNORE);
 
 	inline bool isResolveDone() const { return m_resolve_done; }
 	void reset(bool resolve_done = false);
@@ -873,10 +892,6 @@ protected:
 	u32 m_nodenames_idx = 0;
 
 private:
-#if BUILD_UNITTESTS
-	// Unittest requires access to m_resolve_done
-	friend class TestSchematic;
-#endif
 	void nodeResolveInternal();
 
 	// Index of the next "m_nnlistsizes" entry to process
