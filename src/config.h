@@ -1,9 +1,9 @@
 #pragma once
 
 #if defined USE_CMAKE_CONFIG_H
-	#include "cmake_config.h" // IWYU pragma: export
+#include "cmake_config.h" // IWYU pragma: export
 #else
-	#warning Missing configuration
+#warning Missing configuration
 #endif
 
 /*
@@ -37,14 +37,5 @@
  * Finally, note that the best option is to split code in such a way that usage
  * of these macros is not necessary.
  */
-#if MT_BUILDTARGET == 1
-#define IS_CLIENT_BUILD 1
-#define CHECK_CLIENT_BUILD() 1
-#elif MT_BUILDTARGET == 2
-#define IS_CLIENT_BUILD 0
-#define CHECK_CLIENT_BUILD() 0
-#else
 #define CHECK_CLIENT_BUILD() 0
 #define IS_CLIENT_BUILD 0
-#endif
-#undef MT_BUILDTARGET
