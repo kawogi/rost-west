@@ -44,13 +44,11 @@ DEALINGS IN THE SOFTWARE.
  * On platforms using pthreads, these five priority classes correlate to
  * even divisions between the minimum and maximum reported thread priority.
  */
-#if !defined(_WIN32)
-	#define THREAD_PRIORITY_LOWEST       0
-	#define THREAD_PRIORITY_BELOW_NORMAL 1
-	#define THREAD_PRIORITY_NORMAL       2
-	#define THREAD_PRIORITY_ABOVE_NORMAL 3
-	#define THREAD_PRIORITY_HIGHEST      4
-#endif
+#define THREAD_PRIORITY_LOWEST       0
+#define THREAD_PRIORITY_BELOW_NORMAL 1
+#define THREAD_PRIORITY_NORMAL       2
+#define THREAD_PRIORITY_ABOVE_NORMAL 3
+#define THREAD_PRIORITY_HIGHEST      4
 
 
 

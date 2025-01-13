@@ -28,15 +28,7 @@
 
 
 #include <cstddef>
-
-#ifdef WIN32
-	#include <windows.h>
-	#include <wincrypt.h>
-#else
-	#include <ctime>
-
-#endif
-
+#include <ctime>
 #include <cstdlib>
 #include <cstring>
 #include <cstdio>

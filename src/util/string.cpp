@@ -18,13 +18,7 @@
 #include <iomanip>
 #include <unordered_map>
 
-#ifndef _WIN32
-	#include <iconv.h>
-#else
-	#include <windows.h>
-#endif
-
-#ifndef _WIN32
+#include <iconv.h>
 
 namespace {
 	class IconvSmartPointer {
@@ -148,58 +142,6 @@ void wide_add_codepoint(std::wstring &result, char32_t codepoint)
 	}
 	result.push_back(codepoint);
 }
-
-#else // _WIN32
-
-std::wstring utf8_to_wide(std::string_view input)
-{
-	size_t outbuf_size = input.size() + 1;
-	wchar_t *outbuf = new wchar_t[outbuf_size];
-	memset(outbuf, 0, outbuf_size * sizeof(wchar_t));
-	MultiByteToWideChar(CP_UTF8, 0, input.data(), input.size(),
-		outbuf, outbuf_size);
-	std::wstring out(outbuf);
-	delete[] outbuf;
-	return out;
-}
-
-std::string wide_to_utf8(std::wstring_view input)
-{
-	size_t outbuf_size = (input.size() + 1) * 6;
-	char *outbuf = new char[outbuf_size];
-	memset(outbuf, 0, outbuf_size);
-	WideCharToMultiByte(CP_UTF8, 0, input.data(), input.size(),
-		outbuf, outbuf_size, NULL, NULL);
-	std::string out(outbuf);
-	delete[] outbuf;
-	return out;
-}
-
-void wide_add_codepoint(std::wstring &result, char32_t codepoint)
-{
-	if (codepoint < 0x10000) {
-		if (0xD800 <= codepoint && codepoint <= 0xDFFF) {
-			// Invalid codepoint, part of a surrogate pair
-			// Replace with unicode replacement character
-			result.push_back(0xFFFD);
-			return;
-		}
-		result.push_back((wchar_t) codepoint);
-		return;
-	}
-	codepoint -= 0x10000;
-	if (codepoint >= 0x100000) {
-		// original codepoint was above 0x10FFFF, so invalid
-		// replace with unicode replacement character
-		result.push_back(0xFFFD);
-		return;
-	}
-	result.push_back((wchar_t) ((codepoint >> 10) | 0xD800));
-	result.push_back((wchar_t) ((codepoint & 0x3FF) | 0xDC00));
-}
-
-#endif // _WIN32
-
 
 std::string urlencode(std::string_view str)
 {

@@ -83,14 +83,6 @@ Locations:
 
 Where each location is on each platform:
 
-* Windows .zip / RUN_IN_PLACE source:
-    * `bin`   = `bin`
-    * `share` = `.`
-    * `user`  = `.`
-* Windows installed:
-    * `bin`   = `C:\Program Files\Minetest\bin (Depends on the install location)`
-    * `share` = `C:\Program Files\Minetest (Depends on the install location)`
-    * `user`  = `%APPDATA%\Minetest` or `%MINETEST_USER_PATH%`
 * Linux installed:
     * `bin`   = `/usr/bin`
     * `share` = `/usr/share/minetest`
@@ -121,7 +113,6 @@ Compiling
 
 - [Compiling - common information](doc/compiling/README.md)
 - [Compiling on GNU/Linux](doc/compiling/linux.md)
-- [Compiling on Windows](doc/compiling/windows.md)
 - [Compiling on MacOS](doc/compiling/macos.md)
 
 Docker

@@ -8,12 +8,7 @@
 
 #include "database-postgresql.h"
 
-#ifdef _WIN32
-	#include <windows.h>
-	#include <winsock2.h>
-#else
 #include <netinet/in.h>
-#endif
 
 #include "debug.h"
 #include "exceptions.h"

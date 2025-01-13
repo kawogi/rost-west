@@ -19,14 +19,6 @@
 #include "settings.h"
 #include "log.h"
 
-#ifdef _WIN32
-#include <windows.h>
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#define LAST_SOCKET_ERR() WSAGetLastError()
-typedef SOCKET socket_t;
-typedef int socklen_t;
-#else
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -36,7 +28,6 @@ typedef int socklen_t;
 #include <arpa/inet.h>
 #define LAST_SOCKET_ERR() (errno)
 typedef int socket_t;
-#endif
 
 /*
 	Address

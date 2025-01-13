@@ -11,17 +11,10 @@
 #include <vector>
 #include <fstream>
 
-#ifdef _WIN32
-#define DIR_DELIM "\\"
-#define DIR_DELIM_CHAR '\\'
-#define FILESYS_CASE_INSENSITIVE true
-#define PATH_DELIM ";"
-#else
 #define DIR_DELIM "/"
 #define DIR_DELIM_CHAR '/'
 #define FILESYS_CASE_INSENSITIVE false
 #define PATH_DELIM ":"
-#endif
 
 namespace irr::io {
 class IFileSystem;

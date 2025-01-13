@@ -4,9 +4,7 @@
 
 #pragma once
 
-#if defined(_WIN32)
-#include <windows.h>
-#elif defined(__MACH__) && defined(__APPLE__)
+#if defined(__MACH__) && defined(__APPLE__)
 #include <mach/semaphore.h>
 #else
 #include <semaphore.h>
@@ -27,9 +25,7 @@ public:
 	bool wait(unsigned int time_ms);
 
 private:
-#if defined(WIN32)
-	HANDLE semaphore;
-#elif defined(__MACH__) && defined(__APPLE__)
+#if defined(__MACH__) && defined(__APPLE__)
 	semaphore_t semaphore;
 #else
 	sem_t semaphore;

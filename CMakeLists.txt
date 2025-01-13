@@ -42,14 +42,11 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 #### LTO testing list ####
 # - Linux: seems to work always
-# - win32/msvc: works
-# - win32/gcc: fails to link
-# - win32/clang: works
 # - macOS on x86: seems to be fine
 # - macOS on ARM: crashes, see <https://github.com/minetest/minetest/issues/14397>
 # Note: since CMake has no easy architecture detection disabling for Mac entirely
 #### ####
-if((WIN32 AND CMAKE_CXX_COMPILER_ID STREQUAL "GNU") OR APPLE)
+if(APPLE)
 	set(DEFAULT_ENABLE_LTO FALSE)
 endif()
 set(ENABLE_LTO ${DEFAULT_ENABLE_LTO} CACHE BOOL "Use Link Time Optimization")
@@ -60,9 +57,6 @@ set(FETCH_TRACY_GIT_TAG "master" CACHE STRING
 	"Git tag for fetching Tracy client. Match with your server (gui) version")
 
 set(DEFAULT_RUN_IN_PLACE FALSE)
-if(WIN32)
-	set(DEFAULT_RUN_IN_PLACE TRUE)
-endif()
 set(RUN_IN_PLACE ${DEFAULT_RUN_IN_PLACE} CACHE BOOL
 	"Run directly in source directory structure")
 
@@ -295,14 +289,7 @@ if(WIN32)
 	include(InstallRequiredSystemLibraries)
 
 	if(RUN_IN_PLACE)
-		if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-			set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${VERSION_STRING}-win64")
-		else()
-			set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${VERSION_STRING}-win32")
-		endif()
-
 		set(CPACK_GENERATOR ZIP)
-
 	else()
 		set(CPACK_GENERATOR WIX)
 		set(CPACK_PACKAGE_NAME "${PROJECT_NAME_CAPITALIZED}")

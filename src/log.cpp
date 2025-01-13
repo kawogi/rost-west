@@ -14,10 +14,7 @@
 #include "util/numeric.h"
 #include "filesys.h"
 
-#if !defined(_WIN32)
 #include <unistd.h> // isatty
-#endif
-
 #include <sstream>
 #include <iostream>
 #include <algorithm>
@@ -280,12 +277,10 @@ void FileLogOutput::setFile(const std::string &filename, s64 file_size_max)
 StreamLogOutput::StreamLogOutput(std::ostream &stream) :
 	m_stream(stream)
 {
-#if !defined(_WIN32)
 	if (&stream == &std::cout)
 		is_tty = isatty(STDOUT_FILENO);
 	else if (&stream == &std::cerr)
 		is_tty = isatty(STDERR_FILENO);
-#endif
 }
 
 void StreamLogOutput::logRaw(LogLevel lev, std::string_view line)

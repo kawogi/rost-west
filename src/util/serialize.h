@@ -16,9 +16,7 @@
 #include <string_view>
 
 /* make sure BYTE_ORDER macros are available */
-#ifdef _WIN32
-	#define BYTE_ORDER 1234
-#elif defined(__MACH__) && defined(__APPLE__)
+#if defined(__MACH__) && defined(__APPLE__)
 	#include <machine/endian.h>
 #elif defined(__FreeBSD__) || defined(__DragonFly__)
 	#include <sys/endian.h>

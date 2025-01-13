@@ -181,31 +181,12 @@ void init_gettext(const char *path, const std::string &configured_language,
 		setlocale(LC_ALL, "");
 	}
 
-#if defined(_WIN32)
-	if (getenv("LANGUAGE") != 0) {
-		setlocale(LC_ALL, getenv("LANGUAGE"));
-	}
-#ifdef _MSC_VER
-	else if (getenv("LANG") != 0) {
-		setlocale(LC_ALL, getenv("LANG"));
-	}
-#endif
-#endif
-
 	std::string name = lowercase(PROJECT_NAME);
 	infostream << "Gettext: domainname=\"" << name
 		<< "\" path=\"" << path << "\"" << std::endl;
 
 	bindtextdomain(name.c_str(), path);
 	textdomain(name.c_str());
-
-#ifdef _WIN32
-	// set character encoding
-	char *tdomain = textdomain(nullptr);
-	assert(tdomain);
-	if (tdomain)
-		bind_textdomain_codeset(tdomain, "UTF-8");
-#endif
 
 #else
 	/* set current system default locale */

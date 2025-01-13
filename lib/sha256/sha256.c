@@ -70,22 +70,7 @@
  * endian.h compatibility shim
  */
 
-#if defined(_WIN32)
-
-#define LITTLE_ENDIAN 1234
-#define BIG_ENDIAN 4321
-#define PDP_ENDIAN 3412
-
-/*
- * Use GCC and Visual Studio compiler defines to determine endian.
- */
-#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-#define BYTE_ORDER LITTLE_ENDIAN
-#else
-#define BYTE_ORDER BIG_ENDIAN
-#endif
-
-#elif defined(HAVE_ENDIAN_H)
+#if defined(HAVE_ENDIAN_H)
 #include <endian.h>
 
 #elif defined(__MACH__) && defined(__APPLE__)
@@ -120,17 +105,6 @@
 #define htole32(x) OSSwapHostToLittleInt32(x)
 #define htobe32(x) OSSwapHostToBigInt32(x)
 #endif /* __APPLE__ && !HAVE_ENDIAN_H */
-
-#if defined(_WIN32) && !defined(HAVE_ENDIAN_H)
-#include <winsock2.h>
-
-#define be16toh(x) ntohs((x))
-#define htobe16(x) htons((x))
-#define le32toh(x) (x)
-#define be32toh(x) ntohl((x))
-#define htole32(x) (x)
-#define htobe32(x) ntohl((x))
-#endif /* _WIN32 && !HAVE_ENDIAN_H */
 
 #ifdef __linux__
 #if !defined(betoh16)

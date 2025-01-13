@@ -15,14 +15,6 @@
 #include "debug.h"
 #include "log.h"
 
-#ifdef _WIN32
-#include <windows.h>
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#define LAST_SOCKET_ERR() WSAGetLastError()
-#define SOCKET_ERR_STR(e) itos(e)
-typedef int socklen_t;
-#else
 #include <cerrno>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -33,28 +25,17 @@ typedef int socklen_t;
 #include <arpa/inet.h>
 #define LAST_SOCKET_ERR() (errno)
 #define SOCKET_ERR_STR(e) strerror(e)
-#endif
 
 static bool g_sockets_initialized = false;
 
 // Initialize sockets
 void sockets_init()
 {
-#ifdef _WIN32
-	// Windows needs sockets to be initialized before use
-	WSADATA WsaData;
-	if (WSAStartup(MAKEWORD(2, 2), &WsaData) != NO_ERROR)
-		throw SocketException("WSAStartup failed");
-#endif
 	g_sockets_initialized = true;
 }
 
 void sockets_cleanup()
 {
-#ifdef _WIN32
-	// On Windows, cleanup sockets after use
-	WSACleanup();
-#endif
 	g_sockets_initialized = false;
 }
 
@@ -112,11 +93,7 @@ bool UDPSocket::init(bool ipv6, bool noExceptions)
 UDPSocket::~UDPSocket()
 {
 	if (m_handle >= 0) {
-#ifdef _WIN32
-		closesocket(m_handle);
-#else
 		close(m_handle);
-#endif
 	}
 }
 
@@ -255,19 +232,11 @@ bool UDPSocket::WaitData(int timeout_ms)
 {
 	timeout_ms = MYMAX(timeout_ms, 0);
 
-#ifdef _WIN32
-	WSAPOLLFD pfd;
-	pfd.fd = m_handle;
-	pfd.events = POLLRDNORM;
-
-	int result = WSAPoll(&pfd, 1, timeout_ms);
-#else
 	struct pollfd pfd;
 	pfd.fd = m_handle;
 	pfd.events = POLLIN;
 
 	int result = poll(&pfd, 1, timeout_ms);
-#endif
 
 	if (result == 0) {
 		return false; // No data
@@ -279,11 +248,7 @@ bool UDPSocket::WaitData(int timeout_ms)
 	// Error case
 	int e = LAST_SOCKET_ERR();
 
-#ifdef _WIN32
-	if (e == WSAEINTR || e == WSAEBADF) {
-#else
 	if (e == EINTR || e == EBADF) {
-#endif
 		// N.B. poll() fails when sockets are destroyed on Connection's dtor
 		// with EBADF. Instead of doing tricky synchronization, allow this
 		// thread to exit but don't throw an exception.

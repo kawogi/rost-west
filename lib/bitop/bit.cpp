@@ -173,10 +173,6 @@ LUALIB_API int luaopen_bit(lua_State *L)
   if (b != (UBits)1437217655L || BAD_SAR) {  /* Perform a simple self-test. */
     const char *msg = "compiled with incompatible luaconf.h";
 #ifdef LUA_NUMBER_DOUBLE
-#ifdef _WIN32
-    if (b == (UBits)1610612736L)
-      msg = "use D3DCREATE_FPU_PRESERVE with DirectX";
-#endif
     if (b == (UBits)1127743488L)
       msg = "not compiled with SWAPPED_DOUBLE";
 #endif

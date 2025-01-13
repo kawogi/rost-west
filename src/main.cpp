@@ -547,11 +547,7 @@ namespace
 		return "";
 	}
 
-#ifdef _WIN32
-	const char *debuggerNames[] = {"gdb.exe", "lldb.exe"};
-#else
 	[[maybe_unused]] const char *debuggerNames[] = {"gdb", "lldb"};
-#endif
 
 	template <class T>
 	void getDebuggerArgs(T &out, int i)
@@ -572,14 +568,6 @@ namespace
 
 static bool use_debugger(int argc, char *argv[])
 {
-#ifdef _WIN32
-	if (IsDebuggerPresent())
-	{
-		warningstream << "Process is already being debugged." << std::endl;
-		return false;
-	}
-#endif
-
 	char exec_path[1024];
 	if (!porting::getCurrentExecPath(exec_path, sizeof(exec_path)))
 		return false;
@@ -625,38 +613,10 @@ static bool use_debugger(int argc, char *argv[])
 	new_args.push_back("--console");
 	new_args.push_back(nullptr);
 
-#ifdef _WIN32
-	// Special treatment for Windows
-	std::string cmdline;
-	for (int i = 1; new_args[i]; i++)
-	{
-		if (i > 1)
-			cmdline += ' ';
-		cmdline += porting::QuoteArgv(new_args[i]);
-	}
-
-	STARTUPINFO startup_info = {};
-	PROCESS_INFORMATION process_info = {};
-	bool ok = CreateProcess(new_args[0], cmdline.empty() ? nullptr : &cmdline[0],
-							nullptr, nullptr, false, CREATE_UNICODE_ENVIRONMENT,
-							nullptr, nullptr, &startup_info, &process_info);
-	if (!ok)
-	{
-		warningstream << "CreateProcess: " << GetLastError() << std::endl;
-		return false;
-	}
-	DWORD exitcode = 0;
-	WaitForSingleObject(process_info.hProcess, INFINITE);
-	GetExitCodeProcess(process_info.hProcess, &exitcode);
-	exit(exitcode);
-	// not reached
-#else
 	errno = 0;
 	execv(new_args[0], const_cast<char **>(new_args.data()));
 	warningstream << "execv: " << strerror(errno) << std::endl;
 	return false;
-#endif
-
 }
 
 static bool init_common(const Settings &cmd_args, int argc, char *argv[])

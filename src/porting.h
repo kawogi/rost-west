@@ -26,25 +26,13 @@
 	#define SWPRINTF_CHARSTRING L"%s"
 #endif
 
-#ifdef _WIN32
-	#include <windows.h>
+#include <unistd.h>
+#include <cstdlib> // setenv
 
-	#define sleep_ms(x) Sleep(x)
-	#define sleep_us(x) Sleep((x)/1000)
+#define SLEEP_ACCURACY_US 200
 
-	#define SLEEP_ACCURACY_US 2000
-
-	#define setenv(n,v,o) _putenv_s(n,v)
-	#define unsetenv(n) _putenv_s(n,"")
-#else
-	#include <unistd.h>
-	#include <cstdlib> // setenv
-
-	#define SLEEP_ACCURACY_US 200
-
-	#define sleep_ms(x) usleep((x)*1000)
-	#define sleep_us(x) usleep(x)
-#endif
+#define sleep_ms(x) usleep((x)*1000)
+#define sleep_us(x) usleep(x)
 
 #ifdef _MSC_VER
 	#define strtok_r(x, y, z) strtok_s(x, y, z)
@@ -64,12 +52,10 @@
 	#define strlcpy(d, s, n) mystrlcpy(d, s, n)
 #endif
 
-#ifndef _WIN32 // POSIX
-	#include <sys/time.h>
-	#include <ctime>
-    #if defined(__MACH__) && defined(__APPLE__)
-        #include <TargetConditionals.h>
-    #endif
+#include <sys/time.h>
+#include <ctime>
+#if defined(__MACH__) && defined(__APPLE__)
+	#include <TargetConditionals.h>
 #endif
 
 namespace porting
@@ -91,7 +77,6 @@ extern std::string path_share;
 
 /*
 	Directory for storing user data. Examples:
-	Windows: "C:\Documents and Settings\user\Application Data\<PROJECT_NAME>"
 	Linux: "~/.<PROJECT_NAME>"
 	Mac: "~/Library/Application Support/<PROJECT_NAME>"
 */
@@ -130,26 +115,6 @@ const std::string &get_sysinfo();
 
 
 // Monotonic timer
-
-#ifdef _WIN32 // Windows
-
-extern double perf_freq;
-
-inline u64 os_get_time(double mult)
-{
-	LARGE_INTEGER t;
-	QueryPerformanceCounter(&t);
-	return static_cast<double>(t.QuadPart) / (perf_freq / mult);
-}
-
-// Resolution is <1us.
-inline u64 getTimeS() { return os_get_time(1); }
-inline u64 getTimeMs() { return os_get_time(1000); }
-inline u64 getTimeUs() { return os_get_time(1000*1000); }
-inline u64 getTimeNs() { return os_get_time(1000*1000*1000); }
-
-#else // POSIX
-
 inline void os_get_clock(struct timespec *ts)
 {
 #if defined(CLOCK_MONOTONIC_RAW)
@@ -195,8 +160,6 @@ inline u64 getTimeNs()
 	os_get_clock(&ts);
 	return ((u64) ts.tv_sec) * 1000000000LL + ((u64) ts.tv_nsec);
 }
-
-#endif
 
 inline u64 getTime(TimePrecision prec)
 {
@@ -244,8 +207,6 @@ inline const char *getPlatformName()
 	return
 #if defined(__linux__)
 	"Linux"
-#elif defined(_WIN32) || defined(_WIN64)
-	"Windows"
 #elif defined(__DragonFly__) || defined(__FreeBSD__) || \
 		defined(__NetBSD__) || defined(__OpenBSD__)
 	"BSD"
@@ -269,8 +230,6 @@ inline const char *getPlatformName()
 	#endif
 #elif defined(__HAIKU__)
 	"Haiku"
-#elif defined(__CYGWIN__)
-	"Cygwin"
 #elif defined(__unix__) || defined(__unix)
 	#if defined(_POSIX_VERSION)
 		"POSIX"
@@ -307,14 +266,6 @@ void TriggerMemoryTrim();
 #else
 static inline void TrackFreedMemory(size_t amount) { (void)amount; }
 static inline void TriggerMemoryTrim() { (void)0; }
-#endif
-
-#ifdef _WIN32
-// Quotes an argument for use in a CreateProcess() commandline (not cmd.exe!!)
-std::string QuoteArgv(const std::string &arg);
-
-// Convert an error code (e.g. from GetLastError()) into a string.
-std::string ConvertError(DWORD error_code);
 #endif
 
 // snprintf wrapper

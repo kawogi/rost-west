@@ -16,15 +16,6 @@ Generally this leads to versions about 5 years old and works as a reasonable res
 
 Needless to say that any new requirements need to work on our other platforms too, as listed below.
 
-### Windows
-
-We currently support Windows 8 or later.
-
-Despite requiring explicit support code in numerous places there doesn't seem to be a strong case
-for dropping older Windows versions. We will likely only do it once SDL2 does so.
-
-Note that we're constrained by the versions [vcpkg](https://vcpkg.io/en/packages) offers, for the MSVC build.
-
 ### macOS
 
 We currently support macOS 10.14 (Mojave) or later.

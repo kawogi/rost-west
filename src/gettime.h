@@ -13,21 +13,13 @@ inline struct tm mt_localtime()
 	// initialize the time zone on first invocation
 	static std::once_flag tz_init;
 	std::call_once(tz_init, [] {
-#ifdef _WIN32
-		_tzset();
-#else
 		tzset();
-#endif
 		});
 
 	struct tm ret;
 	time_t t = time(NULL);
 	// TODO we should check if the function returns NULL, which would mean error
-#ifdef _WIN32
-	localtime_s(&ret, &t);
-#else
 	localtime_r(&t, &ret);
-#endif
 	return ret;
 }
 

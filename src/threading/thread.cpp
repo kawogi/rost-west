@@ -85,13 +85,8 @@ Thread::~Thread()
 
 		m_running = false;
 
-#if defined(_WIN32)
-		TerminateThread(win32_native_handle(), 0);
-		CloseHandle(win32_native_handle());
-#else
 		pthread_cancel(getThreadHandle());
 		wait();
-#endif
 	}
 
 	// Make sure start finished mutex is unlocked before it's destroyed
@@ -244,11 +239,6 @@ void Thread::setName(const std::string &name)
 	} __except (EXCEPTION_CONTINUE_EXECUTION) {
 	}
 
-#elif defined(_WIN32) || defined(__GNU__)
-
-	// These platforms are known to not support thread names.
-	// Silently ignore the request.
-
 #else
 	#warning "Unrecognized platform, thread names will not be available."
 #endif
@@ -263,11 +253,7 @@ unsigned int Thread::getNumberOfProcessors()
 
 bool Thread::bindToProcessor(unsigned int proc_number)
 {
-#if defined(_WIN32)
-
-	return SetThreadAffinityMask(win32_native_handle(), 1 << proc_number);
-
-#elif __FreeBSD_version >= 702106 || defined(__linux__) || defined(__DragonFly__)
+#if __FreeBSD_version >= 702106 || defined(__linux__) || defined(__DragonFly__)
 
 	cpu_set_t cpuset;
 
@@ -318,12 +304,6 @@ bool Thread::bindToProcessor(unsigned int proc_number)
 
 bool Thread::setPriority(int prio)
 {
-#ifdef _WIN32
-
-	return SetThreadPriority(win32_native_handle(), prio);
-
-#else
-
 	struct sched_param sparam;
 	int policy;
 
@@ -335,7 +315,5 @@ bool Thread::setPriority(int prio)
 
 	sparam.sched_priority = min + prio * (max - min) / THREAD_PRIORITY_HIGHEST;
 	return pthread_setschedparam(getThreadHandle(), policy, &sparam) == 0;
-
-#endif
 }
 

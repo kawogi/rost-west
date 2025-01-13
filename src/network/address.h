@@ -4,14 +4,8 @@
 
 #pragma once
 
-#ifdef _WIN32
-#include <windows.h>
-#include <winsock2.h>
-#include <ws2tcpip.h>
-#else
 #include <netinet/in.h>
 #include <sys/socket.h>
-#endif
 
 #include <ostream>
 #include <cstring>
