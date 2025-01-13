@@ -520,19 +520,8 @@ static bool create_userdata_path()
 {
 	bool success;
 
-#ifdef __ANDROID__
-	if (!fs::PathExists(porting::path_user))
-	{
-		success = fs::CreateDir(porting::path_user);
-	}
-	else
-	{
-		success = true;
-	}
-#else
 	// Create user data directory
 	success = fs::CreateAllDirs(porting::path_user);
-#endif
 
 	return success;
 }
@@ -583,9 +572,6 @@ namespace
 
 static bool use_debugger(int argc, char *argv[])
 {
-#if defined(__ANDROID__)
-	return false;
-#else
 #ifdef _WIN32
 	if (IsDebuggerPresent())
 	{
@@ -670,7 +656,7 @@ static bool use_debugger(int argc, char *argv[])
 	warningstream << "execv: " << strerror(errno) << std::endl;
 	return false;
 #endif
-#endif
+
 }
 
 static bool init_common(const Settings &cmd_args, int argc, char *argv[])

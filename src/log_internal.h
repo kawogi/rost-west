@@ -185,20 +185,7 @@ private:
 	std::vector<LogEntry> m_entries;
 };
 
-
-#ifdef __ANDROID__
-class AndroidLogOutput : public ICombinedLogOutput {
-public:
-	void logRaw(LogLevel lev, std::string_view line);
-};
-#endif
-
-#ifdef __ANDROID__
-extern AndroidLogOutput stdout_output;
-extern AndroidLogOutput stderr_output;
-#else
 extern StreamLogOutput stdout_output;
 extern StreamLogOutput stderr_output;
-#endif
 
 extern Logger g_logger;

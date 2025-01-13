@@ -337,9 +337,6 @@ else()
 		list(APPEND PLATFORM_LIBS network)
 	endif()
 
-	if (ANDROID)
-		list(APPEND PLATFORM_LIBS android log)
-	endif()
 endif()
 
 # On clang and gcc, some functionalities of std::atomic require -latomic.
@@ -474,10 +471,6 @@ set(common_SRCS
 	${server_network_SRCS}
 )
 
-if(ANDROID)
-	list(APPEND common_SRCS porting_android.cpp)
-endif()
-
 # This gives us the icon and file version information
 if(WIN32)
 	set(WINRESOURCE_FILE "${CMAKE_CURRENT_SOURCE_DIR}/../misc/winresource.rc")
@@ -578,12 +571,7 @@ endif()
 
 if(BUILD_CLIENT)
 	# client target
-	if(ANDROID)
-		add_library(${PROJECT_NAME} SHARED)
-	else()
-		add_executable(${PROJECT_NAME})
-	endif()
-
+	add_executable(${PROJECT_NAME})
 
 	if(CMAKE_GENERATOR STREQUAL "Xcode")
 		# File with used entitlements
@@ -1050,10 +1038,7 @@ if(BUILD_SERVER)
 	endif()
 endif()
 
-if (ANDROID)
-	# Android does this manually in app/build.gradle -> prepareAssets
-	# for now!
-elseif (USE_GETTEXT)
+if (USE_GETTEXT)
 	set(MO_FILES)
 
 	foreach(LOCALE ${GETTEXT_USED_LOCALES})

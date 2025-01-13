@@ -84,13 +84,6 @@ set(ENABLE_UPDATE_CHECKER (NOT ${DEVELOPMENT_BUILD}) CACHE BOOL
 # Included stuff
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
-# Load default options for Android
-if(ANDROID)
-	cmake_minimum_required(VERSION 3.20)
-	include(AndroidLibs)
-endif()
-
-
 if(TRUE)
 	message(STATUS "Using imported IrrlichtMt at subdirectory 'irr'")
 	add_library(IrrlichtMt::IrrlichtMt INTERFACE IMPORTED)

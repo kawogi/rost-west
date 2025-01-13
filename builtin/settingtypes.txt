@@ -69,7 +69,7 @@
 #
 # * The value of a boolean setting, such as enable_dynamic_shadows
 # * An engine-defined value:
-#     * desktop / android
+#     * desktop
 #     * touchscreen / keyboard_mouse
 #     * opengl / gles
 # * You can negate any requirement by prepending with !

@@ -33,14 +33,6 @@ Since we do not have any macOS developer we can only do some shallow testing in 
 So this is subject to change basically whenever Github throws
 [a new version](https://github.com/actions/runner-images?tab=readme-ov-file#available-images) at us, or for other reasons.
 
-### Android
-
-We currently support Android 5.0 (API 21) or later.
-
-There's usually no reason to raise this unless the NDK drops older versions.
-
-*Note*: You can check the Google Play Console to see what our user base is running.
-
 ## Other parts
 
 **Compilers**: gcc, clang and MSVC (exceptions exist)
@@ -87,7 +79,7 @@ clang with libc++ 7 or later (note: no mainstream Linux distros use this)
 Debian 11 has libstdc++ 10
 Ubuntu 20.04 LTS has libstdc++ 9
 (optional) Rocky Linux 8 has libstdc++ 8
-Windows, Android and macOS are probably okay
+Windows and macOS are probably okay
 
 Verdict: not possible. maybe next year.
 
@@ -99,6 +91,5 @@ Possible alternative: use a library that provides a polyfill for std::span
 * Ubuntu support table: https://wiki.ubuntu.com/Releases
 * Debian support table: https://wiki.debian.org/LTS
 * Release table of a RHEL derivative: https://en.wikipedia.org/wiki/AlmaLinux#Releases
-* Android API levels: https://apilevels.com/
 * C++ standard support information: https://en.cppreference.com/w/cpp/compiler_support
 * Distribution-independent package search: https://repology.org/ or https://pkgs.org/

@@ -14,10 +14,6 @@
 #include "util/numeric.h"
 #include "filesys.h"
 
-#ifdef __ANDROID__
-#include <android/log.h>
-#endif
-
 #if !defined(_WIN32)
 #include <unistd.h> // isatty
 #endif
@@ -59,13 +55,8 @@ private:
 
 Logger g_logger;
 
-#ifdef __ANDROID__
-AndroidLogOutput stdout_output;
-AndroidLogOutput stderr_output;
-#else
 StreamLogOutput stdout_output(std::cout);
 StreamLogOutput stderr_output(std::cerr);
-#endif
 
 LevelTarget none_target_raw(g_logger, LL_NONE, true);
 LevelTarget none_target(g_logger, LL_NONE);
@@ -86,28 +77,6 @@ thread_local LogStream verbosestream(verbose_target);
 thread_local LogStream tracestream(trace_target);
 thread_local LogStream derr_con(verbose_target);
 thread_local LogStream dout_con(trace_target);
-
-// Android
-#ifdef __ANDROID__
-
-constexpr static unsigned int g_level_to_android[] = {
-	ANDROID_LOG_INFO,     // LL_NONE
-	ANDROID_LOG_ERROR,    // LL_ERROR
-	ANDROID_LOG_WARN,     // LL_WARNING
-	ANDROID_LOG_INFO,     // LL_ACTION
-	ANDROID_LOG_DEBUG,    // LL_INFO
-	ANDROID_LOG_VERBOSE,  // LL_VERBOSE
-	ANDROID_LOG_VERBOSE,  // LL_TRACE
-};
-
-void AndroidLogOutput::logRaw(LogLevel lev, std::string_view line)
-{
-	static_assert(ARRLEN(g_level_to_android) == LL_MAX,
-		"mismatch between android and internal loglevels");
-	__android_log_print(g_level_to_android[lev], PROJECT_NAME_C, "%.*s",
-		static_cast<int>(line.size()), line.data());
-}
-#endif
 
 ///////////////////////////////////////////////////////////////////////////////
 

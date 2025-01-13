@@ -20,9 +20,7 @@
  */
 static bool detect_touch()
 {
-#if defined(__ANDROID__)
-	return true;
-#elif defined(__linux__)
+#if defined(__linux__)
 	std::string chassis_type;
 
 	// device-tree platforms (non-X86)
@@ -82,7 +80,7 @@ void set_default_settings()
 
 	// Client
 	settings->setDefault("address", "");
-#if defined(__unix__) && !defined(__APPLE__) && !defined (__ANDROID__)
+#if defined(__unix__) && !defined(__APPLE__)
 	// On Linux+X11 (not Linux+Wayland or Linux+XWayland), I've encountered a bug
 	// where fake mouse events were generated from touch events if in relative
 	// mouse mode, resulting in the touchscreen controls being instantly disabled
@@ -397,11 +395,7 @@ void set_default_settings()
 	settings->setDefault("contentdb_enable_updates_indicator", "true");
 	settings->setDefault("contentdb_max_concurrent_downloads", "3");
 
-#ifdef __ANDROID__
-	settings->setDefault("contentdb_flag_blacklist", "nonfree, android_default");
-#else
 	settings->setDefault("contentdb_flag_blacklist", "nonfree, desktop_default");
-#endif
 
 #if ENABLE_UPDATE_CHECKER
 	settings->setDefault("update_information_url", "https://www.minetest.net/release_info.json");
@@ -547,46 +541,4 @@ void set_default_settings()
 	settings->setDefault("virtual_joystick_triggers_aux1", "false");
 	settings->setDefault("touch_punch_gesture", "short_tap");
 	settings->setDefault("clickable_chat_weblinks", "true");
-	// Altered settings for Android
-#ifdef __ANDROID__
-	settings->setDefault("screen_w", "0");
-	settings->setDefault("screen_h", "0");
-	settings->setDefault("performance_tradeoffs", "true");
-	settings->setDefault("max_simultaneous_block_sends_per_client", "10");
-	settings->setDefault("emergequeue_limit_diskonly", "16");
-	settings->setDefault("emergequeue_limit_generate", "16");
-	settings->setDefault("max_block_generate_distance", "5");
-	settings->setDefault("sqlite_synchronous", "1");
-	settings->setDefault("server_map_save_interval", "15");
-	settings->setDefault("client_mapblock_limit", "1000");
-	settings->setDefault("active_block_range", "2");
-	settings->setDefault("viewing_range", "50");
-	settings->setDefault("leaves_style", "simple");
-	// Note: OpenGL ES 2.0 is not guaranteed to provide depth textures,
-	// which we would need for PP.
-	settings->setDefault("enable_post_processing", "false");
-	// still set these two settings in case someone wants to enable it
-	settings->setDefault("debanding", "false");
-	settings->setDefault("post_processing_texture_bits", "8");
-	settings->setDefault("curl_verify_cert", "false");
-
-	// Apply settings according to screen size
-	float x_inches = (float) porting::getDisplaySize().X /
-			(160.f * porting::getDisplayDensity());
-
-	if (x_inches < 3.7f) {
-		settings->setDefault("hud_scaling", "0.6");
-		settings->setDefault("font_size", "14");
-		settings->setDefault("mono_font_size", "14");
-	} else if (x_inches < 4.5f) {
-		settings->setDefault("hud_scaling", "0.7");
-		settings->setDefault("font_size", "14");
-		settings->setDefault("mono_font_size", "14");
-	} else if (x_inches < 6.0f) {
-		settings->setDefault("hud_scaling", "0.85");
-		settings->setDefault("font_size", "14");
-		settings->setDefault("mono_font_size", "14");
-	}
-	// Tablets >= 6.0 use non-Android defaults for these settings
-#endif
 }

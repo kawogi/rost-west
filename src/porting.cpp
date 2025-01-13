@@ -25,17 +25,11 @@
 #if !defined(_WIN32)
 	#include <unistd.h>
 	#include <sys/utsname.h>
-	#if !defined(__ANDROID__)
-		#include <spawn.h>
-	#endif
+	#include <spawn.h>
 #endif
 #if defined(__hpux)
 	#define _PSTAT64
 	#include <sys/pstat.h>
-#endif
-#if defined(__ANDROID__)
-	#include "porting_android.h"
-	#include <android/api-level.h>
 #endif
 #if defined(__APPLE__)
 	#include <mach-o/dyld.h>
@@ -231,14 +225,6 @@ static std::string detectSystemInfo()
 	delete[] lpVersionInfo;
 	delete[] filePath;
 
-	return oss.str();
-#elif defined(__ANDROID__)
-	std::ostringstream oss;
-	struct utsname osinfo;
-	uname(&osinfo);
-	int api = android_get_device_api_level();
-
-	oss << "Android/" << api << " " << osinfo.machine;
 	return oss.str();
 #else /* POSIX */
 	struct utsname osinfo;
@@ -449,15 +435,6 @@ bool setSystemPaths()
 	return true;
 }
 
-
-//// Android
-
-#elif defined(__ANDROID__)
-
-extern bool setSystemPaths(); // defined in porting_android.cpp
-
-
-//// Linux
 #elif defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
 
 bool setSystemPaths()
@@ -652,9 +629,7 @@ void initializePaths()
 	if (!setSystemPaths())
 		errorstream << "Failed to get one or more system-wide path" << std::endl;
 
-#  ifdef __ANDROID__
-	sanity_check(!path_cache.empty());
-#  elif defined(_WIN32)
+#  if defined(_WIN32)
 	path_cache = path_user + DIR_DELIM + "cache";
 #  else
 	// First try $XDG_CACHE_HOME/PROJECT_NAME
@@ -756,8 +731,6 @@ bool secure_rand_fill_buf(void *buf, size_t len)
 
 #endif
 
-#ifndef __ANDROID__
-
 void osSpecificInit()
 {
 #ifdef _WIN32
@@ -768,8 +741,6 @@ void osSpecificInit()
 	SetProcessDEPPolicy(PROCESS_DEP_ENABLE);
 #endif
 }
-
-#endif
 
 void attachOrCreateConsole()
 {
@@ -855,11 +826,6 @@ int mt_snprintf(char *buf, const size_t buf_size, const char *fmt, ...)
 	return c;
 }
 
-#ifdef __ANDROID__
-// defined in porting_android.cpp
-extern void openURIAndroid(const char *url);
-#endif
-
 static bool open_uri(const std::string &uri)
 {
 	if (uri.find_first_of("\r\n") != std::string::npos) {
@@ -869,9 +835,6 @@ static bool open_uri(const std::string &uri)
 
 #if defined(_WIN32)
 	return (intptr_t)ShellExecuteA(NULL, NULL, uri.c_str(), NULL, NULL, SW_SHOWNORMAL) > 32;
-#elif defined(__ANDROID__)
-	openURIAndroid(uri.c_str());
-	return true;
 #elif defined(__APPLE__)
 	const char *argv[] = {"open", uri.c_str(), NULL};
 	return posix_spawnp(NULL, "open", NULL, NULL, (char**)argv,
