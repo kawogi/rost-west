@@ -267,22 +267,6 @@ bool operator!=(const SecureAllocator<T>&, const SecureAllocator<U>&) {
 /// Remarks: it is automatically defined in the generated amalgamated header.
 // #define JSON_IS_AMALGAMATION
 
-// Export macros for DLL visibility
-#if defined(JSON_DLL_BUILD)
-#if defined(_MSC_VER) || defined(__MINGW32__)
-#define JSON_API __declspec(dllexport)
-#define JSONCPP_DISABLE_DLL_INTERFACE_WARNING
-#elif defined(__GNUC__) || defined(__clang__)
-#define JSON_API __attribute__((visibility("default")))
-#endif // if defined(_MSC_VER)
-
-#elif defined(JSON_DLL)
-#if defined(_MSC_VER) || defined(__MINGW32__)
-#define JSON_API __declspec(dllimport)
-#define JSONCPP_DISABLE_DLL_INTERFACE_WARNING
-#endif // if defined(_MSC_VER)
-#endif // ifdef JSON_DLL_BUILD
-
 #if !defined(JSON_API)
 #define JSON_API
 #endif
@@ -579,13 +563,6 @@ public:
 #include <memory>
 #include <string>
 #include <vector>
-
-// Disable warning C4251: <data member>: <type> needs to have dll-interface to
-// be used by...
-#if defined(JSONCPP_DISABLE_DLL_INTERFACE_WARNING)
-#pragma warning(push)
-#pragma warning(disable : 4251 4275)
-#endif // if defined(JSONCPP_DISABLE_DLL_INTERFACE_WARNING)
 
 #pragma pack(push)
 #pragma pack()
@@ -1494,10 +1471,6 @@ inline Value& Value::back() { return *(--end()); }
 
 #pragma pack(pop)
 
-#if defined(JSONCPP_DISABLE_DLL_INTERFACE_WARNING)
-#pragma warning(pop)
-#endif // if defined(JSONCPP_DISABLE_DLL_INTERFACE_WARNING)
-
 #endif // JSON_H_INCLUDED
 
 // //////////////////////////////////////////////////////////////////////
@@ -1530,13 +1503,6 @@ inline Value& Value::back() { return *(--end()); }
 #include <istream>
 #include <stack>
 #include <string>
-
-// Disable warning C4251: <data member>: <type> needs to have dll-interface to
-// be used by...
-#if defined(JSONCPP_DISABLE_DLL_INTERFACE_WARNING)
-#pragma warning(push)
-#pragma warning(disable : 4251)
-#endif // if defined(JSONCPP_DISABLE_DLL_INTERFACE_WARNING)
 
 #pragma pack(push)
 #pragma pack()
@@ -1945,10 +1911,6 @@ JSON_API IStream& operator>>(IStream&, Value&);
 
 #pragma pack(pop)
 
-#if defined(JSONCPP_DISABLE_DLL_INTERFACE_WARNING)
-#pragma warning(pop)
-#endif // if defined(JSONCPP_DISABLE_DLL_INTERFACE_WARNING)
-
 #endif // JSON_READER_H_INCLUDED
 
 // //////////////////////////////////////////////////////////////////////
@@ -1978,13 +1940,6 @@ JSON_API IStream& operator>>(IStream&, Value&);
 #include <ostream>
 #include <string>
 #include <vector>
-
-// Disable warning C4251: <data member>: <type> needs to have dll-interface to
-// be used by...
-#if defined(JSONCPP_DISABLE_DLL_INTERFACE_WARNING) && defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable : 4251)
-#endif // if defined(JSONCPP_DISABLE_DLL_INTERFACE_WARNING)
 
 #pragma pack(push)
 #pragma pack()
@@ -2326,10 +2281,6 @@ JSON_API OStream& operator<<(OStream&, const Value& root);
 } // namespace Json
 
 #pragma pack(pop)
-
-#if defined(JSONCPP_DISABLE_DLL_INTERFACE_WARNING)
-#pragma warning(pop)
-#endif // if defined(JSONCPP_DISABLE_DLL_INTERFACE_WARNING)
 
 #endif // JSON_WRITER_H_INCLUDED
 

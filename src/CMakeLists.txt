@@ -287,30 +287,6 @@ if(WIN32)
 		)
 	endif()
 	list(APPEND PLATFORM_LIBS ws2_32.lib version.lib shlwapi.lib winmm.lib)
-
-	set(EXTRA_DLL "" CACHE FILEPATH "Optional paths to additional DLLs that should be packaged")
-
-	# DLLs are automatically copied to the output directory by vcpkg when VCPKG_APPLOCAL_DEPS=ON
-	if(NOT VCPKG_APPLOCAL_DEPS)
-		set(ZLIB_DLL "" CACHE FILEPATH "Path to Zlib DLL for installation (optional)")
-		set(ZSTD_DLL "" CACHE FILEPATH "Path to Zstd DLL for installation (optional)")
-		if(BUILD_CLIENT)
-			set(PNG_DLL "" CACHE FILEPATH "Path to libpng DLL for installation (optional)")
-			set(JPEG_DLL "" CACHE FILEPATH "Path to libjpeg DLL for installation (optional)")
-			set(SDL2_DLL "" CACHE FILEPATH "Path to SDL2 DLL for installation (optional)")
-		endif()
-		if(BUILD_CLIENT AND ENABLE_SOUND)
-			set(OPENAL_DLL "" CACHE FILEPATH "Path to OpenAL DLL for installation (optional)")
-			set(OGG_DLL "" CACHE FILEPATH "Path to Ogg DLL for installation (optional)")
-			set(VORBIS_DLL "" CACHE FILEPATH "Path to Vorbis DLLs for installation (optional)")
-		endif()
-		if(USE_GETTEXT)
-			set(GETTEXT_DLL "" CACHE FILEPATH "Path to Intl/Iconv DLLs for installation (optional)")
-		endif()
-		if(USE_LUAJIT)
-			set(LUA_DLL "" CACHE FILEPATH "Path to luajit-5.1.dll for installation (optional)")
-		endif()
-	endif()
 else()
 	# Unix probably
 	list(APPEND PLATFORM_LIBS ${CMAKE_DL_LIBS})
@@ -909,82 +885,6 @@ else()
 
 	if(MINGW)
 		set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-mwindows")
-	endif()
-endif()
-
-
-# Installation
-
-if(WIN32)
-	if(EXTRA_DLL)
-		install(FILES ${EXTRA_DLL} DESTINATION ${BINDIR})
-	endif()
-	if(VCPKG_APPLOCAL_DEPS)
-		# Collect the dll's from the output path
-		install(DIRECTORY ${EXECUTABLE_OUTPUT_PATH}/Release/
-				DESTINATION ${BINDIR}
-				CONFIGURATIONS Release
-				FILES_MATCHING PATTERN "*.dll")
-		install(DIRECTORY ${EXECUTABLE_OUTPUT_PATH}/Debug/
-				DESTINATION ${BINDIR}
-				CONFIGURATIONS Debug
-				FILES_MATCHING PATTERN "*.dll")
-		install(DIRECTORY ${EXECUTABLE_OUTPUT_PATH}/RelWithDebInfo/
-				DESTINATION ${BINDIR}
-				CONFIGURATIONS RelWithDebInfo
-				FILES_MATCHING PATTERN "*.dll")
-		install(DIRECTORY ${EXECUTABLE_OUTPUT_PATH}/MinSizeRel/
-				DESTINATION ${BINDIR}
-				CONFIGURATIONS MinSizeRel
-				FILES_MATCHING PATTERN "*.dll")
-	else()
-		# Use the old-style way to install dll's
-		if(BUILD_CLIENT AND USE_SOUND)
-			if(OPENAL_DLL)
-				install(FILES ${OPENAL_DLL} DESTINATION ${BINDIR})
-			endif()
-			if(OGG_DLL)
-				install(FILES ${OGG_DLL} DESTINATION ${BINDIR})
-			endif()
-			if(VORBIS_DLL)
-				install(FILES ${VORBIS_DLL} DESTINATION ${BINDIR})
-			endif()
-		endif()
-		if(BUILD_CLIENT)
-			if(PNG_DLL)
-				install(FILES ${PNG_DLL} DESTINATION ${BINDIR})
-			endif()
-			if(JPEG_DLL)
-				install(FILES ${JPEG_DLL} DESTINATION ${BINDIR})
-			endif()
-			if(SDL2_DLL)
-				install(FILES ${SDL2_DLL} DESTINATION ${BINDIR})
-			endif()
-			if(FREETYPE_DLL)
-				install(FILES ${FREETYPE_DLL} DESTINATION ${BINDIR})
-			endif()
-		endif()
-		if(CURL_DLL)
-			install(FILES ${CURL_DLL} DESTINATION ${BINDIR})
-		endif()
-		if(ZLIB_DLL)
-			install(FILES ${ZLIB_DLL} DESTINATION ${BINDIR})
-		endif()
-		if(ZSTD_DLL)
-			install(FILES ${ZSTD_DLL} DESTINATION ${BINDIR})
-		endif()
-		if(SQLITE3_DLL)
-			install(FILES ${SQLITE3_DLL} DESTINATION ${BINDIR})
-		endif()
-		if(LEVELDB_DLL)
-			install(FILES ${LEVELDB_DLL} DESTINATION ${BINDIR})
-		endif()
-		if(LUA_DLL)
-			install(FILES ${LUA_DLL} DESTINATION ${BINDIR})
-		endif()
-		if(BUILD_CLIENT AND USE_GETTEXT AND GETTEXT_DLL)
-			install(FILES ${GETTEXT_DLL} DESTINATION ${BINDIR})
-		endif()
 	endif()
 endif()
 
