@@ -28,9 +28,6 @@
 #include "server/player_sao.h"
 #include "util/string.h"
 #include "translation.h"
-#if CHECK_CLIENT_BUILD()
-#include "client/client.h"
-#endif
 
 const EnumString ModApiEnvBase::es_ClearObjectsMode[] =
 {
@@ -56,9 +53,6 @@ int LuaRaycast::l_next(lua_State *L)
 	ServerEnvironment *senv = dynamic_cast<ServerEnvironment*>(env);
 
 	bool csm = false;
-#if CHECK_CLIENT_BUILD()
-	csm = getClient(L) != nullptr;
-#endif
 
 	LuaRaycast *o = checkObject<LuaRaycast>(L, 1);
 	PointedThing pointed;
@@ -832,12 +826,6 @@ int ModApiEnv::l_find_node_near(lua_State *L)
 
 	int start_radius = (lua_isboolean(L, 4) && readParam<bool>(L, 4)) ? 0 : 1;
 
-#if CHECK_CLIENT_BUILD()
-	// Client API limitations
-	if (Client *client = getClient(L))
-		radius = client->CSMClampRadius(pos, radius);
-#endif
-
 	auto getNode = [&map] (v3s16 p) -> MapNode {
 		return map.getNode(p);
 	};
@@ -944,13 +932,6 @@ int ModApiEnv::l_find_nodes_in_area(lua_State *L)
 	const NodeDefManager *ndef = env->getGameDef()->ndef();
 	Map &map = env->getMap();
 
-#if CHECK_CLIENT_BUILD()
-	if (Client *client = getClient(L)) {
-		minp = client->CSMClampPos(minp);
-		maxp = client->CSMClampPos(maxp);
-	}
-#endif
-
 	checkArea(minp, maxp);
 
 	std::vector<content_t> filter;
@@ -1005,13 +986,6 @@ int ModApiEnv::l_find_nodes_in_area_under_air(lua_State *L)
 
 	const NodeDefManager *ndef = env->getGameDef()->ndef();
 	Map &map = env->getMap();
-
-#if CHECK_CLIENT_BUILD()
-	if (Client *client = getClient(L)) {
-		minp = client->CSMClampPos(minp);
-		maxp = client->CSMClampPos(maxp);
-	}
-#endif
 
 	checkArea(minp, maxp);
 

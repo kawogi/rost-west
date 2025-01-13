@@ -19,9 +19,6 @@ extern "C" {
 #include "porting.h"
 #include "common/c_internal.h"
 #include "common/c_packer.h"
-#if CHECK_CLIENT_BUILD()
-#include "script/scripting_mainmenu.h"
-#endif
 #include "lua_api/l_base.h"
 
 /******************************************************************************/
@@ -305,11 +302,7 @@ bool AsyncWorkerThread::checkPathInternal(const std::string &abs_path,
 	if (jobDispatcher->server) {
 		return ScriptApiSecurity::checkPathWithGamedef(L, abs_path, write_required, write_allowed);
 	} else {
-#if CHECK_CLIENT_BUILD()
-		return MainMenuScripting::checkPathAccess(abs_path, write_required, write_allowed);
-#else
 		FATAL_ERROR("should never get here");
-#endif
 	}
 }
 

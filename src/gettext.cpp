@@ -169,16 +169,10 @@ void init_gettext(const char *path, const std::string &configured_language,
 		setenv("LANGUAGE", configured_language.c_str(), 1);
 		SetEnvironmentVariableA("LANGUAGE", configured_language.c_str());
 
-#if CHECK_CLIENT_BUILD()
-		// Hack to force gettext to see the right environment
-		if (current_language != configured_language)
-			MSVC_LocaleWorkaround(argc, argv);
-#else
 		errorstream << "*******************************************************" << std::endl;
 		errorstream << "Can't apply locale workaround for server!" << std::endl;
 		errorstream << "Expect language to be broken!" << std::endl;
 		errorstream << "*******************************************************" << std::endl;
-#endif
 
 		setlocale(LC_ALL, configured_language.c_str());
 #endif // ifdef _MSC_VER

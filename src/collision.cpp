@@ -8,10 +8,6 @@
 #include "map.h"
 #include "nodedef.h"
 #include "gamedef.h"
-#if CHECK_CLIENT_BUILD()
-#include "client/clientenvironment.h"
-#include "client/localplayer.h"
-#endif
 #include "serverenvironment.h"
 #include "server/serveractiveobject.h"
 #include "util/timetaker.h"
@@ -272,33 +268,6 @@ static void add_object_boxes(Environment *env,
 	const f32 distance = speed_f.getLength() * dtime +
 		box_0.getExtent().getLength() + 1.5f * BS;
 
-#if CHECK_CLIENT_BUILD()
-	ClientEnvironment *c_env = dynamic_cast<ClientEnvironment*>(env);
-	if (c_env) {
-		std::vector<DistanceSortedActiveObject> clientobjects;
-		c_env->getActiveObjects(pos_f, distance, clientobjects);
-
-		for (auto &clientobject : clientobjects) {
-			// Do collide with everything but itself and children
-			if (!self || (self != clientobject.obj &&
-					self != clientobject.obj->getParent())) {
-				process_object(clientobject.obj);
-			}
-		}
-
-		// add collision with local player
-		LocalPlayer *lplayer = c_env->getLocalPlayer();
-		auto *obj = (ClientActiveObject*) lplayer->getCAO();
-		if (!self || (self != obj && self != obj->getParent())) {
-			aabb3f lplayer_collisionbox = lplayer->getCollisionbox();
-			v3f lplayer_pos = lplayer->getPosition();
-			lplayer_collisionbox.MinEdge += lplayer_pos;
-			lplayer_collisionbox.MaxEdge += lplayer_pos;
-			cinfo.emplace_back(obj, 0, lplayer_collisionbox);
-		}
-	}
-	else
-#endif
 	{
 		ServerEnvironment *s_env = dynamic_cast<ServerEnvironment*>(env);
 		if (s_env) {

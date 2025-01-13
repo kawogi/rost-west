@@ -158,11 +158,7 @@ int main(int argc, char *argv[])
 		auto exe_name = argc > 0 ? lowercase(fs::GetFilenameFromPath(argv[0])) : "";
 		if (str_starts_with(exe_name, "minetest"))
 		{
-#if CHECK_CLIENT_BUILD()
-			const char *new_ = PROJECT_NAME;
-#else
 			const char *new_ = PROJECT_NAME "server";
-#endif
 			warningstream << "The executable " << exe_name
 						  << " is a deprecated alias, please use " << new_ << " instead." << std::endl;
 		}
@@ -235,15 +231,8 @@ int main(int argc, char *argv[])
 	}
 
 	GameStartData game_params;
-#if !CHECK_CLIENT_BUILD()
 	porting::attachOrCreateConsole();
 	game_params.is_dedicated_server = true;
-#else
-	const bool isServer = cmd_args.getFlag("server");
-	if (isServer)
-		porting::attachOrCreateConsole();
-	game_params.is_dedicated_server = isServer;
-#endif
 
 	if (!game_configure(&game_params, cmd_args))
 		return 1;
@@ -253,11 +242,7 @@ int main(int argc, char *argv[])
 	if (game_params.is_dedicated_server)
 		return run_dedicated_server(game_params, cmd_args) ? 0 : 1;
 
-#if CHECK_CLIENT_BUILD()
-	retval = ClientLauncher().run(game_params, cmd_args) ? 0 : 1;
-#else
 	retval = 0;
-#endif
 
 	// Update configuration file
 	if (!g_settings_path.empty())
@@ -312,13 +297,8 @@ static void set_allowed_options(OptionList *allowed_options)
 	assert(allowed_options);
 	allowed_options->clear();
 
-#if CHECK_CLIENT_BUILD()
-#define SERVER_ONLY " (requires --server flag)"
-#define LOCAL_GAME " (implies local game if used with option --go)"
-#else
 #define SERVER_ONLY ""
 #define LOCAL_GAME ""
-#endif
 
 	allowed_options->insert(std::make_pair("help", ValueSpec(VALUETYPE_FLAG,
 															 _("Show allowed options"))));
@@ -371,24 +351,6 @@ static void set_allowed_options(OptionList *allowed_options)
 																 _("Enable ncurses interactive terminal" SERVER_ONLY))));
 	allowed_options->insert(std::make_pair("recompress", ValueSpec(VALUETYPE_FLAG,
 																   _("Recompress the blocks of the given map database" SERVER_ONLY))));
-#if CHECK_CLIENT_BUILD()
-	allowed_options->insert(std::make_pair("address", ValueSpec(VALUETYPE_STRING,
-																_("Address to connect to ('' = local game)"))));
-	allowed_options->insert(std::make_pair("random-input", ValueSpec(VALUETYPE_FLAG,
-																	 _("Enable random user input (for testing)"))));
-	allowed_options->insert(std::make_pair("server", ValueSpec(VALUETYPE_FLAG,
-															   _("Behave as dedicated server"))));
-	allowed_options->insert(std::make_pair("name", ValueSpec(VALUETYPE_STRING,
-															 _("Set player name"))));
-	allowed_options->insert(std::make_pair("password", ValueSpec(VALUETYPE_STRING,
-																 _("Set password"))));
-	allowed_options->insert(std::make_pair("password-file", ValueSpec(VALUETYPE_STRING,
-																	  _("Set password from contents of file"))));
-	allowed_options->insert(std::make_pair("go", ValueSpec(VALUETYPE_FLAG,
-														   _("Skip main menu, go directly in-game"))));
-	allowed_options->insert(std::make_pair("console", ValueSpec(VALUETYPE_FLAG,
-																_("Start with the console open (Windows only)"))));
-#endif
 
 #undef SERVER_ONLY
 #undef LOCAL_GAME

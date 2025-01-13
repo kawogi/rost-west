@@ -23,11 +23,4 @@ public:
 				std::abs(real_hud_scaling - other.real_hud_scaling) < 0.001f &&
 				touch_controls == other.touch_controls;
 	}
-
-#if CHECK_CLIENT_BUILD()
-	static ClientDynamicInfo getCurrent();
-
-private:
-	static v2f32 calculateMaxFSSize(v2u32 render_target_size, f32 density, f32 gui_scaling);
-#endif
 };

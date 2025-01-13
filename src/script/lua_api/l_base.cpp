@@ -36,13 +36,6 @@ ServerInventoryManager *ModApiBase::getServerInventoryMgr(lua_State *L)
 	return getScriptApiBase(L)->getServer()->getInventoryMgr();
 }
 
-#if CHECK_CLIENT_BUILD()
-Client *ModApiBase::getClient(lua_State *L)
-{
-	return getScriptApiBase(L)->getClient();
-}
-#endif
-
 IGameDef *ModApiBase::getGameDef(lua_State *L)
 {
 	return getScriptApiBase(L)->getGameDef();
@@ -52,13 +45,6 @@ Environment *ModApiBase::getEnv(lua_State *L)
 {
 	return getScriptApiBase(L)->getEnv();
 }
-
-#if CHECK_CLIENT_BUILD()
-GUIEngine *ModApiBase::getGuiEngine(lua_State *L)
-{
-	return getScriptApiBase(L)->getGuiEngine();
-}
-#endif
 
 EmergeThread *ModApiBase::getEmergeThread(lua_State *L)
 {

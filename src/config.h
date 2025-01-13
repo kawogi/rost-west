@@ -37,5 +37,5 @@
  * Finally, note that the best option is to split code in such a way that usage
  * of these macros is not necessary.
  */
-#define CHECK_CLIENT_BUILD() 0
+
 #define IS_CLIENT_BUILD 0

@@ -51,9 +51,6 @@ enum class ScriptingType: u8 {
 };
 
 class Server;
-#if CHECK_CLIENT_BUILD()
-class Client;
-#endif
 class EmergeThread;
 class IGameDef;
 class Environment;
@@ -76,10 +73,6 @@ public:
 	void loadMod(const std::string &script_path, const std::string &mod_name);
 	void loadScript(const std::string &script_path);
 
-#if CHECK_CLIENT_BUILD()
-	void loadModFromMemory(const std::string &mod_name);
-#endif
-
 	void runCallbacksRaw(int nargs,
 		RunCallbacksMode mode, const char *fxn);
 
@@ -91,9 +84,6 @@ public:
 
 	IGameDef *getGameDef() { return m_gamedef; }
 	Server* getServer();
-#if CHECK_CLIENT_BUILD()
-	Client* getClient();
-#endif
 
 	// IMPORTANT: These cannot be used for any security-related uses, they exist
 	// only to enrich error messages.
@@ -111,11 +101,7 @@ public:
 	 */
 	static std::string getCurrentModNameInsecure(lua_State *L);
 
-#if !CHECK_CLIENT_BUILD()
 	inline void clientOpenLibs(lua_State *L) { assert(false); }
-#else
-	void clientOpenLibs(lua_State *L);
-#endif
 
 	// Check things that should be set by the builtin mod.
 	void checkSetByBuiltin();
@@ -155,11 +141,6 @@ protected:
 	Environment* getEnv() { return m_environment; }
 	void setEnv(Environment* env) { m_environment = env; }
 
-#if CHECK_CLIENT_BUILD()
-	GUIEngine* getGuiEngine() { return m_guiengine; }
-	void setGuiEngine(GUIEngine* guiengine) { m_guiengine = guiengine; }
-#endif
-
 	EmergeThread* getEmergeThread() { return m_emerge; }
 	void setEmergeThread(EmergeThread *emerge) { m_emerge = emerge; }
 
@@ -182,9 +163,6 @@ private:
 
 	IGameDef       *m_gamedef = nullptr;
 	Environment    *m_environment = nullptr;
-#if CHECK_CLIENT_BUILD()
-	GUIEngine      *m_guiengine = nullptr;
-#endif
 	EmergeThread   *m_emerge = nullptr;
 
 	ScriptingType  m_type;

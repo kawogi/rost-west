@@ -65,15 +65,6 @@
 #include <signal.h>
 #include <atomic>
 
-#if CHECK_CLIENT_BUILD() && defined(_WIN32)
-// On Windows export some driver-specific variables to encourage Minetest to be
-// executed on the discrete GPU in case of systems with two. Portability is fun.
-extern "C" {
-	__declspec(dllexport) DWORD NvOptimusEnablement = 1;
-	__declspec(dllexport) DWORD AmdPowerXpressRequestHighPerformance = 1;
-}
-#endif
-
 namespace porting
 {
 

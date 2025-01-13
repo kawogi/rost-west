@@ -7,9 +7,6 @@
 #include "filesys.h"
 #include "porting.h"
 #include "server.h"
-#if CHECK_CLIENT_BUILD()
-#include "client/client.h"
-#endif
 #include "settings.h"
 
 #include <cerrno>
@@ -260,125 +257,6 @@ void ScriptApiSecurity::initializeSecurity()
 	lua_setmetatable(L, -2);
 	lua_pop(L, 1); // Pop empty string
 }
-
-#if CHECK_CLIENT_BUILD()
-
-void ScriptApiSecurity::initializeSecurityClient()
-{
-	static const char *whitelist[] = {
-		"assert",
-		"core",
-		"collectgarbage",
-		"DIR_DELIM",
-		"error",
-		"getfenv",
-		"ipairs",
-		"next",
-		"pairs",
-		"pcall",
-		"print",
-		"rawequal",
-		"rawget",
-		"rawset",
-		"select",
-		"setfenv",
-		"getmetatable",
-		"setmetatable",
-		"tonumber",
-		"tostring",
-		"type",
-		"unpack",
-		"_VERSION",
-		"xpcall",
-		// Completely safe libraries
-		"coroutine",
-		"string",
-		"table",
-		"math",
-		"bit",
-		// Not sure if completely safe. But if someone enables tracy, they'll
-		// know what they do.
-#if BUILD_WITH_TRACY
-		"tracy",
-#endif
-	};
-	static const char *os_whitelist[] = {
-		"clock",
-		"date",
-		"difftime",
-		"time"
-	};
-	static const char *debug_whitelist[] = {
-		"getinfo", // used by builtin and unset before mods load
-		"traceback"
-	};
-
-#if USE_LUAJIT
-	static const char *jit_whitelist[] = {
-		"arch",
-		"flush",
-		"off",
-		"on",
-		"opt",
-		"os",
-		"status",
-		"version",
-		"version_num",
-	};
-#endif
-
-	m_secure = true;
-
-	lua_State *L = getStack();
-	int thread = getThread(L);
-
-	// create an empty environment
-	createEmptyEnv(L);
-
-	// Copy safe base functions
-	lua_getglobal(L, "_G");
-	lua_getfield(L, -2, "_G");
-	copy_safe(L, whitelist, sizeof(whitelist));
-
-	// And replace unsafe ones
-	SECURE_API(g, dofile);
-	SECURE_API(g, load);
-	SECURE_API(g, loadfile);
-	SECURE_API(g, loadstring);
-	SECURE_API(g, require);
-	lua_pop(L, 2);
-
-
-
-	// Copy safe OS functions
-	lua_getglobal(L, "os");
-	lua_newtable(L);
-	copy_safe(L, os_whitelist, sizeof(os_whitelist));
-	lua_setfield(L, -3, "os");
-	lua_pop(L, 1);  // Pop old OS
-
-
-	// Copy safe debug functions
-	lua_getglobal(L, "debug");
-	lua_newtable(L);
-	copy_safe(L, debug_whitelist, sizeof(debug_whitelist));
-	lua_setfield(L, -3, "debug");
-	lua_pop(L, 1);  // Pop old debug
-
-#if USE_LUAJIT
-	// Copy safe jit functions, if they exist
-	lua_getglobal(L, "jit");
-	lua_newtable(L);
-	copy_safe(L, jit_whitelist, sizeof(jit_whitelist));
-	lua_setfield(L, -3, "jit");
-	lua_pop(L, 1);  // Pop old jit
-#endif
-
-	// Set the environment to the one we created earlier
-	setLuaEnv(L, thread);
-}
-
-#endif
 
 int ScriptApiSecurity::getThread(lua_State *L)
 {
@@ -765,30 +643,6 @@ int ScriptApiSecurity::sl_g_load(lua_State *L)
 
 int ScriptApiSecurity::sl_g_loadfile(lua_State *L)
 {
-#if CHECK_CLIENT_BUILD()
-	ScriptApiBase *script = ModApiBase::getScriptApiBase(L);
-
-	// Client implementation
-	if (script->getType() == ScriptingType::Client) {
-		std::string path = readParam<std::string>(L, 1);
-		const std::string *contents = script->getClient()->getModFile(path);
-		if (!contents) {
-			std::string error_msg = "Coudln't find script called: " + path;
-			lua_pushnil(L);
-			lua_pushstring(L, error_msg.c_str());
-			return 2;
-		}
-
-		std::string chunk_name = "@" + path;
-		if (!safeLoadString(L, *contents, chunk_name.c_str())) {
-			lua_pushnil(L);
-			lua_insert(L, -2);
-			return 2;
-		}
-		return 1;
-	}
-#endif
-
 	// Server implementation
 	const char *path = NULL;
 	if (lua_isstring(L, 1)) {

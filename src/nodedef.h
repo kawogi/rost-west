@@ -10,11 +10,6 @@
 #include <map>
 #include "mapnode.h"
 #include "nameidmapping.h"
-#if CHECK_CLIENT_BUILD()
-#include "client/tile.h"
-#include <IMeshManipulator.h>
-class Client;
-#endif
 #include "itemgroup.h"
 #include "sound.h"			  // SoundSpec
 #include "constants.h"		  // BS
@@ -311,16 +306,6 @@ struct ContentFeatures
 	/*
 		Cached stuff
 	 */
-#if CHECK_CLIENT_BUILD()
-	// 0     1     2     3     4     5
-	// up    down  right left  back  front
-	TileSpec tiles[6];
-	// Special tiles
-	TileSpec special_tiles[CF_SPECIAL_COUNT];
-	u8 solidness;		 // Used when choosing which face is drawn
-	u8 visual_solidness; // When solidness=0, this tells how it looks like
-	bool backface_culling;
-#endif
 
 	// Server-side cached callback existence for fast skipping
 	bool has_on_construct;
@@ -347,10 +332,6 @@ struct ContentFeatures
 
 	enum NodeDrawType drawtype;
 	std::string mesh;
-#if CHECK_CLIENT_BUILD()
-	scene::IMesh *mesh_ptr; // mesh in case of mesh node
-	video::SColor minimap_color;
-#endif
 	float visual_scale; // Misc. scale parameter
 	TileDef tiledef[6];
 	// These will be drawn over the base tiles.
@@ -531,11 +512,6 @@ struct ContentFeatures
 	{
 		return itemgroup_get(groups, group);
 	}
-
-#if CHECK_CLIENT_BUILD()
-	void updateTextures(ITextureSource *tsrc, IShaderSource *shdsrc,
-						scene::IMeshManipulator *meshmanip, Client *client, const TextureSettings &tsettings);
-#endif
 
 private:
 	void setAlphaFromLegacy(u8 legacy_alpha);

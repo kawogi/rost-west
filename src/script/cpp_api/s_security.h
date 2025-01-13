@@ -29,11 +29,7 @@ class ScriptApiSecurity : virtual public ScriptApiBase
 public:
 	// Sets up security on the ScriptApi's Lua state
 	void initializeSecurity();
-#if CHECK_CLIENT_BUILD()
-	void initializeSecurityClient();
-#else
 	inline void initializeSecurityClient() { assert(0); }
-#endif
 
 	// Checks if the Lua state has been secured
 	static bool isSecure(lua_State *L);

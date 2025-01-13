@@ -29,12 +29,6 @@
 
 static inline int checkSettingSecurity(lua_State* L, const std::string &name)
 {
-#if CHECK_CLIENT_BUILD()
-	// Main menu is allowed everything
-	if (ModApiBase::getGuiEngine(L) != nullptr)
-		return 0;
-#endif
-
 	if (ScriptApiSecurity::isSecure(L) && name.compare(0, 7, "secure.") == 0)
 		throw LuaError("Attempted to set secure setting.");
 
