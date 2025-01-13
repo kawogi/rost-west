@@ -506,28 +506,6 @@ if(WIN32)
 	endif(MINGW)
 endif()
 
-
-# Client sources
-if (BUILD_CLIENT)
-	# add_subdirectory(client)
-	# add_subdirectory(gui)
-	add_subdirectory(irrlicht_changes)
-endif(BUILD_CLIENT)
-
-list(APPEND client_SRCS
-	${common_SRCS}
-	${client_network_SRCS}
-	${client_irrlicht_changes_SRCS}
-)
-
-if(BUILD_UNITTESTS)
-	list(APPEND client_SRCS ${UNITTEST_CLIENT_SRCS})
-endif()
-
-if(BUILD_BENCHMARKS)
-	list(APPEND client_SRCS ${BENCHMARK_CLIENT_SRCS})
-endif()
-
 # Server sources
 # (nothing here because a client always comes with a server)
 set(server_SRCS
@@ -537,7 +515,6 @@ set(server_SRCS
 # Avoid source_group on broken CMake version.
 # see issue #7074 #7075
 if (CMAKE_VERSION VERSION_GREATER 3.8.1)
-	source_group(TREE ${PROJECT_SOURCE_DIR} PREFIX "Source Files" FILES ${client_SRCS})
 	source_group(TREE ${PROJECT_SOURCE_DIR} PREFIX "Source Files" FILES ${server_SRCS})
 endif()
 
