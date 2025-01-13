@@ -42,13 +42,8 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 #### LTO testing list ####
 # - Linux: seems to work always
-# - macOS on x86: seems to be fine
-# - macOS on ARM: crashes, see <https://github.com/minetest/minetest/issues/14397>
 # Note: since CMake has no easy architecture detection disabling for Mac entirely
 #### ####
-if(APPLE)
-	set(DEFAULT_ENABLE_LTO FALSE)
-endif()
 set(ENABLE_LTO ${DEFAULT_ENABLE_LTO} CACHE BOOL "Use Link Time Optimization")
 
 set(BUILD_WITH_TRACY FALSE CACHE BOOL
@@ -104,30 +99,11 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 		message(FATAL_ERROR "Insufficient gcc version, found ${CMAKE_CXX_COMPILER_VERSION}. "
 			"Version ${GCC_MINIMUM_VERSION} or higher is required.")
 	endif()
-elseif(CMAKE_CXX_COMPILER_ID MATCHES "(Apple)?Clang")
-	if (CMAKE_CXX_COMPILER_VERSION VERSION_LESS "${CLANG_MINIMUM_VERSION}")
-		message(FATAL_ERROR "Insufficient clang version, found ${CMAKE_CXX_COMPILER_VERSION}. "
-			"Version ${CLANG_MINIMUM_VERSION} or higher is required.")
-	endif()
 endif()
 
 # Installation
 
-if(WIN32)
-	set(SHAREDIR ".")
-	set(BINDIR "bin")
-	set(DOCDIR "doc")
-	set(EXAMPLE_CONF_DIR ".")
-	set(LOCALEDIR "locale")
-elseif(APPLE)
-	set(BUNDLE_NAME ${PROJECT_NAME}.app)
-	set(BUNDLE_PATH "${BUNDLE_NAME}")
-	set(BINDIR ${BUNDLE_NAME}/Contents/MacOS)
-	set(SHAREDIR ${BUNDLE_NAME}/Contents/Resources)
-	set(DOCDIR "${SHAREDIR}/${PROJECT_NAME}")
-	set(EXAMPLE_CONF_DIR ${DOCDIR})
-	set(LOCALEDIR "${SHAREDIR}/locale")
-elseif(UNIX) # Linux, BSD etc
+if(UNIX) # Linux, BSD etc
 	if(RUN_IN_PLACE)
 		set(SHAREDIR ".")
 		set(BINDIR "bin")
@@ -234,20 +210,13 @@ install(FILES "doc/texture_packs.md" DESTINATION "${DOCDIR}" COMPONENT "Docs")
 install(FILES "doc/world_format.md" DESTINATION "${DOCDIR}" COMPONENT "Docs")
 install(FILES "minetest.conf.example" DESTINATION "${EXAMPLE_CONF_DIR}")
 
-if(UNIX AND NOT APPLE)
-	install(FILES "doc/luanti.6" "doc/luantiserver.6" DESTINATION "${MANDIR}/man6")
-	install(FILES "misc/net.minetest.minetest.desktop" DESTINATION "${XDG_APPS_DIR}")
-	install(FILES "misc/net.minetest.minetest.metainfo.xml" DESTINATION "${METAINFODIR}")
-	install(FILES "misc/luanti.svg" DESTINATION "${ICONDIR}/hicolor/scalable/apps")
-	install(FILES "misc/luanti-xorg-icon-128.png"
-		DESTINATION "${ICONDIR}/hicolor/128x128/apps"
-		RENAME "luanti.png")
-endif()
-
-if(APPLE)
-	install(FILES "misc/luanti-icon.icns" DESTINATION "${SHAREDIR}")
-	install(FILES "${CMAKE_BINARY_DIR}/Info.plist" DESTINATION "${BUNDLE_PATH}/Contents")
-endif()
+install(FILES "doc/luanti.6" "doc/luantiserver.6" DESTINATION "${MANDIR}/man6")
+install(FILES "misc/net.minetest.minetest.desktop" DESTINATION "${XDG_APPS_DIR}")
+install(FILES "misc/net.minetest.minetest.metainfo.xml" DESTINATION "${METAINFODIR}")
+install(FILES "misc/luanti.svg" DESTINATION "${ICONDIR}/hicolor/scalable/apps")
+install(FILES "misc/luanti-xorg-icon-128.png"
+	DESTINATION "${ICONDIR}/hicolor/128x128/apps"
+	RENAME "luanti.png")
 
 if(CMAKE_GENERATOR STREQUAL "Xcode")
 	set(client_RESOURCES "${CMAKE_SOURCE_DIR}/misc/luanti-icon.icns")
@@ -316,10 +285,6 @@ if(WIN32)
 			set(CPACK_WIX_UPGRADE_GUID "814A2E2D-2779-4BBD-9ACD-FC3BD51FBBA2")
 		endif()
 	endif()
-elseif(APPLE)
-	set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY 0)
-	set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${VERSION_STRING}-osx")
-	set(CPACK_GENERATOR ZIP)
 else()
 	set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${VERSION_STRING}-linux")
 	set(CPACK_GENERATOR TGZ)

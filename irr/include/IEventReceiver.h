@@ -55,7 +55,7 @@ enum EEVENT_TYPE
 	They take the same path as mouse events.
 	Windows, SDL: Implemented.
 	Linux: Implemented, with POV hat issues.
-	MacOS / Other: Not yet implemented.
+	Other: Not yet implemented.
 	*/
 	EET_JOYSTICK_INPUT_EVENT,
 
@@ -69,13 +69,9 @@ enum EEVENT_TYPE
 	specific data though the system. The Irrlicht 'window handle'
 	can be obtained from IrrlichtDevice::getExposedVideoData()
 	The usage and behavior depends on the operating system:
-	Windows: send a WM_USER message to the Irrlicht Window; the
-		wParam and lParam will be used to populate the
-		UserData1 and UserData2 members of the SUserEvent.
 	Linux: send a ClientMessage via XSendEvent to the Irrlicht
 		Window; the data.l[0] and data.l[1] members will be
 		cast to s32 and used as UserData1 and UserData2.
-	MacOS: Not yet implemented
 	*/
 	EET_USER_EVENT,
 

@@ -16,14 +16,6 @@ Generally this leads to versions about 5 years old and works as a reasonable res
 
 Needless to say that any new requirements need to work on our other platforms too, as listed below.
 
-### macOS
-
-We currently support macOS 10.14 (Mojave) or later.
-
-Since we do not have any macOS developer we can only do some shallow testing in CI.
-So this is subject to change basically whenever Github throws
-[a new version](https://github.com/actions/runner-images?tab=readme-ov-file#available-images) at us, or for other reasons.
-
 ## Other parts
 
 **Compilers**: gcc, clang
@@ -69,7 +61,6 @@ clang with libc++ 7 or later (note: no mainstream Linux distros use this)
 Debian 11 has libstdc++ 10
 Ubuntu 20.04 LTS has libstdc++ 9
 (optional) Rocky Linux 8 has libstdc++ 8
-Windows and macOS are probably okay
 
 Verdict: not possible. maybe next year.
 

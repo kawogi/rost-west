@@ -36,9 +36,6 @@
 
 #include <sys/time.h>
 #include <ctime>
-#if defined(__MACH__) && defined(__APPLE__)
-	#include <TargetConditionals.h>
-#endif
 
 namespace porting
 {
@@ -189,35 +186,6 @@ inline const char *getPlatformName()
 	return
 #if defined(__linux__)
 	"Linux"
-#elif defined(__DragonFly__) || defined(__FreeBSD__) || \
-		defined(__NetBSD__) || defined(__OpenBSD__)
-	"BSD"
-#elif defined(__APPLE__) && defined(__MACH__)
-	#if TARGET_OS_MAC
-		"OSX"
-	#elif TARGET_OS_IPHONE
-		"iOS"
-	#else
-		"Apple"
-	#endif
-#elif defined(_AIX)
-	"AIX"
-#elif defined(__hpux)
-	"HP-UX"
-#elif defined(__sun) || defined(sun)
-	#if defined(__SVR4)
-		"Solaris"
-	#else
-		"SunOS"
-	#endif
-#elif defined(__HAIKU__)
-	"Haiku"
-#elif defined(__unix__) || defined(__unix)
-	#if defined(_POSIX_VERSION)
-		"POSIX"
-	#else
-		"Unix"
-	#endif
 #else
 	"?"
 #endif

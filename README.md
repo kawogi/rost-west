@@ -87,10 +87,6 @@ Where each location is on each platform:
     * `bin`   = `/usr/bin`
     * `share` = `/usr/share/minetest`
     * `user`  = `~/.minetest` or `$MINETEST_USER_PATH`
-* macOS:
-    * `bin`   = `Contents/MacOS`
-    * `share` = `Contents/Resources`
-    * `user`  = `Contents/User` or `~/Library/Application Support/minetest` or `$MINETEST_USER_PATH`
 
 Worlds can be found as separate folders in: `user/worlds/`
 
@@ -113,7 +109,6 @@ Compiling
 
 - [Compiling - common information](doc/compiling/README.md)
 - [Compiling on GNU/Linux](doc/compiling/linux.md)
-- [Compiling on MacOS](doc/compiling/macos.md)
 
 Docker
 ------

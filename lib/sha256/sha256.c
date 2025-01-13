@@ -69,9 +69,6 @@
 #if defined(HAVE_ENDIAN_H)
 #include <endian.h>
 
-#elif defined(__MACH__) && defined(__APPLE__)
-#include <machine/endian.h>
-
 #elif defined(__sun) || defined(_AIX) || defined(__hpux)
 #include <arpa/nameser_compat.h>
 #include <sys/types.h>
@@ -91,16 +88,6 @@
 #undef __STRICT_ALIGNMENT
 #endif
 #endif
-
-#if defined(__APPLE__) && !defined(HAVE_ENDIAN_H)
-#include <libkern/OSByteOrder.h>
-#define be16toh(x) OSSwapBigToHostInt16((x))
-#define htobe16(x) OSSwapHostToBigInt16((x))
-#define le32toh(x) OSSwapLittleToHostInt32((x))
-#define be32toh(x) OSSwapBigToHostInt32((x))
-#define htole32(x) OSSwapHostToLittleInt32(x)
-#define htobe32(x) OSSwapHostToBigInt32(x)
-#endif /* __APPLE__ && !HAVE_ENDIAN_H */
 
 #ifdef __linux__
 #if !defined(betoh16)

@@ -518,11 +518,7 @@ public:
 // to the c++11 standard and is rejected by clang 3.8 and Apple clang 8.2
 // even though these declare themselves to be c++11 compilers.
 #if !defined(JSONCPP_TEMPLATE_DELETE)
-#if defined(__clang__) && defined(__apple_build_version__)
-#if __apple_build_version__ <= 8000042
-#define JSONCPP_TEMPLATE_DELETE
-#endif
-#elif defined(__clang__)
+#if defined(__clang__)
 #if __clang_major__ == 3 && __clang_minor__ <= 8
 #define JSONCPP_TEMPLATE_DELETE
 #endif

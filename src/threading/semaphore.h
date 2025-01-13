@@ -4,11 +4,7 @@
 
 #pragma once
 
-#if defined(__MACH__) && defined(__APPLE__)
-#include <mach/semaphore.h>
-#else
 #include <semaphore.h>
-#endif
 
 #include "util/basic_macros.h"
 
@@ -25,9 +21,5 @@ public:
 	bool wait(unsigned int time_ms);
 
 private:
-#if defined(__MACH__) && defined(__APPLE__)
-	semaphore_t semaphore;
-#else
 	sem_t semaphore;
-#endif
 };

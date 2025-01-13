@@ -37,21 +37,6 @@ DEALINGS IN THE SOFTWARE.
 	#include <sched.h>
 #endif
 
-// for bindToProcessor
-#if __FreeBSD_version >= 702106
-	typedef cpuset_t cpu_set_t;
-#elif defined(__sun) || defined(sun)
-	#include <sys/types.h>
-	#include <sys/processor.h>
-	#include <sys/procset.h>
-#elif defined(_AIX)
-	#include <sys/processor.h>
-	#include <sys/thread.h>
-#elif defined(__APPLE__)
-	#include <mach/mach_init.h>
-	#include <mach/thread_act.h>
-#endif
-
 // See https://msdn.microsoft.com/en-us/library/hh920601.aspx#thread__native_handle_method
 #define win32_native_handle() ((HANDLE) getThreadHandle())
 
@@ -63,9 +48,6 @@ Thread::Thread(const std::string &name) :
 	m_request_stop(false),
 	m_running(false)
 {
-#ifdef _AIX
-	m_kernel_thread_id = -1;
-#endif
 }
 
 
@@ -199,22 +181,6 @@ void Thread::setName(const std::string &name)
 	// distributions are still runing 2.11 and previous versions.
 	prctl(PR_SET_NAME, name.c_str());
 
-#elif defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__DragonFly__)
-
-	pthread_set_name_np(pthread_self(), name.c_str());
-
-#elif defined(__NetBSD__)
-
-	pthread_setname_np(pthread_self(), "%s", const_cast<char*>(name.c_str()));
-
-#elif defined(__APPLE__)
-
-	pthread_setname_np(name.c_str());
-
-#elif defined(__HAIKU__)
-
-	rename_thread(find_thread(NULL), name.c_str());
-
 #else
 	#warning "Unrecognized platform, thread names will not be available."
 #endif
@@ -237,38 +203,6 @@ bool Thread::bindToProcessor(unsigned int proc_number)
 	CPU_SET(proc_number, &cpuset);
 
 	return pthread_setaffinity_np(getThreadHandle(), sizeof(cpuset), &cpuset) == 0;
-#elif defined(__NetBSD__)
-
-	cpuset_t *cpuset = cpuset_create();
-	if (cpuset == NULL)
-		return false;
-	int r = pthread_setaffinity_np(getThreadHandle(), cpuset_size(cpuset), cpuset);
-	cpuset_destroy(cpuset);
-	return r == 0;
-#elif defined(__sun) || defined(sun)
-
-	return processor_bind(P_LWPID, P_MYID, proc_number, NULL) == 0
-
-#elif defined(_AIX)
-
-	return bindprocessor(BINDTHREAD, m_kernel_thread_id, proc_number) == 0;
-
-#elif defined(__hpux) || defined(hpux)
-
-	pthread_spu_t answer;
-
-	return pthread_processor_bind_np(PTHREAD_BIND_ADVISORY_NP,
-			&answer, proc_number, getThreadHandle()) == 0;
-
-#elif defined(__APPLE__)
-
-	struct thread_affinity_policy tapol;
-
-	thread_port_t threadport = pthread_mach_thread_np(getThreadHandle());
-	tapol.affinity_tag = proc_number + 1;
-	return thread_policy_set(threadport, THREAD_AFFINITY_POLICY,
-			(thread_policy_t)&tapol,
-			THREAD_AFFINITY_POLICY_COUNT) == KERN_SUCCESS;
 
 #else
 

@@ -1,8 +1,6 @@
 # Compiling Luanti
 
 - [Compiling on GNU/Linux](linux.md)
-- [Compiling on MacOS](macos.md)
-
 
 ## CMake options
 

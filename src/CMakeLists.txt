@@ -269,44 +269,17 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 set(PLATFORM_LIBS Threads::Threads)
 
-if(WIN32)
-	# Windows
-	if(MSVC) # MSVC Specifics
-		list(APPEND PLATFORM_LIBS dbghelp.lib)
-		# Surpress some useless warnings
-		add_compile_options(/W1)
-		add_compile_definitions(
-			# Suppress some useless warnings
-			_CRT_SECURE_NO_DEPRECATE
-			# Get M_PI to work
-			_USE_MATH_DEFINES
-			# Don't define min/max macros in minwindef.h
-			NOMINMAX
-		)
-	endif()
-	list(APPEND PLATFORM_LIBS ws2_32.lib version.lib shlwapi.lib winmm.lib)
-else()
-	# Unix probably
-	list(APPEND PLATFORM_LIBS ${CMAKE_DL_LIBS})
-	if(APPLE)
-		list(APPEND PLATFORM_LIBS "-framework CoreFoundation")
-	else()
-		check_library_exists(rt clock_gettime "" HAVE_LIBRT)
-		if (HAVE_LIBRT)
-			list(APPEND PLATFORM_LIBS -lrt)
-		endif(HAVE_LIBRT)
-	endif(APPLE)
+# Unix probably
+list(APPEND PLATFORM_LIBS ${CMAKE_DL_LIBS})
 
-	find_library(ICONV_LIBRARY iconv)
-	mark_as_advanced(ICONV_LIBRARY)
-	if (ICONV_LIBRARY)
-		list(APPEND PLATFORM_LIBS ${ICONV_LIBRARY})
-	endif()
+find_library(ICONV_LIBRARY iconv)
+mark_as_advanced(ICONV_LIBRARY)
+if (ICONV_LIBRARY)
+	list(APPEND PLATFORM_LIBS ${ICONV_LIBRARY})
+endif()
 
-	if (HAIKU)
-		list(APPEND PLATFORM_LIBS network)
-	endif()
-
+if (HAIKU)
+	list(APPEND PLATFORM_LIBS network)
 endif()
 
 # On clang and gcc, some functionalities of std::atomic require -latomic.
@@ -511,56 +484,9 @@ if(PRECOMPILE_HEADERS)
 	target_precompile_headers(EngineCommon PRIVATE ${PRECOMPILED_HEADERS_LIST})
 endif()
 
-if(APPLE)
-	# Configure the Info.plist file
-	configure_file(
-		"${CMAKE_SOURCE_DIR}/misc/macos/Info.plist.in"
-		"${CMAKE_BINARY_DIR}/Info.plist"
-	)
-endif()
-
 if(BUILD_CLIENT)
 	# client target
 	add_executable(${PROJECT_NAME})
-
-	if(CMAKE_GENERATOR STREQUAL "Xcode")
-		# File with used entitlements
-		set(XCODE_CODE_SIGN_ENTITLEMENTS "${CMAKE_SOURCE_DIR}/misc/macos/entitlements/release.entitlements" CACHE FILEPATH "Path to entitlements file to be used with Xcode signing")
-
-		set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}/build")
-		set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}/build")
-
-		target_sources(${PROJECT_NAME} PUBLIC ${client_RESOURCES})
-
-		add_dependencies(${PROJECT_NAME} translations)
-
-		set_target_properties(${PROJECT_NAME} PROPERTIES
-			MACOSX_BUNDLE TRUE
-			MACOSX_BUNDLE_INFO_PLIST "${CMAKE_BINARY_DIR}/Info.plist"
-			RESOURCE "${client_RESOURCES}"
-			XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "org.luanti.luanti"
-			XCODE_ATTRIBUTE_ENABLE_HARDENED_RUNTIME "YES"
-			XCODE_ATTRIBUTE_INSTALL_PATH "/Applications"
-			XCODE_ATTRIBUTE_SKIP_INSTALL "NO"
-			XCODE_ATTRIBUTE_DEBUG_INFORMATION_FORMAT "dwarf-with-dsym"
-			XCODE_ATTRIBUTE_GCC_GENERATE_DEBUGGING_SYMBOLS "YES"
-			XCODE_ATTRIBUTE_CONFIGURATION_BUILD_DIR "$(inherited)"
-			XCODE_ATTRIBUTE_CODE_SIGN_ENTITLEMENTS "${XCODE_CODE_SIGN_ENTITLEMENTS}"
-		)
-
-		# Prinv env variables to file, for debugging purposes
-		#add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-		#	COMMAND ${CMAKE_COMMAND} -E env bash ${CMAKE_SOURCE_DIR}/util/xcode/capture_env.sh ${CMAKE_BINARY_DIR}/post_env.log
-		#)
-
-		add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -P ${CMAKE_SOURCE_DIR}/util/xcode/install_resources.cmake
-				-DTARGET_DIR=$<TARGET_FILE_DIR:${PROJECT_NAME}>
-				-DBINARY_DIR=${CMAKE_BINARY_DIR}
-				-DPROJECT_NAME=${PROJECT_NAME}
-			COMMENT "Checking INSTALL_ROOT and copying resources"
-		)
-	endif()
 
 	list(SORT client_SRCS)
 	target_sources(${PROJECT_NAME} PRIVATE
@@ -755,7 +681,7 @@ if(USE_LUAJIT)
 			"You are using a relatively old version of LuaJIT. We recommend "
 			"running a recent version (from git) as older ones are known not "
 			"to build/work correctly in all cases.\n"
-			"THIS APPLIES ESPECIALLY ON macOS OR Linux/aarch64!")
+			"THIS APPLIES ESPECIALLY ON Linux/aarch64!")
 		message(WARNING ${explanation_msg})
 	endif()
 elseif(NOT MSVC)
@@ -871,14 +797,6 @@ if(BUILD_CLIENT AND NOT ANDROID)
 	)
 	if(UNIX)
 		CreateLegacyAlias(minetest_alias "${EXECUTABLE_OUTPUT_PATH}/minetest" ${PROJECT_NAME})
-	endif()
-
-	if(APPLE)
-		install(CODE "
-			set(BU_CHMOD_BUNDLE_ITEMS ON)
-			include(BundleUtilities)
-			fixup_bundle(\"\${CMAKE_INSTALL_PREFIX}/${BUNDLE_PATH}\" \"\" \"\${CMAKE_INSTALL_PREFIX}/${BINDIR}\")
-		" COMPONENT Runtime)
 	endif()
 
 	if(USE_GETTEXT)

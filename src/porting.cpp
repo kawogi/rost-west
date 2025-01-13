@@ -18,21 +18,6 @@
 #include <unistd.h>
 #include <sys/utsname.h>
 #include <spawn.h>
-#if defined(__hpux)
-	#define _PSTAT64
-	#include <sys/pstat.h>
-#endif
-#if defined(__APPLE__)
-	#include <mach-o/dyld.h>
-	#include <CoreFoundation/CoreFoundation.h>
-	// For _NSGetEnviron()
-	// Related: https://gitlab.haskell.org/ghc/ghc/issues/2458
-	#include <crt_externs.h>
-#endif
-
-#if defined(__HAIKU__)
-	#include <FindDirectory.h>
-#endif
 
 #if HAVE_MALLOC_TRIM
 	// glibc-only pretty much
@@ -192,83 +177,6 @@ bool getCurrentExecPath(char *buf, size_t len)
 	return true;
 }
 
-
-//// Mac OS X, Darwin
-#elif defined(__APPLE__)
-
-bool getCurrentExecPath(char *buf, size_t len)
-{
-	uint32_t lenb = (uint32_t)len;
-	if (_NSGetExecutablePath(buf, &lenb) == -1)
-		return false;
-
-	return true;
-}
-
-
-//// FreeBSD, NetBSD, DragonFlyBSD
-#elif defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
-
-bool getCurrentExecPath(char *buf, size_t len)
-{
-	// Try getting path from procfs first, since valgrind
-	// doesn't work with the latter
-	if (getExecPathFromProcfs(buf, len))
-		return true;
-
-	int mib[4];
-
-	mib[0] = CTL_KERN;
-	mib[1] = KERN_PROC;
-	mib[2] = KERN_PROC_PATHNAME;
-	mib[3] = -1;
-
-	if (sysctl(mib, 4, buf, &len, NULL, 0) == -1)
-		return false;
-
-	return true;
-}
-
-#elif defined(__HAIKU__)
-
-bool getCurrentExecPath(char *buf, size_t len)
-{
-	return find_path(B_APP_IMAGE_SYMBOL, B_FIND_PATH_IMAGE_PATH, NULL, buf, len) == B_OK;
-}
-
-//// Solaris
-#elif defined(__sun) || defined(sun)
-
-bool getCurrentExecPath(char *buf, size_t len)
-{
-	const char *exec = getexecname();
-	if (exec == NULL)
-		return false;
-
-	if (strlcpy(buf, exec, len) >= len)
-		return false;
-
-	return true;
-}
-
-
-// HP-UX
-#elif defined(__hpux)
-
-bool getCurrentExecPath(char *buf, size_t len)
-{
-	struct pst_status psts;
-
-	if (pstat_getproc(&psts, sizeof(psts), 0, getpid()) == -1)
-		return false;
-
-	if (pstat_getpathname(buf, len, &psts.pst_fid_text) == -1)
-		return false;
-
-	return true;
-}
-
-
 #else
 
 bool getCurrentExecPath(char *buf, size_t len)
@@ -342,35 +250,6 @@ bool setSystemPaths()
 			+ "minetest";
 	}
 
-	return true;
-}
-
-
-//// Mac OS X
-#elif defined(__APPLE__)
-
-bool setSystemPaths()
-{
-	CFBundleRef main_bundle = CFBundleGetMainBundle();
-	CFURLRef resources_url = CFBundleCopyResourcesDirectoryURL(main_bundle);
-	char path[PATH_MAX];
-	if (CFURLGetFileSystemRepresentation(resources_url,
-			TRUE, (UInt8 *)path, PATH_MAX)) {
-		path_share = std::string(path);
-	} else {
-		warningstream << "Could not determine bundle resource path" << std::endl;
-	}
-	CFRelease(resources_url);
-
-	const char *const minetest_user_path = getenv("MINETEST_USER_PATH");
-	if (minetest_user_path && minetest_user_path[0] != '\0') {
-		path_user = std::string(minetest_user_path);
-	} else {
-		// TODO: luanti with migration
-		path_user = std::string(getHomeOrFail())
-			+ "/Library/Application Support/"
-			+ "minetest";
-	}
 	return true;
 }
 
@@ -595,14 +474,8 @@ static bool open_uri(const std::string &uri)
 		return false;
 	}
 
-#if defined(__APPLE__)
-	const char *argv[] = {"open", uri.c_str(), NULL};
-	return posix_spawnp(NULL, "open", NULL, NULL, (char**)argv,
-		(*_NSGetEnviron())) == 0;
-#else
 	const char *argv[] = {"xdg-open", uri.c_str(), NULL};
 	return posix_spawnp(NULL, "xdg-open", NULL, NULL, (char**)argv, environ) == 0;
-#endif
 }
 
 bool open_url(const std::string &url)

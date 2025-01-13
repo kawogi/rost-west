@@ -80,7 +80,6 @@ void set_default_settings()
 
 	// Client
 	settings->setDefault("address", "");
-#if defined(__unix__) && !defined(__APPLE__)
 	// On Linux+X11 (not Linux+Wayland or Linux+XWayland), I've encountered a bug
 	// where fake mouse events were generated from touch events if in relative
 	// mouse mode, resulting in the touchscreen controls being instantly disabled
@@ -88,9 +87,6 @@ void set_default_settings()
 	// => We can't switch based on the last input method used.
 	// => Fall back to hardware detection.
 	settings->setDefault("touch_controls", bool_to_cstr(has_touch));
-#else
-	settings->setDefault("touch_controls", "auto");
-#endif
 	// Since GUI scaling shouldn't suddenly change during a session, we use
 	// hardware detection for "touch_gui" instead of switching based on the last
 	// input method used.
@@ -526,11 +522,6 @@ void set_default_settings()
 	settings->setDefault("enable_console", "false");
 	settings->setDefault("display_density_factor", "1");
 	settings->setDefault("dpi_change_notifier", "0");
-
-	// Altered settings for CIrrDeviceOSX
-#if !USE_SDL2 && defined(__MACH__) && defined(__APPLE__)
-	settings->setDefault("keymap_sneak", "KEY_SHIFT");
-#endif
 
 	settings->setDefault("touch_layout", "");
 	settings->setDefault("touchscreen_sensitivity", "0.2");

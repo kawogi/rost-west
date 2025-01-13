@@ -16,11 +16,7 @@
 #include <string_view>
 
 /* make sure BYTE_ORDER macros are available */
-#if defined(__MACH__) && defined(__APPLE__)
-	#include <machine/endian.h>
-#elif defined(__FreeBSD__) || defined(__DragonFly__)
-	#include <sys/endian.h>
-#elif HAVE_ENDIAN_H
+#if HAVE_ENDIAN_H
 	#include <endian.h>
 #else
 	#error "Can't detect endian (missing header)"
