@@ -817,13 +817,6 @@ else()
 		set(RELEASE_WARNING_FLAGS "")
 	endif()
 
-	if(MINGW)
-		if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-			set(OTHER_FLAGS "${OTHER_FLAGS} -mthreads")
-		endif()
-		add_compile_definitions(_WIN32_WINNT=0x0601 WIN32_LEAN_AND_MEAN)
-	endif()
-
 	# Use a safe subset of flags to speed up math calculations:
 	# - we don't need errno or math exceptions
 	# - we don't deal with signed zero
@@ -859,9 +852,6 @@ else()
 		set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -pg")
 	endif()
 
-	if(MINGW)
-		set(CMAKE_EXE_LINKER_FLAGS_RELEASE "-mwindows")
-	endif()
 endif()
 
 macro(CreateLegacyAlias _cmake_target _old_path _new_name)

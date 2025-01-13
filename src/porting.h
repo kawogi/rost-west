@@ -30,11 +30,6 @@
 #define sleep_ms(x) usleep((x)*1000)
 #define sleep_us(x) usleep(x)
 
-#ifdef __MINGW32__
-	// was broken in 2013, unclear if still needed
-	#define strtok_r(x, y, z) mystrtok_r(x, y, z)
-#endif
-
 #if !HAVE_STRLCPY
 	#define strlcpy(d, s, n) mystrlcpy(d, s, n)
 #endif
