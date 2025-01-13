@@ -5,10 +5,7 @@
 #pragma once
 
 #include "irrlichttypes_bloated.h"
-#include "config.h" // IS_CLIENT_BUILD
-#if IS_CLIENT_BUILD
-#include "irrString.h"
-#endif
+#include "config.h"
 #include <cstdlib>
 #include <string>
 #include <string_view>
@@ -742,26 +739,6 @@ inline std::string str_join(const std::vector<std::string> &list,
 	}
 	return oss.str();
 }
-
-#if IS_CLIENT_BUILD
-/**
- * Create a UTF8 std::string from an irr::core::stringw.
- */
-inline std::string stringw_to_utf8(const irr::core::stringw &input)
-{
-	std::wstring_view sv(input.c_str(), input.size());
-	return wide_to_utf8(sv);
-}
-
- /**
-  * Create an irr::core:stringw from a UTF8 std::string.
-  */
-inline irr::core::stringw utf8_to_stringw(std::string_view input)
-{
-	std::wstring str = utf8_to_wide(input);
-	return irr::core::stringw(str.c_str(), str.size());
-}
-#endif
 
 /**
  * Sanitize the name of a new directory. This consists of two stages:
