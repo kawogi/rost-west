@@ -270,9 +270,6 @@ static void createCacheDirTag()
 
 void initializePaths()
 {
-#if RUN_IN_PLACE
-	infostream << "Using relative paths (RUN_IN_PLACE)" << std::endl;
-
 	char buf[BUFSIZ];
 	bool success =
 		getCurrentExecPath(buf, sizeof(buf)) ||
@@ -311,33 +308,6 @@ void initializePaths()
 		path_user  = execpath;
 	}
 	path_cache = path_user + DIR_DELIM + "cache";
-
-#else
-	infostream << "Using system-wide paths (NOT RUN_IN_PLACE)" << std::endl;
-
-	if (!setSystemPaths())
-		errorstream << "Failed to get one or more system-wide path" << std::endl;
-
-	// First try $XDG_CACHE_HOME/PROJECT_NAME
-	const char *cache_dir = getenv("XDG_CACHE_HOME");
-	const char *home_dir = getenv("HOME");
-	if (cache_dir && cache_dir[0] != '\0') {
-		// TODO: luanti with migration
-		path_cache = std::string(cache_dir) + DIR_DELIM + "minetest";
-	} else if (home_dir) {
-		// Then try $HOME/.cache/PROJECT_NAME
-		// TODO: luanti with migration
-		path_cache = std::string(home_dir) + DIR_DELIM + ".cache"
-			+ DIR_DELIM + "minetest";
-	} else {
-		// If neither works, use $PATH_USER/cache
-		path_cache = path_user + DIR_DELIM + "cache";
-	}
-
-	// Migrate cache folder to new location if possible
-	migrateCachePath();
-
-#endif // RUN_IN_PLACE
 
 	assert(!path_share.empty());
 	assert(!path_user.empty());

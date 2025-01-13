@@ -46,7 +46,7 @@ Luanti keeps and looks for files mostly in two paths. `path_share` or `path_user
 `path_user` contains mods or games installed by the user but also the users
 worlds or settings.
 
-With a local build (`RUN_IN_PLACE=1`) `path_share` and `path_user` both point to
+With a local build `path_share` and `path_user` both point to
 the build directory. For system-wide builds on Linux the share path is usually at
 `/usr/share/minetest` while the user path resides in `.minetest` in the home directory.
 Paths on other operating systems will differ.

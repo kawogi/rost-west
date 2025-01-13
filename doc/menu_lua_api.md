@@ -303,7 +303,6 @@ Package - content which is downloadable from the content db, may or may not be i
       ```lua
       {
           mods = "/home/user/.minetest/mods",
-          share = "/usr/share/minetest/mods", -- only provided when RUN_IN_PLACE=0
 
           -- Custom dirs can be specified by the MINETEST_MOD_DIR env variable
           ["/path/to/custom/dir"] = "/path/to/custom/dir",

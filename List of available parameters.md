@@ -107,9 +107,6 @@ PRECOMPILE_HEADERS:BOOL=OFF
 // Require LuaJIT support
 REQUIRE_LUAJIT:BOOL=OFF
 
-// Run directly in source directory structure
-RUN_IN_PLACE:BOOL=FALSE
-
 // The directory containing a CMake configuration file for SDL2.
 SDL2_DIR:PATH=/usr/lib/x86_64-linux-gnu/cmake/SDL2
 

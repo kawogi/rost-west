@@ -686,12 +686,10 @@ static bool read_config_file(const Settings &cmd_args)
 		filenames.push_back(porting::path_user +
 							DIR_DELIM + ".." + DIR_DELIM + CONFIGFILE);
 
-#if RUN_IN_PLACE
 		// Try also from a lower level (to aid having the same configuration
 		// for many RUN_IN_PLACE installs)
 		filenames.push_back(porting::path_user +
 							DIR_DELIM + ".." + DIR_DELIM + ".." + DIR_DELIM + CONFIGFILE);
-#endif
 
 		for (const std::string &filename : filenames)
 		{

@@ -47,16 +47,8 @@ be loaded or have limited functionality. See setting `csm_restriction_flags` for
 
 Paths
 -----
-* `RUN_IN_PLACE=1` (Windows release, local build)
     * `$path_user`: `<build directory>`
     * `$path_share`: `<build directory>`
-* `RUN_IN_PLACE=0`: (Linux release)
-    * `$path_share`:
-        * Linux: `/usr/share/minetest`
-        * Windows: `<install directory>/minetest-0.4.x`
-    * `$path_user`:
-        * Linux: `$HOME/.minetest`
-        * Windows: `C:/users/<user>/AppData/minetest` (maybe)
 
 Mod load path
 -------------

@@ -83,7 +83,7 @@ Download source, without using Git:
 
 Build a version that runs directly from the source directory:
 
-    cmake . -DRUN_IN_PLACE=TRUE
+    cmake .
     make -j$(nproc)
 
 Run it:
@@ -91,7 +91,5 @@ Run it:
     ./bin/minetest
 
 - Use `cmake . -LH` to see all CMake options and their current state.
-- If you want to install it system-wide (or are making a distribution package),
-  you will want to use `-DRUN_IN_PLACE=FALSE`.
 - You can select between Release and Debug build by `-DCMAKE_BUILD_TYPE=<Debug or Release>`.
   - Debug build is slower, but gives much more useful output in a debugger.

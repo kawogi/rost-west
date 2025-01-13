@@ -20,7 +20,6 @@ const char *g_version_string = VERSION_STRING;
 const char *g_version_hash = VERSION_GITHASH;
 const char *g_build_info =
 	"BUILD_TYPE=" BUILD_TYPE "\n"
-	"RUN_IN_PLACE=" STR(RUN_IN_PLACE) "\n"
 	"USE_CURL=" STR(USE_CURL) "\n"
 	"STATIC_SHAREDIR=" STR(STATIC_SHAREDIR)
 #if USE_GETTEXT && defined(STATIC_LOCALEDIR)

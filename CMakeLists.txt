@@ -45,13 +45,8 @@ set(BUILD_WITH_TRACY FALSE CACHE BOOL
 set(FETCH_TRACY_GIT_TAG "master" CACHE STRING
 	"Git tag for fetching Tracy client. Match with your server (gui) version")
 
-set(DEFAULT_RUN_IN_PLACE FALSE)
-set(RUN_IN_PLACE ${DEFAULT_RUN_IN_PLACE} CACHE BOOL
-	"Run directly in source directory structure")
-
 message(STATUS "*** Will build version ${VERSION_STRING} ***")
 message(STATUS "BUILD_DOCUMENTATION: " ${BUILD_DOCUMENTATION})
-message(STATUS "RUN_IN_PLACE: " ${RUN_IN_PLACE})
 
 set(WARN_ALL TRUE CACHE BOOL "Enable -Wall for Release build")
 
@@ -96,28 +91,15 @@ endif()
 
 # Installation
 
-if(RUN_IN_PLACE)
-	set(SHAREDIR ".")
-	set(BINDIR "bin")
-	set(DOCDIR "doc")
-	set(EXAMPLE_CONF_DIR ".")
-	set(MANDIR "unix/man")
-	set(XDG_APPS_DIR "unix/applications")
-	set(METAINFODIR "unix/metainfo")
-	set(ICONDIR "unix/icons")
-	set(LOCALEDIR "locale")
-else()
-	include(GNUInstallDirs)
-	set(SHAREDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}")
-	set(BINDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}")
-	set(DOCDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DOCDIR}")
-	set(MANDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_MANDIR}")
-	set(EXAMPLE_CONF_DIR ${DOCDIR})
-	set(XDG_APPS_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/applications")
-	set(METAINFODIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/metainfo")
-	set(ICONDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/icons")
-	set(LOCALEDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LOCALEDIR}")
-endif()
+set(SHAREDIR ".")
+set(BINDIR "bin")
+set(DOCDIR "doc")
+set(EXAMPLE_CONF_DIR ".")
+set(MANDIR "unix/man")
+set(XDG_APPS_DIR "unix/applications")
+set(METAINFODIR "unix/metainfo")
+set(ICONDIR "unix/icons")
+set(LOCALEDIR "locale")
 
 set(CUSTOM_SHAREDIR "" CACHE STRING "Directory to install data files into")
 if(NOT CUSTOM_SHAREDIR STREQUAL "")
@@ -134,9 +116,6 @@ endif()
 set(CUSTOM_DOCDIR "" CACHE STRING "Directory to install documentation into")
 if(NOT CUSTOM_DOCDIR STREQUAL "")
 	set(DOCDIR "${CUSTOM_DOCDIR}")
-	if(NOT RUN_IN_PLACE)
-		set(EXAMPLE_CONF_DIR ${DOCDIR})
-	endif()
 	message(STATUS "Using DOCDIR=${DOCDIR}")
 endif()
 
@@ -172,10 +151,8 @@ endif()
 
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/builtin" DESTINATION "${SHAREDIR}")
-if(RUN_IN_PLACE)
-	install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/mods/mods_here.txt" DESTINATION "${SHAREDIR}/mods")
-	install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/textures/texture_packs_here.txt" DESTINATION "${SHAREDIR}/textures")
-endif()
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/mods/mods_here.txt" DESTINATION "${SHAREDIR}/mods")
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/textures/texture_packs_here.txt" DESTINATION "${SHAREDIR}/textures")
 
 set(INSTALL_DEVTEST FALSE CACHE BOOL "Install Development Test")
 
