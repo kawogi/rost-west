@@ -20,11 +20,7 @@
 #include "constants.h"
 #include "util/timetaker.h" // TimePrecision
 
-#ifdef _MSC_VER
-	#define SWPRINTF_CHARSTRING L"%S"
-#else
-	#define SWPRINTF_CHARSTRING L"%s"
-#endif
+#define SWPRINTF_CHARSTRING L"%s"
 
 #include <unistd.h>
 #include <cstdlib> // setenv
@@ -33,15 +29,6 @@
 
 #define sleep_ms(x) usleep((x)*1000)
 #define sleep_us(x) usleep(x)
-
-#ifdef _MSC_VER
-	#define strtok_r(x, y, z) strtok_s(x, y, z)
-	#define strtof(x, y) (float)strtod(x, y)
-	#define strtoll(x, y, z) _strtoi64(x, y, z)
-	#define strtoull(x, y, z) _strtoui64(x, y, z)
-	#define strcasecmp(x, y) stricmp(x, y)
-	#define strncasecmp(x, y, n) strnicmp(x, y, n)
-#endif
 
 #ifdef __MINGW32__
 	// was broken in 2013, unclear if still needed

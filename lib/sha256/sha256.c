@@ -58,10 +58,6 @@
 
 #include "my_sha256.h"
 
-#if defined(_MSC_VER) && !defined(__clang__) && !defined(__attribute__)
-#define __attribute__(a)
-#endif
-
 #include "cmake_config.h" /* HAVE_ENDIAN_H */
 
 /** endian.h **/

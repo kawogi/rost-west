@@ -8,11 +8,7 @@
 #include <cassert>
 #include "log.h" // unused. for convenience.
 
-#ifdef _MSC_VER
-	#define FUNCTION_NAME __FUNCTION__
-#else
-	#define FUNCTION_NAME __PRETTY_FUNCTION__
-#endif
+#define FUNCTION_NAME __PRETTY_FUNCTION__
 
 // Whether to catch all std::exceptions.
 // When "catching", the program will abort with an error message.

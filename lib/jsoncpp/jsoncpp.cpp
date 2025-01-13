@@ -269,17 +269,6 @@ Iter fixZerosInTheEnd(Iter begin, Iter end, unsigned int precision) {
 
 #endif //__cplusplus
 
-#if defined(_MSC_VER)
-#if !defined(_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES)
-#define _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES 1
-#endif //_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES
-#endif //_MSC_VER
-
-#if defined(_MSC_VER)
-// Disable warning about strdup being deprecated.
-#pragma warning(disable : 4996)
-#endif
-
 // Define JSONCPP_DEPRECATED_STACK_LIMIT as an appropriate integer at compile
 // time to change the stack limit
 #if !defined(JSONCPP_DEPRECATED_STACK_LIMIT)
@@ -2455,34 +2444,6 @@ ValueIterator& ValueIterator::operator=(const SelfType& other) {
 #include <sstream>
 #include <utility>
 
-// Provide implementation equivalent of std::snprintf for older _MSC compilers
-#if defined(_MSC_VER) && _MSC_VER < 1900
-#include <stdarg.h>
-static int msvc_pre1900_c99_vsnprintf(char* outBuf, size_t size,
-                                      const char* format, va_list ap) {
-  int count = -1;
-  if (size != 0)
-    count = _vsnprintf_s(outBuf, size, _TRUNCATE, format, ap);
-  if (count == -1)
-    count = _vscprintf(format, ap);
-  return count;
-}
-
-int JSON_API msvc_pre1900_c99_snprintf(char* outBuf, size_t size,
-                                       const char* format, ...) {
-  va_list ap;
-  va_start(ap, format);
-  const int count = msvc_pre1900_c99_vsnprintf(outBuf, size, format, ap);
-  va_end(ap);
-  return count;
-}
-#endif
-
-// Disable warning C4702 : unreachable code
-#if defined(_MSC_VER)
-#pragma warning(disable : 4702)
-#endif
-
 #define JSON_ASSERT_UNREACHABLE assert(false)
 
 namespace Json {
@@ -4136,23 +4097,6 @@ Value& Path::make(Value& root) const {
 #include <cmath>
 #include <cstdio>
 
-#if defined(_MSC_VER)
-#if !defined(isnan)
-#include <float.h>
-#define isnan _isnan
-#endif
-
-#if !defined(isfinite)
-#include <float.h>
-#define isfinite _finite
-#endif
-
-#if !defined(_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES)
-#define _CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES 1
-#endif //_CRT_SECURE_CPP_OVERLOAD_STANDARD_NAMES
-
-#endif //_MSC_VER
-
 #if defined(__sun) && defined(__SVR4) // Solaris
 #if !defined(isfinite)
 #include <ieeefp.h>
@@ -4179,11 +4123,6 @@ Value& Path::make(Value& root) const {
 #define isfinite finite
 #endif
 #endif
-#endif
-
-#if defined(_MSC_VER)
-// Disable warning about strdup being deprecated.
-#pragma warning(disable : 4996)
 #endif
 
 namespace Json {

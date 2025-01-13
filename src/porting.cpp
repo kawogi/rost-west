@@ -583,13 +583,7 @@ int mt_snprintf(char *buf, const size_t buf_size, const char *fmt, ...)
 	//  above FFmpeg link).
 	va_list args;
 	va_start(args, fmt);
-#ifndef _MSC_VER
 	int c = vsnprintf(buf, buf_size, fmt, args);
-#else  // _MSC_VER
-	int c = _vsprintf_p(buf, buf_size, fmt, args);
-	if (c == -1)
-		c = _vscprintf_p(fmt, args);
-#endif // _MSC_VER
 	va_end(args);
 	return c;
 }
