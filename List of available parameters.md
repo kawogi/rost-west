@@ -8,9 +8,6 @@ cmake . -LH
 // Use a blacklist to avoid known broken locales
 APPLY_LOCALE_BLACKLIST:BOOL=ON
 
-// Build client
-BUILD_CLIENT:BOOL=TRUE
-
 // Build documentation
 BUILD_DOCUMENTATION:BOOL=TRUE
 

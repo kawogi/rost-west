@@ -67,7 +67,6 @@ set(RUN_IN_PLACE ${DEFAULT_RUN_IN_PLACE} CACHE BOOL
 	"Run directly in source directory structure")
 
 message(STATUS "*** Will build version ${VERSION_STRING} ***")
-message(STATUS "BUILD_CLIENT: " ${BUILD_CLIENT})
 message(STATUS "BUILD_SERVER: " ${BUILD_SERVER})
 message(STATUS "BUILD_DOCUMENTATION: " ${BUILD_DOCUMENTATION})
 message(STATUS "RUN_IN_PLACE: " ${RUN_IN_PLACE})
@@ -94,17 +93,9 @@ endif()
 
 if(TRUE)
 	message(STATUS "Using imported IrrlichtMt at subdirectory 'irr'")
-	if(BUILD_CLIENT)
-		add_subdirectory(irr EXCLUDE_FROM_ALL)
-
-		if(NOT TARGET IrrlichtMt)
-			message(FATAL_ERROR "IrrlichtMt project is missing a CMake target?!")
-		endif()
-	else()
-		add_library(IrrlichtMt::IrrlichtMt INTERFACE IMPORTED)
-		set_target_properties(IrrlichtMt::IrrlichtMt PROPERTIES
-			INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/irr/include")
-	endif()
+	add_library(IrrlichtMt::IrrlichtMt INTERFACE IMPORTED)
+	set_target_properties(IrrlichtMt::IrrlichtMt PROPERTIES
+		INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_CURRENT_SOURCE_DIR}/irr/include")
 endif()
 
 if (ENABLE_LTO OR CMAKE_INTERPROCEDURAL_OPTIMIZATION)

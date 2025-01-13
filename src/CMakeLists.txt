@@ -41,12 +41,7 @@ endif()
 # Set some random things default to not being visible in the GUI
 mark_as_advanced(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)
 
-
-if(NOT (BUILD_CLIENT OR BUILD_SERVER))
-	message(WARNING "Neither BUILD_CLIENT nor BUILD_SERVER is set! Setting BUILD_SERVER=true")
-	set(BUILD_SERVER TRUE)
-endif()
-
+set(BUILD_SERVER TRUE)
 
 option(PRECOMPILE_HEADERS "Precompile some headers (experimental; requires CMake 3.16 or later)" FALSE)
 set(PRECOMPILED_HEADERS_PATH "" CACHE FILEPATH "Path to a file listing all headers to precompile")
@@ -81,9 +76,6 @@ else()
 endif()
 
 if(NOT USE_CURL)
-	if(BUILD_CLIENT)
-		message(WARNING "cURL is required to load the server list")
-	endif()
 	if(BUILD_SERVER)
 		message(WARNING "cURL is required to announce to the server list")
 	endif()
