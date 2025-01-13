@@ -140,7 +140,6 @@
 /*-------------------------------------------------------------------------
  * basic type definitions
  *-----------------------------------------------------------------------*/
-#if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 199901L) || defined(__GNUC__) || defined(__SCO__) || defined(__USLC__)
 
 /*
  * Using <stdint.h>
@@ -165,73 +164,6 @@ typedef uint64_t khronos_uint64_t;
 #if __SIZEOF_POINTER__ > __SIZEOF_LONG__
 #define KHRONOS_USE_INTPTR_T
 #endif
-#endif
-
-#elif defined(__VMS) || defined(__sgi)
-
-/*
- * Using <inttypes.h>
- */
-#include <inttypes.h>
-typedef int32_t khronos_int32_t;
-typedef uint32_t khronos_uint32_t;
-typedef int64_t khronos_int64_t;
-typedef uint64_t khronos_uint64_t;
-#define KHRONOS_SUPPORT_INT64 1
-#define KHRONOS_SUPPORT_FLOAT 1
-
-#elif defined(_WIN32) && !defined(__SCITECH_SNAP__)
-
-/*
- * Win32
- */
-typedef __int32 khronos_int32_t;
-typedef unsigned __int32 khronos_uint32_t;
-typedef __int64 khronos_int64_t;
-typedef unsigned __int64 khronos_uint64_t;
-#define KHRONOS_SUPPORT_INT64 1
-#define KHRONOS_SUPPORT_FLOAT 1
-
-#elif defined(__sun__) || defined(__digital__)
-
-/*
- * Sun or Digital
- */
-typedef int khronos_int32_t;
-typedef unsigned int khronos_uint32_t;
-#if defined(__arch64__) || defined(_LP64)
-typedef long int khronos_int64_t;
-typedef unsigned long int khronos_uint64_t;
-#else
-typedef long long int khronos_int64_t;
-typedef unsigned long long int khronos_uint64_t;
-#endif /* __arch64__ */
-#define KHRONOS_SUPPORT_INT64 1
-#define KHRONOS_SUPPORT_FLOAT 1
-
-#elif 0
-
-/*
- * Hypothetical platform with no float or int64 support
- */
-typedef int khronos_int32_t;
-typedef unsigned int khronos_uint32_t;
-#define KHRONOS_SUPPORT_INT64 0
-#define KHRONOS_SUPPORT_FLOAT 0
-
-#else
-
-/*
- * Generic fallback
- */
-#include <stdint.h>
-typedef int32_t khronos_int32_t;
-typedef uint32_t khronos_uint32_t;
-typedef int64_t khronos_int64_t;
-typedef uint64_t khronos_uint64_t;
-#define KHRONOS_SUPPORT_INT64 1
-#define KHRONOS_SUPPORT_FLOAT 1
-
 #endif
 
 /*

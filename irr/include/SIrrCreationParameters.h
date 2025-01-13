@@ -38,11 +38,7 @@ struct SIrrlichtCreationParameters
 			Stereobuffer(false),
 			EventReceiver(0),
 			WindowId(0),
-#ifdef _DEBUG
 			LoggingLevel(ELL_DEBUG),
-#else
-			LoggingLevel(ELL_INFORMATION),
-#endif
 			PrivateData(0),
 #ifdef IRR_MOBILE_PATHS
 			OGLES2ShaderPath("media/Shaders/"),

@@ -13,8 +13,4 @@
 // in between!
 
 // byte-align structures
-#if defined(__GNUC__)
 #define PACK_STRUCT __attribute__((packed))
-#else
-#error compiler not supported
-#endif

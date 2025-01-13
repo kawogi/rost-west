@@ -286,21 +286,13 @@ bool operator!=(const SecureAllocator<T>&, const SecureAllocator<U>&) {
 #if __has_extension(attribute_deprecated_with_message)
 #define JSONCPP_DEPRECATED(message) __attribute__((deprecated(message)))
 #endif
-#elif defined(__GNUC__) // not clang (gcc comes later since clang emulates gcc)
-#if (__GNUC__ > 4 || (__GNUC__ == 4 && __GNUC_MINOR__ >= 5))
-#define JSONCPP_DEPRECATED(message) __attribute__((deprecated(message)))
-#elif (__GNUC__ > 3 || (__GNUC__ == 3 && __GNUC_MINOR__ >= 1))
-#define JSONCPP_DEPRECATED(message) __attribute__((__deprecated__))
-#endif                  // GNUC version
-#endif // __clang__ || __GNUC__
+#endif
 
 #if !defined(JSONCPP_DEPRECATED)
 #define JSONCPP_DEPRECATED(message)
 #endif // if !defined(JSONCPP_DEPRECATED)
 
-#if defined(__clang__) || (defined(__GNUC__) && (__GNUC__ >= 6))
 #define JSON_USE_INT64_DOUBLE_CONVERSION 1
-#endif
 
 #if !defined(JSON_IS_AMALGAMATION)
 
