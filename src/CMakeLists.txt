@@ -516,10 +516,8 @@ endif(BUILD_CLIENT)
 
 list(APPEND client_SRCS
 	${common_SRCS}
-	${gui_SRCS}
 	${client_network_SRCS}
 	${client_irrlicht_changes_SRCS}
-	${client_SCRIPT_SRCS}
 )
 
 if(BUILD_UNITTESTS)
