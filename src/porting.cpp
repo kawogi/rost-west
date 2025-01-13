@@ -157,9 +157,6 @@ static bool getExecPathFromProcfs(char *buf, size_t buflen)
 	return true;
 }
 
-//// Linux
-#if defined(__linux__)
-
 bool getCurrentExecPath(char *buf, size_t len)
 {
 	if (!getExecPathFromProcfs(buf, len))
@@ -167,16 +164,6 @@ bool getCurrentExecPath(char *buf, size_t len)
 
 	return true;
 }
-
-#else
-
-bool getCurrentExecPath(char *buf, size_t len)
-{
-	return false;
-}
-
-#endif
-
 
 [[maybe_unused]] static inline const char *getHomeOrFail()
 {

@@ -80,14 +80,12 @@
 #endif
 #endif
 
-#ifdef __linux__
 #if !defined(betoh16)
 #define betoh16(x) be16toh(x)
 #endif
 #if !defined(betoh32)
 #define betoh32(x) be32toh(x)
 #endif
-#endif /* __linux__ */
 
 /** libcrypto/crypto_internal.h **/
 #define CTASSERT(x) \

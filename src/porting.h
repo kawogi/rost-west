@@ -8,7 +8,7 @@
 
 #pragma once
 
-#if (defined(__linux__) || defined(__GNU__)) && !defined(_GNU_SOURCE)
+#if !defined(_GNU_SOURCE)
 	#define _GNU_SOURCE
 #endif
 
@@ -183,13 +183,7 @@ inline void preciseSleepUs(u64 sleep_time)
 
 inline const char *getPlatformName()
 {
-	return
-#if defined(__linux__)
-	"Linux"
-#else
-	"?"
-#endif
-	;
+	return "Linux";
 }
 
 bool secure_rand_fill_buf(void *buf, size_t len);

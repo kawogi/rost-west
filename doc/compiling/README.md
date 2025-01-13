@@ -6,7 +6,6 @@
 
 General options and their default values:
 
-    BUILD_SERVER=FALSE         - Build Luanti server
     BUILD_DOCUMENTATION=TRUE   - Build doxygen documentation
     CMAKE_BUILD_TYPE=Release   - Type of build (Release vs. Debug)
         Release                - Release build

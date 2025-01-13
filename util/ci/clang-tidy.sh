@@ -3,8 +3,7 @@
 cmake -B build -DCMAKE_BUILD_TYPE=Debug \
 	-DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
 	-DRUN_IN_PLACE=TRUE \
-	-DENABLE_GETTEXT=FALSE \
-	-DBUILD_SERVER=TRUE
+	-DENABLE_GETTEXT=FALSE
 cmake --build build --target GenerateVersion
 
 ./util/ci/run-clang-tidy.py \

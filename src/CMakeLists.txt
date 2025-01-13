@@ -41,8 +41,6 @@ endif()
 # Set some random things default to not being visible in the GUI
 mark_as_advanced(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)
 
-set(BUILD_SERVER TRUE)
-
 option(PRECOMPILE_HEADERS "Precompile some headers (experimental; requires CMake 3.16 or later)" FALSE)
 set(PRECOMPILED_HEADERS_PATH "" CACHE FILEPATH "Path to a file listing all headers to precompile")
 
@@ -76,14 +74,8 @@ else()
 endif()
 
 if(NOT USE_CURL)
-	if(BUILD_SERVER)
-		message(WARNING "cURL is required to announce to the server list")
-	endif()
+	message(WARNING "cURL is required to announce to the server list")
 endif()
-
-
-option(ENABLE_GETTEXT "Use GetText for internationalization" ${BUILD_CLIENT})
-set(USE_GETTEXT FALSE)
 
 if(ENABLE_GETTEXT)
 	find_package(GettextLib)
@@ -99,31 +91,6 @@ endif()
 
 option(ENABLE_SOUND "Enable sound" TRUE)
 set(USE_SOUND FALSE)
-
-if(BUILD_CLIENT AND ENABLE_SOUND)
-	# Sound libraries
-	find_package(OpenAL)
-	find_package(Vorbis)
-	if(NOT OPENAL_FOUND)
-		message(STATUS "Sound enabled, but OpenAL not found!")
-		mark_as_advanced(CLEAR OPENAL_LIBRARY OPENAL_INCLUDE_DIR)
-	endif()
-	if(NOT VORBIS_FOUND)
-		message(STATUS "Sound enabled, but Vorbis libraries not found!")
-		mark_as_advanced(CLEAR OGG_INCLUDE_DIR VORBIS_INCLUDE_DIR OGG_LIBRARY VORBIS_LIBRARY VORBISFILE_LIBRARY)
-	endif()
-	if(OPENAL_FOUND AND VORBIS_FOUND)
-		set(USE_SOUND TRUE)
-		message(STATUS "Sound enabled.")
-	else()
-		message(FATAL_ERROR "Sound enabled, but cannot be used.\n"
-			"To continue, either fill in the required paths or disable sound. (-DENABLE_SOUND=0)")
-	endif()
-endif()
-
-if(BUILD_CLIENT)
-	find_package(Freetype REQUIRED)
-endif()
 
 option(ENABLE_CURSES "Enable ncurses console" TRUE)
 set(USE_CURSES FALSE)
@@ -229,12 +196,7 @@ endif()
 
 include(CheckSymbolExists)
 check_symbol_exists(strlcpy "string.h" HAVE_STRLCPY)
-
-if(UNIX)
-	check_symbol_exists(malloc_trim "malloc.h" HAVE_MALLOC_TRIM)
-else()
-	set(HAVE_MALLOC_TRIM FALSE)
-endif()
+check_symbol_exists(malloc_trim "malloc.h" HAVE_MALLOC_TRIM)
 
 check_include_files(endian.h HAVE_ENDIAN_H)
 
@@ -379,13 +341,6 @@ if(USE_GETTEXT)
 	include_directories(${GETTEXT_INCLUDE_DIR})
 endif()
 
-if(BUILD_CLIENT)
-	include_directories(SYSTEM
-		${FREETYPE_INCLUDE_DIRS}
-		${SOUND_INCLUDE_DIRS}
-	)
-endif()
-
 if(USE_CURL)
 	include_directories(${CURL_INCLUDE_DIR})
 endif()
@@ -415,146 +370,67 @@ if(PRECOMPILE_HEADERS)
 	target_precompile_headers(EngineCommon PRIVATE ${PRECOMPILED_HEADERS_LIST})
 endif()
 
-if(BUILD_CLIENT)
-	# client target
-	add_executable(${PROJECT_NAME})
+# server target
+add_executable(${PROJECT_NAME}server)
+list(SORT server_SRCS)
+target_sources(${PROJECT_NAME}server PRIVATE
+	$<TARGET_OBJECTS:EngineCommon>
+	${server_SRCS}
+)
 
-	list(SORT client_SRCS)
-	target_sources(${PROJECT_NAME} PRIVATE
-		$<TARGET_OBJECTS:EngineCommon>
-		${client_SRCS}
+# don't link the irrlicht library
+get_target_property(
+	IRRLICHT_INCLUDES IrrlichtMt::IrrlichtMt INTERFACE_INCLUDE_DIRECTORIES)
+target_include_directories(${PROJECT_NAME}server PRIVATE ${IRRLICHT_INCLUDES})
+target_link_libraries(
+	${PROJECT_NAME}server
+	${ZLIB_LIBRARIES}
+	${ZSTD_LIBRARY}
+	${SQLITE3_LIBRARY}
+	${JSON_LIBRARY}
+	${LUA_LIBRARY}
+	${LUA_BIT_LIBRARY}
+	sha256
+	${GMP_LIBRARY}
+	${PLATFORM_LIBS}
+)
+target_compile_definitions(${PROJECT_NAME}server PRIVATE "MT_BUILDTARGET=2")
+if(NOT USE_LUAJIT)
+	set_target_properties(${PROJECT_NAME}server PROPERTIES
+		# This is necessary for dynamic Lua modules
+		# to work when Lua is statically linked (issue #10806)
+		ENABLE_EXPORTS 1
 	)
+endif()
 
-	target_link_libraries(
-		${PROJECT_NAME}
-		${ZLIB_LIBRARIES}
-		IrrlichtMt::IrrlichtMt
-		${ZSTD_LIBRARY}
-		${SOUND_LIBRARIES}
-		${SQLITE3_LIBRARY}
-		${LUA_LIBRARY}
-		${GMP_LIBRARY}
-		${JSON_LIBRARY}
-		${LUA_BIT_LIBRARY}
-		sha256
-		${FREETYPE_LIBRARY}
-		${PLATFORM_LIBS}
-		# on Android, Luanti depends on SDL2 directly
-		# on other platforms, only IrrlichtMt depends on SDL2
-		"$<$<PLATFORM_ID:Android>:${SDL2_LIBRARIES}>"
-	)
-	target_compile_definitions(${PROJECT_NAME} PRIVATE "MT_BUILDTARGET=1")
-	if(NOT USE_LUAJIT)
-		set_target_properties(${PROJECT_NAME} PROPERTIES
-			# This is necessary for dynamic Lua modules
-			# to work when Lua is statically linked (issue #10806)
-			ENABLE_EXPORTS 1
-		)
-	endif()
-
-	if(USE_GETTEXT)
-		target_link_libraries(
-			${PROJECT_NAME}
-			${GETTEXT_LIBRARY}
-		)
-	endif()
-	if(USE_CURL)
-		target_link_libraries(
-			${PROJECT_NAME}
-			${CURL_LIBRARY}
-		)
-	endif()
-	if(FREETYPE_PKGCONFIG_FOUND)
-		set_target_properties(${PROJECT_NAME}
-			PROPERTIES
-			COMPILE_FLAGS "${FREETYPE_CFLAGS_STR}"
-	)
-	endif()
-	if (USE_CURSES)
-		target_link_libraries(${PROJECT_NAME} ${CURSES_LIBRARIES})
-	endif()
-	if (USE_PROMETHEUS)
-		target_link_libraries(${PROJECT_NAME} ${PROMETHEUS_LIBRARIES})
-	endif()
-	if (USE_SPATIAL)
-		target_link_libraries(${PROJECT_NAME} ${SPATIAL_LIBRARY})
-	endif()
-	if (USE_OPENSSL)
-		target_link_libraries(${PROJECT_NAME} OpenSSL::Crypto)
-	endif()
-	if(BUILD_WITH_TRACY)
-		target_link_libraries(${PROJECT_NAME} Tracy::TracyClient)
-	endif()
-
-	if(PRECOMPILE_HEADERS)
-		target_precompile_headers(${PROJECT_NAME} PRIVATE ${PRECOMPILED_HEADERS_LIST})
-	endif()
-endif(BUILD_CLIENT)
-
-
-if(BUILD_SERVER)
-	# server target
-	add_executable(${PROJECT_NAME}server)
-	list(SORT server_SRCS)
-	target_sources(${PROJECT_NAME}server PRIVATE
-		$<TARGET_OBJECTS:EngineCommon>
-		${server_SRCS}
-	)
-
-	# don't link the irrlicht library
-	get_target_property(
-		IRRLICHT_INCLUDES IrrlichtMt::IrrlichtMt INTERFACE_INCLUDE_DIRECTORIES)
-	target_include_directories(${PROJECT_NAME}server PRIVATE ${IRRLICHT_INCLUDES})
+if (USE_GETTEXT)
+	target_link_libraries(${PROJECT_NAME}server ${GETTEXT_LIBRARY})
+endif()
+if (USE_CURSES)
+	target_link_libraries(${PROJECT_NAME}server ${CURSES_LIBRARIES})
+endif()
+if (USE_PROMETHEUS)
+	target_link_libraries(${PROJECT_NAME}server ${PROMETHEUS_LIBRARIES})
+endif()
+if (USE_SPATIAL)
+	target_link_libraries(${PROJECT_NAME}server ${SPATIAL_LIBRARY})
+endif()
+if (USE_OPENSSL)
+	target_link_libraries(${PROJECT_NAME}server OpenSSL::Crypto)
+endif()
+if(USE_CURL)
 	target_link_libraries(
 		${PROJECT_NAME}server
-		${ZLIB_LIBRARIES}
-		${ZSTD_LIBRARY}
-		${SQLITE3_LIBRARY}
-		${JSON_LIBRARY}
-		${LUA_LIBRARY}
-		${LUA_BIT_LIBRARY}
-		sha256
-		${GMP_LIBRARY}
-		${PLATFORM_LIBS}
+		${CURL_LIBRARY}
 	)
-	target_compile_definitions(${PROJECT_NAME}server PRIVATE "MT_BUILDTARGET=2")
-	if(NOT USE_LUAJIT)
-		set_target_properties(${PROJECT_NAME}server PROPERTIES
-			# This is necessary for dynamic Lua modules
-			# to work when Lua is statically linked (issue #10806)
-			ENABLE_EXPORTS 1
-		)
-	endif()
+endif()
+if(BUILD_WITH_TRACY)
+	target_link_libraries(${PROJECT_NAME}server Tracy::TracyClient)
+endif()
 
-	if (USE_GETTEXT)
-		target_link_libraries(${PROJECT_NAME}server ${GETTEXT_LIBRARY})
-	endif()
-	if (USE_CURSES)
-		target_link_libraries(${PROJECT_NAME}server ${CURSES_LIBRARIES})
-	endif()
-	if (USE_PROMETHEUS)
-		target_link_libraries(${PROJECT_NAME}server ${PROMETHEUS_LIBRARIES})
-	endif()
-	if (USE_SPATIAL)
-		target_link_libraries(${PROJECT_NAME}server ${SPATIAL_LIBRARY})
-	endif()
-	if (USE_OPENSSL)
-		target_link_libraries(${PROJECT_NAME}server OpenSSL::Crypto)
-	endif()
-	if(USE_CURL)
-		target_link_libraries(
-			${PROJECT_NAME}server
-			${CURL_LIBRARY}
-		)
-	endif()
-	if(BUILD_WITH_TRACY)
-		target_link_libraries(${PROJECT_NAME}server Tracy::TracyClient)
-	endif()
-
-	if(PRECOMPILE_HEADERS)
-		target_precompile_headers(${PROJECT_NAME}server PRIVATE ${PRECOMPILED_HEADERS_LIST})
-	endif()
-endif(BUILD_SERVER)
+if(PRECOMPILE_HEADERS)
+	target_precompile_headers(${PROJECT_NAME}server PRIVATE ${PRECOMPILED_HEADERS_LIST})
+endif()
 
 # See issue #4638
 FILE(READ "${CMAKE_SOURCE_DIR}/src/unsupported_language_list.txt" GETTEXT_BLACKLISTED_LOCALES)
@@ -683,10 +559,8 @@ else()
 	set(CMAKE_CXX_FLAGS_SEMIDEBUG "-g -O1 ${WARNING_FLAGS} ${OTHER_FLAGS}")
 	set(CMAKE_CXX_FLAGS_DEBUG "-g -O0 ${WARNING_FLAGS} ${OTHER_FLAGS}")
 
-	if(UNIX)
-		# enable assertions for libstdc++ or libc++
-		set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wp,-D_GLIBCXX_ASSERTIONS -Wp,-D_LIBCPP_ENABLE_ASSERTIONS=1")
-	endif()
+	# enable assertions for libstdc++ or libc++
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wp,-D_GLIBCXX_ASSERTIONS -Wp,-D_LIBCPP_ENABLE_ASSERTIONS=1")
 	if(USE_GPROF)
 		set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -pg")
 	endif()
@@ -701,35 +575,7 @@ macro(CreateLegacyAlias _cmake_target _old_path _new_name)
 	install(PROGRAMS "${_old_path}" DESTINATION ${BINDIR})
 endmacro()
 
-if(BUILD_CLIENT AND NOT ANDROID)
-	install(TARGETS ${PROJECT_NAME}
-		RUNTIME DESTINATION ${BINDIR}
-		LIBRARY DESTINATION ${BINDIR}
-		ARCHIVE DESTINATION ${BINDIR}
-		BUNDLE DESTINATION .
-	)
-	if(UNIX)
-		CreateLegacyAlias(minetest_alias "${EXECUTABLE_OUTPUT_PATH}/minetest" ${PROJECT_NAME})
-	endif()
-
-	if(USE_GETTEXT)
-		foreach(LOCALE ${GETTEXT_USED_LOCALES})
-			set_mo_paths(MO_BUILD_PATH MO_DEST_PATH ${LOCALE})
-			set(MO_BUILD_PATH "${MO_BUILD_PATH}/${PROJECT_NAME}.mo")
-			install(FILES ${MO_BUILD_PATH} DESTINATION ${MO_DEST_PATH})
-		endforeach()
-	endif()
-
-	install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../fonts" DESTINATION "${SHAREDIR}"
-			FILES_MATCHING PATTERN "*.ttf" PATTERN "*.txt")
-endif()
-
-if(BUILD_SERVER)
-	install(TARGETS ${PROJECT_NAME}server DESTINATION ${BINDIR})
-	if(UNIX)
-		CreateLegacyAlias(minetestserver_alias "${EXECUTABLE_OUTPUT_PATH}/minetestserver" ${PROJECT_NAME}server)
-	endif()
-endif()
+install(TARGETS ${PROJECT_NAME}server DESTINATION ${BINDIR})
 
 if (USE_GETTEXT)
 	set(MO_FILES)

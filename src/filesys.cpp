@@ -16,12 +16,10 @@
 #include "config.h"
 #include "porting.h"
 
-#ifdef __linux__
 #include <fcntl.h>
 #include <sys/ioctl.h>
 #ifndef FICLONE
 #define FICLONE _IOW(0x94, 9, int)
-#endif
 #endif
 
 #include <sys/types.h>
@@ -245,7 +243,6 @@ bool CopyFileContents(const std::string &source, const std::string &target)
 {
 	FileUniquePtr sourcefile, targetfile;
 
-#ifdef __linux__
 	// Try to clone using Copy-on-Write (CoW). This is instant but supported
 	// only by some filesystems.
 
@@ -276,8 +273,6 @@ bool CopyFileContents(const std::string &source, const std::string &target)
 	sourcefile.reset(fdopen(srcfd, "rb"));
 	targetfile.reset(fdopen(tgtfd, "wb"));
 	goto fallback;
-
-#endif
 
 	sourcefile.reset(fopen(source.c_str(), "rb"));
 	targetfile.reset(fopen(target.c_str(), "wb"));

@@ -20,7 +20,6 @@
  */
 static bool detect_touch()
 {
-#if defined(__linux__)
 	std::string chassis_type;
 
 	// device-tree platforms (non-X86)
@@ -61,10 +60,6 @@ static bool detect_touch()
 	}
 
 	return false;
-#else
-	// we don't know, return default
-	return false;
-#endif
 }
 
 void set_default_settings()

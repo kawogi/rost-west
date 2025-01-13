@@ -11,9 +11,6 @@ APPLY_LOCALE_BLACKLIST:BOOL=ON
 // Build documentation
 BUILD_DOCUMENTATION:BOOL=TRUE
 
-// Build server
-BUILD_SERVER:BOOL=FALSE
-
 // Fetch and build with the Tracy profiler client
 BUILD_WITH_TRACY:BOOL=FALSE
 

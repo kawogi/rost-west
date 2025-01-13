@@ -9,11 +9,7 @@ set(COMMON_CFLAGS)
 set(COMMON_LDFLAGS)
 set(LIBS)
 
-if(UNIX)
-	set(DEFAULT_POSIX TRUE)
-else()
-	set(DEFAULT_ANSI TRUE)
-endif()
+set(DEFAULT_POSIX TRUE)
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 	set(COMMON_LDFLAGS "${COMMON_LDFLAGS} -Wl,-E -lm")
@@ -23,9 +19,6 @@ endif()
 option(LUA_USE_DLOPEN "Enable dlopen support." ${DEFAULT_DLOPEN})
 mark_as_advanced(LUA_USE_DLOPEN)
 
-option(LUA_ANSI "Disable non-ANSI features." ${DEFAULT_ANSI})
-mark_as_advanced(LUA_ANSI)
-
 if(LUA_USE_DLOPEN)
 	set(COMMON_CFLAGS "${COMMON_CFLAGS} -DLUA_USE_DLOPEN")
 	set(COMMON_LDFLAGS "${COMMON_LDFLAGS} -ldl ")
@@ -34,10 +27,6 @@ endif(LUA_USE_DLOPEN)
 if(DEFAULT_POSIX)
 	set(COMMON_CFLAGS "${COMMON_CFLAGS} -DLUA_USE_POSIX")
 endif(DEFAULT_POSIX)
-
-if(LUA_ANSI)
-	set(COMMON_CFLAGS "${COMMON_CFLAGS} -DLUA_ANSI")
-endif(LUA_ANSI)
 
 # Standard flags to use
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|(Apple)?Clang")

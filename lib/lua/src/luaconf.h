@@ -18,16 +18,6 @@
 ** ===================================================================
 */
 
-
-/*
-@@ LUA_ANSI controls the use of non-ansi features.
-** CHANGE it (define it) if you want Lua to avoid the use of any
-** non-ansi feature or library.
-*/
-#if defined(__STRICT_ANSI__)
-#define LUA_ANSI
-#endif
-
 #if defined(LUA_USE_LINUX)
 #define LUA_USE_POSIX
 #define LUA_USE_DLOPEN		/* needs an extra library: -ldl */
@@ -516,7 +506,7 @@
 */
 
 /* On a Pentium, resort to a trick */
-#if defined(LUA_NUMBER_DOUBLE) && !defined(LUA_ANSI) && !defined(__SSE2__) && \
+#if defined(LUA_NUMBER_DOUBLE) && !defined(__SSE2__) && \
     (defined(__i386) || defined (_M_IX86) || defined(__i386__))
 
 /* this option always works, but may be slow */

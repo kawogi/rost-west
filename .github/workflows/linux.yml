@@ -149,7 +149,7 @@ jobs:
         env:
           CC: clang-11
           CXX: clang++-11
-          CMAKE_FLAGS: "-DENABLE_PROMETHEUS=1 -DBUILD_CLIENT=0 -DENABLE_CURSES=0"
+          CMAKE_FLAGS: "-DENABLE_PROMETHEUS=1 -DENABLE_CURSES=0"
 
       - name: Test
         run: |

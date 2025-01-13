@@ -31,8 +31,6 @@ if (CMAKE_BUILD_TYPE STREQUAL Debug)
 endif()
 
 # Configuration options
-set(BUILD_CLIENT FALSE CACHE BOOL "Build client")
-set(BUILD_SERVER TRUE CACHE BOOL "Build server")
 set(BUILD_DOCUMENTATION TRUE CACHE BOOL "Build documentation")
 
 set(DEFAULT_ENABLE_LTO TRUE)
@@ -40,10 +38,6 @@ set(DEFAULT_ENABLE_LTO TRUE)
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
   set(DEFAULT_ENABLE_LTO FALSE)
 endif()
-#### LTO testing list ####
-# - Linux: seems to work always
-# Note: since CMake has no easy architecture detection disabling for Mac entirely
-#### ####
 set(ENABLE_LTO ${DEFAULT_ENABLE_LTO} CACHE BOOL "Use Link Time Optimization")
 
 set(BUILD_WITH_TRACY FALSE CACHE BOOL
@@ -56,7 +50,6 @@ set(RUN_IN_PLACE ${DEFAULT_RUN_IN_PLACE} CACHE BOOL
 	"Run directly in source directory structure")
 
 message(STATUS "*** Will build version ${VERSION_STRING} ***")
-message(STATUS "BUILD_SERVER: " ${BUILD_SERVER})
 message(STATUS "BUILD_DOCUMENTATION: " ${BUILD_DOCUMENTATION})
 message(STATUS "RUN_IN_PLACE: " ${RUN_IN_PLACE})
 
@@ -103,29 +96,27 @@ endif()
 
 # Installation
 
-if(UNIX) # Linux, etc
-	if(RUN_IN_PLACE)
-		set(SHAREDIR ".")
-		set(BINDIR "bin")
-		set(DOCDIR "doc")
-		set(EXAMPLE_CONF_DIR ".")
-		set(MANDIR "unix/man")
-		set(XDG_APPS_DIR "unix/applications")
-		set(METAINFODIR "unix/metainfo")
-		set(ICONDIR "unix/icons")
-		set(LOCALEDIR "locale")
-	else()
-		include(GNUInstallDirs)
-		set(SHAREDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}")
-		set(BINDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}")
-		set(DOCDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DOCDIR}")
-		set(MANDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_MANDIR}")
-		set(EXAMPLE_CONF_DIR ${DOCDIR})
-		set(XDG_APPS_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/applications")
-		set(METAINFODIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/metainfo")
-		set(ICONDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/icons")
-		set(LOCALEDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LOCALEDIR}")
-	endif()
+if(RUN_IN_PLACE)
+	set(SHAREDIR ".")
+	set(BINDIR "bin")
+	set(DOCDIR "doc")
+	set(EXAMPLE_CONF_DIR ".")
+	set(MANDIR "unix/man")
+	set(XDG_APPS_DIR "unix/applications")
+	set(METAINFODIR "unix/metainfo")
+	set(ICONDIR "unix/icons")
+	set(LOCALEDIR "locale")
+else()
+	include(GNUInstallDirs)
+	set(SHAREDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}")
+	set(BINDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}")
+	set(DOCDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DOCDIR}")
+	set(MANDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_MANDIR}")
+	set(EXAMPLE_CONF_DIR ${DOCDIR})
+	set(XDG_APPS_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/applications")
+	set(METAINFODIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/metainfo")
+	set(ICONDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/icons")
+	set(LOCALEDIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LOCALEDIR}")
 endif()
 
 set(CUSTOM_SHAREDIR "" CACHE STRING "Directory to install data files into")
@@ -193,15 +184,6 @@ if(INSTALL_DEVTEST)
 		PATTERN ".git*" EXCLUDE )
 endif()
 
-if(BUILD_CLIENT)
-	install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/client/shaders" DESTINATION "${SHAREDIR}/client")
-	install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/textures/base/pack" DESTINATION "${SHAREDIR}/textures/base")
-	if(RUN_IN_PLACE)
-		install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/clientmods" DESTINATION "${SHAREDIR}")
-		install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/client/serverlist" DESTINATION "${SHAREDIR}/client")
-	endif()
-endif()
-
 install(FILES "README.md" DESTINATION "${DOCDIR}" COMPONENT "Docs")
 install(FILES "doc/lua_api.md" DESTINATION "${DOCDIR}" COMPONENT "Docs")
 install(FILES "doc/client_lua_api.md" DESTINATION "${DOCDIR}" COMPONENT "Docs")
@@ -249,46 +231,11 @@ cpack_add_component(Docs
 	DESCRIPTION "Documentation about ${PROJECT_NAME_CAPITALIZED} and ${PROJECT_NAME_CAPITALIZED} modding"
 )
 
-if(WIN32)
-	# Include all dynamically linked runtime libraries such as MSVCRxxx.dll
-	include(InstallRequiredSystemLibraries)
-
-	if(RUN_IN_PLACE)
-		set(CPACK_GENERATOR ZIP)
-	else()
-		set(CPACK_GENERATOR WIX)
-		set(CPACK_PACKAGE_NAME "${PROJECT_NAME_CAPITALIZED}")
-		set(CPACK_PACKAGE_INSTALL_DIRECTORY ".")
-		set(CPACK_PACKAGE_EXECUTABLES ${PROJECT_NAME} "${PROJECT_NAME_CAPITALIZED}")
-		set(CPACK_CREATE_DESKTOP_LINKS ${PROJECT_NAME})
-		set(CPACK_PACKAGING_INSTALL_PREFIX "/${PROJECT_NAME_CAPITALIZED}")
-
-		set(CPACK_WIX_PRODUCT_ICON "${CMAKE_CURRENT_SOURCE_DIR}/misc/luanti-icon.ico")
-		# Supported languages can be found at
-		# http://wixtoolset.org/documentation/manual/v3/wixui/wixui_localization.html
-		#set(CPACK_WIX_CULTURES "ar-SA,bg-BG,ca-ES,hr-HR,cs-CZ,da-DK,nl-NL,en-US,et-EE,fi-FI,fr-FR,de-DE")
-		set(CPACK_WIX_UI_BANNER "${CMAKE_CURRENT_SOURCE_DIR}/misc/CPACK_WIX_UI_BANNER.BMP")
-		set(CPACK_WIX_UI_DIALOG "${CMAKE_CURRENT_SOURCE_DIR}/misc/CPACK_WIX_UI_DIALOG.BMP")
-
-		set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/doc/lgpl-2.1.txt")
-
-		# The correct way would be to include both x32 and x64 into one installer
-		# and install the appropriate one.
-		# CMake does not support that, so there are two separate GUID's
-		if(CMAKE_SIZEOF_VOID_P EQUAL 8)
-			set(CPACK_WIX_UPGRADE_GUID "745A0FB3-5552-44CA-A587-A91C397CCC56")
-		else()
-			set(CPACK_WIX_UPGRADE_GUID "814A2E2D-2779-4BBD-9ACD-FC3BD51FBBA2")
-		endif()
-	endif()
-else()
-	set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${VERSION_STRING}-linux")
-	set(CPACK_GENERATOR TGZ)
-	set(CPACK_SOURCE_GENERATOR TGZ)
-endif()
+set(CPACK_PACKAGE_FILE_NAME "${PROJECT_NAME}-${VERSION_STRING}-linux")
+set(CPACK_GENERATOR TGZ)
+set(CPACK_SOURCE_GENERATOR TGZ)
 
 include(CPack)
-
 
 # Add a target to generate API documentation with Doxygen
 if(BUILD_DOCUMENTATION)

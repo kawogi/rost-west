@@ -163,16 +163,11 @@ Thread *Thread::getCurrentThread()
 
 void Thread::setName(const std::string &name)
 {
-#if defined(__linux__)
 
 	// It would be cleaner to do this with pthread_setname_np,
 	// which was added to glibc in version 2.12, but some major
 	// distributions are still runing 2.11 and previous versions.
 	prctl(PR_SET_NAME, name.c_str());
-
-#else
-	#warning "Unrecognized platform, thread names will not be available."
-#endif
 }
 
 

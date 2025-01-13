@@ -5,7 +5,6 @@ cmake -B build \
 	-DENABLE_LTO=FALSE \
 	-DRUN_IN_PLACE=TRUE \
 	-DENABLE_GETTEXT=${CMAKE_ENABLE_GETTEXT:-TRUE} \
-	-DBUILD_SERVER=${CMAKE_BUILD_SERVER:-TRUE} \
 	${CMAKE_FLAGS}
 
 cmake --build build --parallel $(($(nproc) + 1))
