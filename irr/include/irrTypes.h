@@ -50,11 +50,7 @@ typedef double f64;
 //! Defines for snprintf_irr because snprintf method does not match the ISO C
 //! standard on Windows platforms.
 //! We want int snprintf_irr(char *str, size_t size, const char *format, ...);
-#if defined(_MSC_VER)
-#define snprintf_irr sprintf_s
-#else
 #define snprintf_irr snprintf
-#endif // _MSC_VER
 
 namespace irr
 {
@@ -67,16 +63,6 @@ typedef char fschar_t;
 
 //! define a break macro for debugging.
 #if defined(_DEBUG)
-#if defined(_IRR_WINDOWS_API_) && defined(_MSC_VER)
-#include <crtdbg.h>
-#define _IRR_DEBUG_BREAK_IF(_CONDITION_) \
-	if (_CONDITION_) {                   \
-		_CrtDbgBreak();                  \
-	}
-#else
-#include <assert.h>
-#define _IRR_DEBUG_BREAK_IF(_CONDITION_) assert(!(_CONDITION_));
-#endif
 #else
 #define _IRR_DEBUG_BREAK_IF(_CONDITION_)
 #endif

@@ -894,14 +894,7 @@ inline size_t multibyteToWString(stringw &destination, const core::stringc &sour
 
 	if (sourceSize) {
 		destination.str.resize(sourceSize + 1);
-#if defined(_MSC_VER)
-#pragma warning(push)
-#pragma warning(disable : 4996) // 'mbstowcs': This function or variable may be unsafe. Consider using mbstowcs_s instead.
-#endif
 		const size_t written = mbstowcs(&destination[0], source.c_str(), (size_t)sourceSize);
-#if defined(_MSC_VER)
-#pragma warning(pop)
-#endif
 		if (written != (size_t)-1) {
 			destination.str.resize(written);
 		} else {

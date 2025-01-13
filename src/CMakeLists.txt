@@ -255,9 +255,7 @@ find_package(ZLIB REQUIRED)
 find_package(Zstd REQUIRED)
 
 
-if(NOT MSVC)
-	set(USE_GPROF FALSE CACHE BOOL "Use -pg flag for g++")
-endif()
+set(USE_GPROF FALSE CACHE BOOL "Use -pg flag for g++")
 
 # Haiku endian support
 if(HAIKU)
@@ -443,26 +441,6 @@ set(common_SRCS
 	${server_network_SRCS}
 )
 
-# This gives us the icon and file version information
-if(WIN32)
-	set(WINRESOURCE_FILE "${CMAKE_CURRENT_SOURCE_DIR}/../misc/winresource.rc")
-	set(EXE_MANIFEST_FILE "${CMAKE_CURRENT_SOURCE_DIR}/../misc/luanti.exe.manifest")
-	if(MINGW)
-		if(NOT CMAKE_RC_COMPILER)
-			set(CMAKE_RC_COMPILER "windres.exe")
-		endif()
-		ADD_CUSTOM_COMMAND(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/winresource_rc.o
-			COMMAND ${CMAKE_RC_COMPILER} -I${CMAKE_CURRENT_SOURCE_DIR} -I${CMAKE_CURRENT_BINARY_DIR}
-			-i${WINRESOURCE_FILE}
-			-o ${CMAKE_CURRENT_BINARY_DIR}/winresource_rc.o
-			WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-			DEPENDS ${WINRESOURCE_FILE} ${EXE_MANIFEST_FILE})
-		SET(extra_windows_SRCS ${CMAKE_CURRENT_BINARY_DIR}/winresource_rc.o)
-	else(MINGW) # Probably MSVC
-		set(extra_windows_SRCS ${WINRESOURCE_FILE} ${EXE_MANIFEST_FILE})
-	endif(MINGW)
-endif()
-
 # Server sources
 # (nothing here because a client always comes with a server)
 set(server_SRCS
@@ -588,7 +566,6 @@ if(BUILD_CLIENT)
 	target_sources(${PROJECT_NAME} PRIVATE
 		$<TARGET_OBJECTS:EngineCommon>
 		${client_SRCS}
-		${extra_windows_SRCS}
 	)
 
 	target_link_libraries(
@@ -674,7 +651,6 @@ if(BUILD_SERVER)
 	target_sources(${PROJECT_NAME}server PRIVATE
 		$<TARGET_OBJECTS:EngineCommon>
 		${server_SRCS}
-		${extra_windows_SRCS}
 	)
 
 	# don't link the irrlicht library

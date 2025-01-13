@@ -364,11 +364,7 @@ inline f32 FR(s32 x)
 #define F32_A_GREATER_B(a, b) ((a) > (b))
 
 #ifndef REALINLINE
-#ifdef _MSC_VER
-#define REALINLINE __forceinline
-#else
 #define REALINLINE inline
-#endif
 #endif
 
 // NOTE: This is not as exact as the c99/c++11 round function, especially at high numbers starting with 8388609

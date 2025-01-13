@@ -5,9 +5,4 @@
 // include this file to switch back to default alignment
 // file belongs to irrpack.h, see there for more info
 
-// Default alignment
-#if defined(_MSC_VER)
-#pragma pack(pop, packing)
-#endif
-
 #undef PACK_STRUCT

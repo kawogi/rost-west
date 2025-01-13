@@ -37,14 +37,7 @@ extern "C" {
 #include "lauxlib.h"
 }
 
-#if defined(_MSC_VER) && (_MSC_VER < 1700)
-/* Old MSVC is stuck in the last century and doesn't have C99's stdint.h. */
-typedef __int32 int32_t;
-typedef unsigned __int32 uint32_t;
-typedef unsigned __int64 uint64_t;
-#else
 #include <stdint.h>
-#endif
 
 typedef int32_t SBits;
 typedef uint32_t UBits;

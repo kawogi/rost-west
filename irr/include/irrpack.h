@@ -13,12 +13,7 @@
 // in between!
 
 // byte-align structures
-#if defined(_MSC_VER)
-#pragma warning(disable : 4103)
-#pragma pack(push, packing)
-#pragma pack(1)
-#define PACK_STRUCT
-#elif defined(__GNUC__)
+#if defined(__GNUC__)
 #define PACK_STRUCT __attribute__((packed))
 #else
 #error compiler not supported

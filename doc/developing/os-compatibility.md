@@ -26,7 +26,7 @@ So this is subject to change basically whenever Github throws
 
 ## Other parts
 
-**Compilers**: gcc, clang and MSVC (exceptions exist)
+**Compilers**: gcc, clang
 
 We require **OpenGL** 2.0 or ES 2.0, so shaders can be relied on.
 Graphics code should generally work on both. Newer features can be used as long as a fallback exists.
@@ -63,7 +63,6 @@ API feature, but there's no loss of functionality if you don't have it.
 ```
 Situation: someone wants C++20 to use std::span
 
-MSVC supports it after some version, should be fine as long as it builds in CI
 gcc with libstdc++ 10 or later
 clang with libc++ 7 or later (note: no mainstream Linux distros use this)
 
