@@ -4104,15 +4104,6 @@ Value& Path::make(Value& root) const {
 #endif
 #endif
 
-#if defined(__hpux)
-#if !defined(isfinite)
-#if defined(__ia64) && !defined(finite)
-#define isfinite(x)                                                            \
-  ((sizeof(x) == sizeof(float) ? _Isfinitef(x) : _IsFinite(x)))
-#endif
-#endif
-#endif
-
 #if !defined(isnan)
 // IEEE standard states that NaN values will not compare to themselves
 #define isnan(x) ((x) != (x))
@@ -4125,11 +4116,7 @@ Value& Path::make(Value& root) const {
 
 namespace Json {
 
-#if __cplusplus >= 201103L || (defined(_CPPLIB_VER) && _CPPLIB_VER >= 520)
 using StreamWriterPtr = std::unique_ptr<StreamWriter>;
-#else
-using StreamWriterPtr = std::auto_ptr<StreamWriter>;
-#endif
 
 String valueToString(LargestInt value) {
   UIntToStringBuffer buffer;

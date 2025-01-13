@@ -10,7 +10,6 @@ gettext_version=0.20.2
 freetype_version=2.13.3
 sqlite3_version=3.46.1
 luajit_version=20240905
-leveldb_version=1.23
 zlib_version=1.3.1
 zstd_version=1.5.6
 libjpeg_version=3.0.1
@@ -132,9 +131,5 @@ add_cmake_libs () {
 		-DSQLITE3_INCLUDE_DIR=$libdir/sqlite3/include
 		-DSQLITE3_LIBRARY=$libdir/sqlite3/lib/libsqlite3.dll.a
 		-DSQLITE3_DLL="$(_dlls $libdir/sqlite3/bin/libsqlite*)"
-
-		-DLEVELDB_INCLUDE_DIR=$libdir/libleveldb/include
-		-DLEVELDB_LIBRARY=$libdir/libleveldb/lib/libleveldb.dll.a
-		-DLEVELDB_DLL=$libdir/libleveldb/bin/libleveldb.dll
 	)
 }

@@ -1181,7 +1181,7 @@ static bool migrate_map_database(const GameParams &game_params, const Settings &
 	{
 		errorstream << "Please specify your current backend in world.mt:"
 					<< std::endl
-					<< "	backend = {sqlite3|leveldb|redis|dummy|postgresql}"
+					<< "	backend = {sqlite3|dummy}"
 					<< std::endl;
 		return false;
 	}

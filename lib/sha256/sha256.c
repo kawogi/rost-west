@@ -68,15 +68,6 @@
 
 #if defined(HAVE_ENDIAN_H)
 #include <endian.h>
-
-#elif defined(__sun) || defined(_AIX) || defined(__hpux)
-#include <arpa/nameser_compat.h>
-#include <sys/types.h>
-
-#elif defined(__sgi)
-#include <standards.h>
-#include <sys/endian.h>
-
 #endif
 
 #ifndef __STRICT_ALIGNMENT
@@ -97,38 +88,6 @@
 #define betoh32(x) be32toh(x)
 #endif
 #endif /* __linux__ */
-
-#if defined(__FreeBSD__)
-#if !defined(HAVE_ENDIAN_H)
-#include <sys/endian.h>
-#endif
-#if !defined(betoh16)
-#define betoh16(x) be16toh(x)
-#endif
-#if !defined(betoh32)
-#define betoh32(x) be32toh(x)
-#endif
-#endif
-
-#if defined(__NetBSD__)
-#if !defined(betoh16)
-#define betoh16(x) be16toh(x)
-#endif
-#if !defined(betoh32)
-#define betoh32(x) be32toh(x)
-#endif
-#endif
-
-#if defined(__sun)
-#include <sys/byteorder.h>
-#define be16toh(x) BE_16(x)
-#define htobe16(x) BE_16(x)
-#define le32toh(x) LE_32(x)
-#define be32toh(x) BE_32(x)
-#define htole32(x) LE_32(x)
-#define htobe32(x) BE_32(x)
-#endif
-/** **/
 
 /** libcrypto/crypto_internal.h **/
 #define CTASSERT(x) \

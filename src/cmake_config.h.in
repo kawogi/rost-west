@@ -21,14 +21,11 @@
 #cmakedefine01 USE_CURL
 #cmakedefine01 USE_SOUND
 #cmakedefine01 USE_CURSES
-#cmakedefine01 USE_LEVELDB
 #cmakedefine01 USE_LUAJIT
-#cmakedefine01 USE_POSTGRESQL
 #cmakedefine01 USE_PROMETHEUS
 #cmakedefine01 USE_SPATIAL
 #cmakedefine01 USE_SYSTEM_GMP
 #cmakedefine01 USE_SYSTEM_JSONCPP
-#cmakedefine01 USE_REDIS
 #cmakedefine01 USE_OPENSSL
 #cmakedefine01 HAVE_ENDIAN_H
 #cmakedefine01 HAVE_STRLCPY

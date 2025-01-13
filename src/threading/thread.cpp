@@ -28,14 +28,7 @@ DEALINGS IN THE SOFTWARE.
 #include "log_internal.h"
 #include "porting.h"
 
-// for setName
-#if defined(__linux__)
-	#include <sys/prctl.h>
-#elif defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__DragonFly__)
-	#include <pthread_np.h>
-#elif defined(__NetBSD__)
-	#include <sched.h>
-#endif
+#include <sys/prctl.h>
 
 // See https://msdn.microsoft.com/en-us/library/hh920601.aspx#thread__native_handle_method
 #define win32_native_handle() ((HANDLE) getThreadHandle())
@@ -140,10 +133,6 @@ bool Thread::getReturnValue(void **ret)
 
 void Thread::threadProc(Thread *thr)
 {
-#ifdef _AIX
-	thr->m_kernel_thread_id = thread_self();
-#endif
-
 	current_thread = thr;
 
 	thr->setName(thr->m_name);
@@ -195,20 +184,12 @@ unsigned int Thread::getNumberOfProcessors()
 
 bool Thread::bindToProcessor(unsigned int proc_number)
 {
-#if __FreeBSD_version >= 702106 || defined(__linux__) || defined(__DragonFly__)
-
 	cpu_set_t cpuset;
 
 	CPU_ZERO(&cpuset);
 	CPU_SET(proc_number, &cpuset);
 
 	return pthread_setaffinity_np(getThreadHandle(), sizeof(cpuset), &cpuset) == 0;
-
-#else
-
-	return false;
-
-#endif
 }
 
 

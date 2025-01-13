@@ -20,9 +20,6 @@ General options and their default values:
     ENABLE_CURL=ON             - Build with cURL; Enables use of online mod repo, public serverlist and remote media fetching via http
     ENABLE_CURSES=ON           - Build with (n)curses; Enables a server side terminal (command line option: --terminal)
     ENABLE_GETTEXT=ON          - Build with Gettext; Allows using translations
-    ENABLE_LEVELDB=ON          - Build with LevelDB; Enables use of LevelDB map backend
-    ENABLE_POSTGRESQL=ON       - Build with libpq; Enables use of PostgreSQL map backend (PostgreSQL 9.5 or greater recommended)
-    ENABLE_REDIS=ON            - Build with libhiredis; Enables use of Redis map backend
     ENABLE_SPATIAL=ON          - Build with LibSpatial; Speeds up AreaStores
     ENABLE_OPENSSL=ON          - Build with OpenSSL; Speeds up SHA1 and SHA2 hashing
     ENABLE_SOUND=ON            - Build with OpenAL, libogg & libvorbis; in-game sounds
@@ -58,12 +55,6 @@ Library specific options:
     JPEG_LIBRARY                    - Path to libjpeg.a/libjpeg.so/libjpeg.lib
     JSON_INCLUDE_DIR                - Directory that contains json/allocator.h
     JSON_LIBRARY                    - Path to libjson.a/libjson.so/libjson.lib
-    LEVELDB_INCLUDE_DIR             - Only when building with LevelDB; directory that contains db.h
-    LEVELDB_LIBRARY                 - Only when building with LevelDB; path to libleveldb.a/libleveldb.so/libleveldb.dll.a
-    PostgreSQL_INCLUDE_DIR          - Only when building with PostgreSQL; directory that contains libpq-fe.h
-    PostgreSQL_LIBRARY              - Only when building with PostgreSQL; path to libpq.a/libpq.so/libpq.lib
-    REDIS_INCLUDE_DIR               - Only when building with Redis; directory that contains hiredis.h
-    REDIS_LIBRARY                   - Only when building with Redis; path to libhiredis.a/libhiredis.so
     SPATIAL_INCLUDE_DIR             - Only when building with LibSpatial; directory that contains spatialindex/SpatialIndex.h
     SPATIAL_LIBRARY                 - Only when building with LibSpatial; path to libspatialindex.so/spatialindex-32.lib
     LUA_INCLUDE_DIR                 - Only if you want to use LuaJIT; directory where luajit.h is located

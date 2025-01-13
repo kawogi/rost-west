@@ -10,11 +10,6 @@
 
 #include "porting.h"
 
-#if defined(__FreeBSD__)  || defined(__NetBSD__) || defined(__DragonFly__) || defined(__OpenBSD__)
-	#include <sys/types.h>
-	#include <sys/sysctl.h>
-	extern char **environ;
-#endif
 #include <unistd.h>
 #include <sys/utsname.h>
 #include <spawn.h>
@@ -150,7 +145,6 @@ bool getCurrentWorkingDir(char *buf, size_t len)
 
 static bool getExecPathFromProcfs(char *buf, size_t buflen)
 {
-#if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
 	buflen--;
 
 	ssize_t len;
@@ -161,9 +155,6 @@ static bool getExecPathFromProcfs(char *buf, size_t buflen)
 
 	buf[len] = '\0';
 	return true;
-#else
-	return false;
-#endif
 }
 
 //// Linux
@@ -195,9 +186,6 @@ bool getCurrentExecPath(char *buf, size_t len)
 		"Required environment variable HOME is not set");
 	return home;
 }
-
-
-#if defined(__linux__) || defined(__FreeBSD__) || defined(__NetBSD__) || defined(__DragonFly__)
 
 bool setSystemPaths()
 {
@@ -253,25 +241,6 @@ bool setSystemPaths()
 	return true;
 }
 
-
-#else
-
-bool setSystemPaths()
-{
-	path_share = STATIC_SHAREDIR;
-	const char *const minetest_user_path = getenv("MINETEST_USER_PATH");
-	if (minetest_user_path && minetest_user_path[0] != '\0') {
-		path_user = std::string(minetest_user_path);
-	} else {
-		// TODO: luanti with migration
-		path_user  = std::string(getHomeOrFail()) + DIR_DELIM "."
-			+ "minetest";
-	}
-	return true;
-}
-
-
-#endif
 
 // Move cache folder from path_user to system cache location if possible.
 [[maybe_unused]] static void migrateCachePath()

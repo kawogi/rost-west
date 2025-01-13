@@ -4,7 +4,7 @@ FROM $DOCKER_IMAGE AS dev
 ENV LUAJIT_VERSION v2.1
 
 RUN apk add --no-cache git build-base cmake curl-dev zlib-dev zstd-dev \
-		sqlite-dev postgresql-dev hiredis-dev leveldb-dev \
+		sqlite-dev \
 		gmp-dev jsoncpp-dev ninja ca-certificates
 
 WORKDIR /usr/src/
@@ -62,7 +62,7 @@ RUN cmake -B build \
 FROM $DOCKER_IMAGE AS runtime
 
 RUN apk add --no-cache curl gmp libstdc++ libgcc libpq jsoncpp zstd-libs \
-				sqlite-libs postgresql hiredis leveldb && \
+				sqlite-libs && \
 	adduser -D minetest --uid 30000 -h /var/lib/minetest && \
 	chown -R minetest:minetest /var/lib/minetest
 

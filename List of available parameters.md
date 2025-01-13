@@ -59,9 +59,6 @@ ENABLE_GETTEXT:BOOL=ON
 // Enable OpenGL ES 2+
 ENABLE_GLES2:BOOL=OFF
 
-// Enable LevelDB backend
-ENABLE_LEVELDB:BOOL=ON
-
 // Use Link Time Optimization
 ENABLE_LTO:BOOL=TRUE
 
@@ -77,14 +74,8 @@ ENABLE_OPENGL3:BOOL=ON
 // Use OpenSSL's libcrypto for faster SHA implementations
 ENABLE_OPENSSL:BOOL=ON
 
-// Enable PostgreSQL backend
-ENABLE_POSTGRESQL:BOOL=ON
-
 // Enable prometheus client support
 ENABLE_PROMETHEUS:BOOL=OFF
-
-// Enable Redis backend
-ENABLE_REDIS:BOOL=ON
 
 // Enable sound
 ENABLE_SOUND:BOOL=ON
@@ -110,23 +101,11 @@ GETTEXT_MSGFMT:FILEPATH=/usr/bin/msgfmt
 // Install Development Test
 INSTALL_DEVTEST:BOOL=FALSE
 
-// Path to a file.
-LEVELDB_INCLUDE_DIR:PATH=LEVELDB_INCLUDE_DIR-NOTFOUND
-
-// Path to a library.
-LEVELDB_LIBRARY:FILEPATH=LEVELDB_LIBRARY-NOTFOUND
-
 // Path to a file listing all headers to precompile
 PRECOMPILED_HEADERS_PATH:FILEPATH=
 
 // Precompile some headers (experimental; requires CMake 3.16 or later)
 PRECOMPILE_HEADERS:BOOL=OFF
-
-// Path to a file.
-REDIS_INCLUDE_DIR:PATH=REDIS_INCLUDE_DIR-NOTFOUND
-
-// Path to a library.
-REDIS_LIBRARY:FILEPATH=REDIS_LIBRARY-NOTFOUND
 
 // Require LuaJIT support
 REQUIRE_LUAJIT:BOOL=OFF

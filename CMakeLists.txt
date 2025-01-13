@@ -103,7 +103,7 @@ endif()
 
 # Installation
 
-if(UNIX) # Linux, BSD etc
+if(UNIX) # Linux, etc
 	if(RUN_IN_PLACE)
 		set(SHAREDIR ".")
 		set(BINDIR "bin")
@@ -217,10 +217,6 @@ install(FILES "misc/luanti.svg" DESTINATION "${ICONDIR}/hicolor/scalable/apps")
 install(FILES "misc/luanti-xorg-icon-128.png"
 	DESTINATION "${ICONDIR}/hicolor/128x128/apps"
 	RENAME "luanti.png")
-
-if(CMAKE_GENERATOR STREQUAL "Xcode")
-	set(client_RESOURCES "${CMAKE_SOURCE_DIR}/misc/luanti-icon.icns")
-endif()
 
 # Library pack
 find_package(GMP REQUIRED)

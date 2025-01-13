@@ -139,66 +139,6 @@ if(ENABLE_CURSES)
 	endif()
 endif(ENABLE_CURSES)
 
-option(ENABLE_POSTGRESQL "Enable PostgreSQL backend" TRUE)
-set(USE_POSTGRESQL FALSE)
-
-if(ENABLE_POSTGRESQL)
-	if(CMAKE_VERSION VERSION_LESS "3.20")
-		find_package(PostgreSQL QUIET)
-		# Before CMake 3.20 FindPostgreSQL.cmake always looked for server includes
-		# but we don't need them, so continue anyway if only those are missing.
-		if(PostgreSQL_INCLUDE_DIR AND PostgreSQL_LIBRARY)
-			set(PostgreSQL_FOUND TRUE)
-			set(PostgreSQL_INCLUDE_DIRS ${PostgreSQL_INCLUDE_DIR})
-			set(PostgreSQL_LIBRARIES ${PostgreSQL_LIBRARY})
-		endif()
-	else()
-		find_package(PostgreSQL)
-	endif()
-
-	if(PostgreSQL_FOUND)
-		set(USE_POSTGRESQL TRUE)
-		message(STATUS "PostgreSQL backend enabled")
-		# This variable is case sensitive, don't try to change it to POSTGRESQL_INCLUDE_DIR
-		message(STATUS "PostgreSQL includes: ${PostgreSQL_INCLUDE_DIRS}")
-		include_directories(${PostgreSQL_INCLUDE_DIRS})
-	else()
-		message(STATUS "PostgreSQL not found!")
-	endif()
-endif(ENABLE_POSTGRESQL)
-
-option(ENABLE_LEVELDB "Enable LevelDB backend" TRUE)
-set(USE_LEVELDB FALSE)
-
-if(ENABLE_LEVELDB)
-	find_library(LEVELDB_LIBRARY NAMES leveldb libleveldb)
-	find_path(LEVELDB_INCLUDE_DIR db.h PATH_SUFFIXES leveldb)
-	if(LEVELDB_LIBRARY AND LEVELDB_INCLUDE_DIR)
-		set(USE_LEVELDB TRUE)
-		message(STATUS "LevelDB backend enabled.")
-		include_directories(${LEVELDB_INCLUDE_DIR})
-	else()
-		message(STATUS "LevelDB not found!")
-	endif()
-endif(ENABLE_LEVELDB)
-
-
-OPTION(ENABLE_REDIS "Enable Redis backend" TRUE)
-set(USE_REDIS FALSE)
-
-if(ENABLE_REDIS)
-	find_library(REDIS_LIBRARY hiredis)
-	find_path(REDIS_INCLUDE_DIR hiredis.h PATH_SUFFIXES hiredis)
-	if(REDIS_LIBRARY AND REDIS_INCLUDE_DIR)
-		set(USE_REDIS TRUE)
-		message(STATUS "Redis backend enabled.")
-		include_directories(${REDIS_INCLUDE_DIR})
-	else(REDIS_LIBRARY AND REDIS_INCLUDE_DIR)
-		message(STATUS "Redis not found!")
-	endif(REDIS_LIBRARY AND REDIS_INCLUDE_DIR)
-endif(ENABLE_REDIS)
-
-
 find_package(SQLite3 REQUIRED)
 
 
@@ -257,11 +197,6 @@ find_package(Zstd REQUIRED)
 
 set(USE_GPROF FALSE CACHE BOOL "Use -pg flag for g++")
 
-# Haiku endian support
-if(HAIKU)
-	add_compile_definitions(_BSD_SOURCE)
-endif()
-
 # Use cmake_config.h
 add_compile_definitions(USE_CMAKE_CONFIG_H)
 
@@ -276,10 +211,6 @@ find_library(ICONV_LIBRARY iconv)
 mark_as_advanced(ICONV_LIBRARY)
 if (ICONV_LIBRARY)
 	list(APPEND PLATFORM_LIBS ${ICONV_LIBRARY})
-endif()
-
-if (HAIKU)
-	list(APPEND PLATFORM_LIBS network)
 endif()
 
 # On clang and gcc, some functionalities of std::atomic require -latomic.
@@ -542,15 +473,6 @@ if(BUILD_CLIENT)
 	if (USE_CURSES)
 		target_link_libraries(${PROJECT_NAME} ${CURSES_LIBRARIES})
 	endif()
-	if (USE_POSTGRESQL)
-		target_link_libraries(${PROJECT_NAME} ${PostgreSQL_LIBRARIES})
-	endif()
-	if (USE_LEVELDB)
-		target_link_libraries(${PROJECT_NAME} ${LEVELDB_LIBRARY})
-	endif()
-	if (USE_REDIS)
-		target_link_libraries(${PROJECT_NAME} ${REDIS_LIBRARY})
-	endif()
 	if (USE_PROMETHEUS)
 		target_link_libraries(${PROJECT_NAME} ${PROMETHEUS_LIBRARIES})
 	endif()
@@ -609,15 +531,6 @@ if(BUILD_SERVER)
 	endif()
 	if (USE_CURSES)
 		target_link_libraries(${PROJECT_NAME}server ${CURSES_LIBRARIES})
-	endif()
-	if (USE_POSTGRESQL)
-		target_link_libraries(${PROJECT_NAME}server ${PostgreSQL_LIBRARIES})
-	endif()
-	if (USE_LEVELDB)
-		target_link_libraries(${PROJECT_NAME}server ${LEVELDB_LIBRARY})
-	endif()
-	if (USE_REDIS)
-		target_link_libraries(${PROJECT_NAME}server ${REDIS_LIBRARY})
 	endif()
 	if (USE_PROMETHEUS)
 		target_link_libraries(${PROJECT_NAME}server ${PROMETHEUS_LIBRARIES})

@@ -28,12 +28,6 @@
 #include "database/database-dummy.h"
 #include "database/database-files.h"
 #include "database/database-sqlite3.h"
-#if USE_POSTGRESQL
-#include "database/database-postgresql.h"
-#endif
-#if USE_LEVELDB
-#include "database/database-leveldb.h"
-#endif
 #include "irrlicht_changes/printing.h"
 #include "server/luaentity_sao.h"
 #include "server/player_sao.h"
@@ -525,7 +519,7 @@ void ServerEnvironment::init()
 	if (player_backend_name == "files") {
 		warningstream << "/!\\ You are using old player file backend. "
 				<< "This backend is deprecated and will be removed in a future release /!\\"
-				<< std::endl << "Switching to SQLite3 or PostgreSQL is advised, "
+				<< std::endl << "Switching to SQLite3 is advised, "
 				<< "please read https://wiki.luanti.org/Database_backends." << std::endl;
 	}
 
@@ -2347,19 +2341,6 @@ PlayerDatabase *ServerEnvironment::openPlayerDatabase(const std::string &name,
 	if (name == "dummy")
 		return new Database_Dummy();
 
-#if USE_POSTGRESQL
-	if (name == "postgresql") {
-		std::string connect_string;
-		conf.getNoEx("pgsql_player_connection", connect_string);
-		return new PlayerDatabasePostgreSQL(connect_string);
-	}
-#endif
-
-#if USE_LEVELDB
-	if (name == "leveldb")
-		return new PlayerDatabaseLevelDB(savedir);
-#endif
-
 	if (name == "files")
 		return new PlayerDatabaseFiles(savedir + DIR_DELIM + "players");
 
@@ -2380,7 +2361,7 @@ bool ServerEnvironment::migratePlayersDatabase(const GameParams &game_params,
 	if (!world_mt.exists("player_backend")) {
 		errorstream << "Please specify your current backend in world.mt:"
 			<< std::endl
-			<< "	player_backend = {files|sqlite3|leveldb|postgresql}"
+			<< "	player_backend = {files|sqlite3}"
 			<< std::endl;
 		return false;
 	}
@@ -2459,21 +2440,8 @@ AuthDatabase *ServerEnvironment::openAuthDatabase(
 	if (name == "sqlite3")
 		return new AuthDatabaseSQLite3(savedir);
 
-#if USE_POSTGRESQL
-	if (name == "postgresql") {
-		std::string connect_string;
-		conf.getNoEx("pgsql_auth_connection", connect_string);
-		return new AuthDatabasePostgreSQL(connect_string);
-	}
-#endif
-
 	if (name == "files")
 		return new AuthDatabaseFiles(savedir);
-
-#if USE_LEVELDB
-	if (name == "leveldb")
-		return new AuthDatabaseLevelDB(savedir);
-#endif
 
 	throw BaseException(std::string("Database backend ") + name + " not supported.");
 }

@@ -32,14 +32,6 @@ DEALINGS IN THE SOFTWARE.
 #include <thread>
 #include <mutex>
 
-#ifdef _AIX
-	#include <sys/thread.h> // for tid_t
-#endif
-
-#ifdef __HAIKU__
-	#include <kernel/OS.h>
-#endif
-
 /*
  * On platforms using pthreads, these five priority classes correlate to
  * even divisions between the minimum and maximum reported thread priority.
@@ -153,12 +145,5 @@ private:
 	std::mutex m_start_finished_mutex;
 
 	std::thread *m_thread_obj = nullptr;
-
-
-#ifdef _AIX
-	// For AIX, there does not exist any mapping from pthread_t to tid_t
-	// available to us, so we maintain one ourselves.  This is set on thread start.
-	tid_t m_kernel_thread_id;
-#endif
 };
 
