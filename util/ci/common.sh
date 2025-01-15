@@ -5,7 +5,7 @@ install_linux_deps() {
 	local pkgs=(
 		cmake gettext
 		libpng-dev libjpeg-dev libgl1-mesa-dev libsdl2-dev libfreetype-dev
-		libsqlite3-dev libogg-dev libgmp-dev libvorbis-dev
+		libsqlite3-dev libgmp-dev
 		libopenal-dev libpq-dev libcurl4-openssl-dev libzstd-dev
 		libssl-dev
 	)

@@ -89,9 +89,6 @@ else()
 endif()
 
 
-option(ENABLE_SOUND "Enable sound" TRUE)
-set(USE_SOUND FALSE)
-
 option(ENABLE_CURSES "Enable ncurses console" TRUE)
 set(USE_CURSES FALSE)
 

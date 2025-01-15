@@ -38,7 +38,6 @@ AppDir:
       - libpng16-16
       - libsqlite3-0
       - libstdc++6
-      - libvorbisfile3
       - libx11-6
       - libxi6
       - zlib1g

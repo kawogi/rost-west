@@ -21,7 +21,6 @@ General options and their default values:
     ENABLE_GETTEXT=ON          - Build with Gettext; Allows using translations
     ENABLE_SPATIAL=ON          - Build with LibSpatial; Speeds up AreaStores
     ENABLE_OPENSSL=ON          - Build with OpenSSL; Speeds up SHA1 and SHA2 hashing
-    ENABLE_SOUND=ON            - Build with OpenAL, libogg & libvorbis; in-game sounds
     ENABLE_LTO=<varies>        - Build with IPO/LTO optimizations (smaller and more efficient than regular build)
     ENABLE_LUAJIT=ON           - Build with LuaJIT (much faster than non-JIT Lua)
     ENABLE_PROMETHEUS=OFF      - Build with Prometheus metrics exporter (listens on tcp/30000 by default)

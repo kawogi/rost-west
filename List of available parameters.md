@@ -74,9 +74,6 @@ ENABLE_OPENSSL:BOOL=ON
 // Enable prometheus client support
 ENABLE_PROMETHEUS:BOOL=OFF
 
-// Enable sound
-ENABLE_SOUND:BOOL=ON
-
 // Enable SpatialIndex AreaStore backend
 ENABLE_SPATIAL:BOOL=ON
 

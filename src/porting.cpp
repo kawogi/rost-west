@@ -234,11 +234,6 @@ bool setSystemPaths()
 {
 	const std::string local_cache_path = path_user + DIR_DELIM + "cache";
 
-	// Delete tmp folder if it exists (it only ever contained
-	// a temporary ogg file, which is no longer used).
-	if (fs::PathExists(local_cache_path + DIR_DELIM + "tmp"))
-		fs::RecursiveDelete(local_cache_path + DIR_DELIM + "tmp");
-
 	// Bail if migration impossible
 	if (path_cache == local_cache_path || !fs::PathExists(local_cache_path)
 			|| fs::PathExists(path_cache)) {

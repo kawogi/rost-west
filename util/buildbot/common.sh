@@ -2,9 +2,7 @@ CORE_GIT=https://github.com/minetest/minetest
 CORE_BRANCH=master
 CORE_NAME=minetest
 
-ogg_version=1.3.5
 openal_version=1.23.1
-vorbis_version=1.3.7
 curl_version=8.9.1
 gettext_version=0.20.2
 freetype_version=2.13.3
@@ -100,15 +98,6 @@ add_cmake_libs () {
 
 		-DLUA_INCLUDE_DIR=$libdir/luajit/include
 		-DLUA_LIBRARY=$libdir/luajit/libluajit.a
-
-		-DOGG_INCLUDE_DIR=$libdir/libogg/include
-		-DOGG_LIBRARY=$libdir/libogg/lib/libogg.dll.a
-		-DOGG_DLL="$(_dlls $libdir/libogg/bin/*)"
-
-		-DVORBIS_INCLUDE_DIR=$libdir/libvorbis/include
-		-DVORBIS_LIBRARY=$libdir/libvorbis/lib/libvorbis.dll.a
-		-DVORBIS_DLL="$(_dlls $libdir/libvorbis/bin/libvorbis{,file}[-.]*)"
-		-DVORBISFILE_LIBRARY=$libdir/libvorbis/lib/libvorbisfile.dll.a
 
 		-DOPENAL_INCLUDE_DIR=$libdir/openal/include/AL
 		-DOPENAL_LIBRARY=$libdir/openal/lib/libOpenAL32.dll.a
