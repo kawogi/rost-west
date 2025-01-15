@@ -8,9 +8,6 @@ cmake . -LH
 // Use a blacklist to avoid known broken locales
 APPLY_LOCALE_BLACKLIST:BOOL=ON
 
-// Build documentation
-BUILD_DOCUMENTATION:BOOL=TRUE
-
 // Fetch and build with the Tracy profiler client
 BUILD_WITH_TRACY:BOOL=FALSE
 
@@ -22,9 +19,6 @@ CMAKE_INSTALL_PREFIX:PATH=/usr/local
 
 // Directory to install binaries into
 CUSTOM_BINDIR:STRING=
-
-// Directory to install documentation into
-CUSTOM_DOCDIR:STRING=
 
 // Directory to install example config file into
 CUSTOM_EXAMPLE_CONF_DIR:STRING=

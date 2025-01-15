@@ -30,9 +30,6 @@ if (CMAKE_BUILD_TYPE STREQUAL Debug)
 	set(VERSION_STRING "${VERSION_STRING}-debug")
 endif()
 
-# Configuration options
-set(BUILD_DOCUMENTATION TRUE CACHE BOOL "Build documentation")
-
 set(DEFAULT_ENABLE_LTO TRUE)
 # by default don't enable on Debug builds to get faster builds
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -46,7 +43,6 @@ set(FETCH_TRACY_GIT_TAG "master" CACHE STRING
 	"Git tag for fetching Tracy client. Match with your server (gui) version")
 
 message(STATUS "*** Will build version ${VERSION_STRING} ***")
-message(STATUS "BUILD_DOCUMENTATION: " ${BUILD_DOCUMENTATION})
 
 set(WARN_ALL TRUE CACHE BOOL "Enable -Wall for Release build")
 
@@ -111,12 +107,6 @@ set(CUSTOM_BINDIR "" CACHE STRING "Directory to install binaries into")
 if(NOT CUSTOM_BINDIR STREQUAL "")
 	set(BINDIR "${CUSTOM_BINDIR}")
 	message(STATUS "Using BINDIR=${BINDIR}")
-endif()
-
-set(CUSTOM_DOCDIR "" CACHE STRING "Directory to install documentation into")
-if(NOT CUSTOM_DOCDIR STREQUAL "")
-	set(DOCDIR "${CUSTOM_DOCDIR}")
-	message(STATUS "Using DOCDIR=${DOCDIR}")
 endif()
 
 set(CUSTOM_MANDIR "" CACHE STRING "Directory to install manpages into")
@@ -213,20 +203,6 @@ set(CPACK_GENERATOR TGZ)
 set(CPACK_SOURCE_GENERATOR TGZ)
 
 include(CPack)
-
-# Add a target to generate API documentation with Doxygen
-if(BUILD_DOCUMENTATION)
-	find_package(Doxygen)
-	if(DOXYGEN_FOUND)
-		configure_file(${CMAKE_CURRENT_SOURCE_DIR}/doc/Doxyfile.in
-				${CMAKE_CURRENT_BINARY_DIR}/doc/Doxyfile @ONLY)
-		add_custom_target(doc
-			${DOXYGEN_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/doc/Doxyfile
-			WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/doc
-			COMMENT "Generating API documentation with Doxygen" VERBATIM
-		)
-	endif()
-endif()
 
 # Fetch Tracy
 if(BUILD_WITH_TRACY)

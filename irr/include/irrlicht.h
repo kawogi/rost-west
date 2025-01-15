@@ -77,33 +77,6 @@ device could not be created. */
 extern "C" IRRLICHT_API IrrlichtDevice *IRRCALLCONV createDeviceEx(
 		const SIrrlichtCreationParameters &parameters);
 
-// THE FOLLOWING IS AN EMPTY LIST OF ALL SUB NAMESPACES
-// EXISTING ONLY FOR THE DOCUMENTATION SOFTWARE DOXYGEN.
-
-//! Basic classes such as vectors, planes, arrays, lists, and so on can be found in this namespace.
-namespace core
-{
-}
-
-//! The gui namespace contains useful classes for easy creation of a graphical user interface.
-namespace gui
-{
-}
-
-//! This namespace provides interfaces for input/output: Reading and writing files, accessing zip archives, ...
-namespace io
-{
-}
-
-//! All scene management can be found in this namespace: Mesh loading, special scene nodes like octrees and billboards, ...
-namespace scene
-{
-}
-
-//! The video namespace contains classes for accessing the video driver. All 2d and 3d rendering is done here.
-namespace video
-{
-}
 }
 
 /*! \file irrlicht.h

@@ -84,11 +84,6 @@ debug.txt.1
 screenshot_*.png
 testbm.txt
 
-## Doxygen files
-doc/Doxyfile
-doc/html/
-doc/doxygen_*
-
 ## MkDocs files
 public/
 doc/mkdocs/docs/*.md
