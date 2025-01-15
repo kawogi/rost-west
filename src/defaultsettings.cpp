@@ -401,9 +401,6 @@ void set_default_settings()
 #else
 	settings->setDefault("random_mod_load_order", "false");
 #endif
-#if USE_PROMETHEUS
-	settings->setDefault("prometheus_listener_address", "127.0.0.1:30000");
-#endif
 
 	// Network
 	settings->setDefault("enable_ipv6", "true");

@@ -2944,13 +2944,6 @@
 
 ### Networking
 
-#    Prometheus listener address.
-#    If Luanti is compiled with ENABLE_PROMETHEUS option enabled,
-#    enable metrics listener for Prometheus on that address.
-#    Metrics can be fetched on http://127.0.0.1:30000/metrics
-#    type: string
-# prometheus_listener_address = 127.0.0.1:30000
-
 #    Maximum size of the outgoing chat queue.
 #    0 to disable queueing and -1 to make the queue size unlimited.
 #    type: int min: -1 max: 32767

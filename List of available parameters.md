@@ -71,9 +71,6 @@ ENABLE_OPENGL3:BOOL=ON
 // Use OpenSSL's libcrypto for faster SHA implementations
 ENABLE_OPENSSL:BOOL=ON
 
-// Enable prometheus client support
-ENABLE_PROMETHEUS:BOOL=OFF
-
 // Enable SpatialIndex AreaStore backend
 ENABLE_SPATIAL:BOOL=ON
 

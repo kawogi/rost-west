@@ -925,8 +925,6 @@ fake_function() {
 	gettext("Light curve boost spread");
 	gettext("Spread of light curve boost range.\nControls the width of the range to be boosted.\nStandard deviation of the light curve boost Gaussian.");
 	gettext("Networking");
-	gettext("Prometheus listener address");
-	gettext("Prometheus listener address.\nIf Luanti is compiled with ENABLE_PROMETHEUS option enabled,\nenable metrics listener for Prometheus on that address.\nMetrics can be fetched on http://127.0.0.1:30000/metrics");
 	gettext("Maximum size of the outgoing chat queue");
 	gettext("Maximum size of the outgoing chat queue.\n0 to disable queueing and -1 to make the queue size unlimited.");
 	gettext("Mapblock unload timeout");

@@ -105,27 +105,6 @@ endif(ENABLE_CURSES)
 
 find_package(SQLite3 REQUIRED)
 
-
-OPTION(ENABLE_PROMETHEUS "Enable prometheus client support" FALSE)
-set(USE_PROMETHEUS FALSE)
-
-if(ENABLE_PROMETHEUS)
-	find_path(PROMETHEUS_CPP_INCLUDE_DIR NAMES prometheus/counter.h)
-	find_library(PROMETHEUS_PULL_LIBRARY NAMES prometheus-cpp-pull)
-	find_library(PROMETHEUS_CORE_LIBRARY NAMES prometheus-cpp-core)
-	if(PROMETHEUS_CPP_INCLUDE_DIR AND PROMETHEUS_PULL_LIBRARY AND PROMETHEUS_CORE_LIBRARY)
-		set(PROMETHEUS_LIBRARIES ${PROMETHEUS_PULL_LIBRARY} ${PROMETHEUS_CORE_LIBRARY})
-		set(USE_PROMETHEUS TRUE)
-		include_directories(${PROMETHEUS_CPP_INCLUDE_DIR})
-	endif(PROMETHEUS_CPP_INCLUDE_DIR AND PROMETHEUS_PULL_LIBRARY AND PROMETHEUS_CORE_LIBRARY)
-endif(ENABLE_PROMETHEUS)
-
-if(USE_PROMETHEUS)
-	message(STATUS "Prometheus client enabled.")
-else(USE_PROMETHEUS)
-	message(STATUS "Prometheus client disabled.")
-endif(USE_PROMETHEUS)
-
 OPTION(ENABLE_SPATIAL "Enable SpatialIndex AreaStore backend" TRUE)
 set(USE_SPATIAL FALSE)
 
@@ -405,9 +384,6 @@ if (USE_GETTEXT)
 endif()
 if (USE_CURSES)
 	target_link_libraries(${PROJECT_NAME}server ${CURSES_LIBRARIES})
-endif()
-if (USE_PROMETHEUS)
-	target_link_libraries(${PROJECT_NAME}server ${PROMETHEUS_LIBRARIES})
 endif()
 if (USE_SPATIAL)
 	target_link_libraries(${PROJECT_NAME}server ${SPATIAL_LIBRARY})

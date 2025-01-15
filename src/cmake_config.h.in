@@ -20,7 +20,6 @@
 #cmakedefine01 USE_CURL
 #cmakedefine01 USE_CURSES
 #cmakedefine01 USE_LUAJIT
-#cmakedefine01 USE_PROMETHEUS
 #cmakedefine01 USE_SPATIAL
 #cmakedefine01 USE_SYSTEM_GMP
 #cmakedefine01 USE_SYSTEM_JSONCPP
