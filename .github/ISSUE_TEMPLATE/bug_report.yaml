@@ -26,7 +26,6 @@ body:
         Running on Linux/6.11.5 x86_64
         BUILD_TYPE=Release
         USE_CURL=1
-        USE_GETTEXT=1
         STATIC_SHAREDIR="."
         STATIC_LOCALEDIR="locale"
       render: "true"

@@ -1,8 +1,7 @@
 #! /bin/bash -eu
 
 cmake -B build -DCMAKE_BUILD_TYPE=Debug \
-	-DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-	-DENABLE_GETTEXT=FALSE
+	-DCMAKE_EXPORT_COMPILE_COMMANDS=ON
 cmake --build build --target GenerateVersion
 
 ./util/ci/run-clang-tidy.py \

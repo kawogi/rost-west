@@ -16,7 +16,6 @@ pkgs.mkShell {
     pkgs.SDL2
     pkgs.openal
     pkgs.curl
-    pkgs.gettext
     pkgs.freetype
     pkgs.sqlite
   ];

@@ -634,8 +634,7 @@ static bool init_common(const Settings &cmd_args, int argc, char *argv[])
 	// Initialize HTTP fetcher
 	httpfetch_init(g_settings->getS32("curl_parallel_limit"));
 
-	init_gettext(porting::path_locale.c_str(),
-				 g_settings->get("language"), argc, argv);
+	init_gettext();
 
 	return true;
 }

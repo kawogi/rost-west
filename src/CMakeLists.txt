@@ -77,17 +77,8 @@ if(NOT USE_CURL)
 	message(WARNING "cURL is required to announce to the server list")
 endif()
 
-if(ENABLE_GETTEXT)
-	find_package(GettextLib)
-	if(GETTEXTLIB_FOUND)
-		set(USE_GETTEXT TRUE)
-		message(STATUS "GetText enabled; locales found: ${GETTEXT_AVAILABLE_LOCALES}")
-	endif(GETTEXTLIB_FOUND)
-else()
-	mark_as_advanced(GETTEXT_INCLUDE_DIR GETTEXT_LIBRARY GETTEXT_MSGFMT)
-	message(STATUS "GetText disabled.")
-endif()
-
+mark_as_advanced(GETTEXT_INCLUDE_DIR GETTEXT_LIBRARY GETTEXT_MSGFMT)
+message(STATUS "GetText disabled.")
 
 option(ENABLE_CURSES "Enable ncurses console" TRUE)
 set(USE_CURSES FALSE)
@@ -313,10 +304,6 @@ include_directories(SYSTEM
 	"$<$<PLATFORM_ID:Android>:${SDL2_INCLUDE_DIRS}>"
 )
 
-if(USE_GETTEXT)
-	include_directories(${GETTEXT_INCLUDE_DIR})
-endif()
-
 if(USE_CURL)
 	include_directories(${CURL_INCLUDE_DIR})
 endif()
@@ -379,9 +366,6 @@ if(NOT USE_LUAJIT)
 	)
 endif()
 
-if (USE_GETTEXT)
-	target_link_libraries(${PROJECT_NAME}server ${GETTEXT_LIBRARY})
-endif()
 if (USE_CURSES)
 	target_link_libraries(${PROJECT_NAME}server ${CURSES_LIBRARIES})
 endif()
@@ -549,29 +533,3 @@ macro(CreateLegacyAlias _cmake_target _old_path _new_name)
 endmacro()
 
 install(TARGETS ${PROJECT_NAME}server DESTINATION ${BINDIR})
-
-if (USE_GETTEXT)
-	set(MO_FILES)
-
-	foreach(LOCALE ${GETTEXT_USED_LOCALES})
-		set(PO_FILE_PATH "${GETTEXT_PO_PATH}/${LOCALE}/${PROJECT_NAME}.po")
-		set_mo_paths(MO_BUILD_PATH MO_DEST_PATH ${LOCALE})
-		set(MO_FILE_PATH "${MO_BUILD_PATH}/${PROJECT_NAME}.mo")
-
-		add_custom_command(OUTPUT ${MO_BUILD_PATH}
-			COMMAND ${CMAKE_COMMAND} -E make_directory ${MO_BUILD_PATH}
-			COMMENT "mo-update [${LOCALE}]: Creating locale directory.")
-
-		add_custom_command(
-			OUTPUT ${MO_FILE_PATH}
-			COMMAND ${GETTEXT_MSGFMT} -o ${MO_FILE_PATH} ${PO_FILE_PATH}
-			DEPENDS ${MO_BUILD_PATH} ${PO_FILE_PATH}
-			WORKING_DIRECTORY "${GETTEXT_PO_PATH}/${LOCALE}"
-			COMMENT "mo-update [${LOCALE}]: Creating mo file."
-			)
-
-		list(APPEND MO_FILES ${MO_FILE_PATH})
-	endforeach()
-
-	add_custom_target(translations ALL COMMENT "mo update" DEPENDS ${MO_FILES})
-endif()

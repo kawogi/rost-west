@@ -62,11 +62,6 @@ extern std::string path_share;
 extern std::string path_user;
 
 /*
-	Path to gettext locale files
-*/
-extern std::string path_locale;
-
-/*
 	Path to directory for storing caches.
 */
 extern std::string path_cache;

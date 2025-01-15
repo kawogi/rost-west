@@ -50,9 +50,6 @@ ENABLE_CURL:BOOL=ON
 // Enable ncurses console
 ENABLE_CURSES:BOOL=ON
 
-// Use GetText for internationalization
-ENABLE_GETTEXT:BOOL=ON
-
 // Enable OpenGL ES 2+
 ENABLE_GLES2:BOOL=OFF
 
@@ -85,9 +82,6 @@ ENABLE_UPDATE_CHECKER:BOOL=(;NOT;TRUE;)
 
 // Git tag for fetching Tracy client. Match with your server (gui) version
 FETCH_TRACY_GIT_TAG:STRING=master
-
-// Path to Gettext msgfmt
-GETTEXT_MSGFMT:FILEPATH=/usr/bin/msgfmt
 
 // Install Development Test
 INSTALL_DEVTEST:BOOL=FALSE

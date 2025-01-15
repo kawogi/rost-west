@@ -18,7 +18,6 @@ General options and their default values:
     USE_SDL2=TRUE              - Build with SDL2; Enables IrrlichtMt device SDL2
     ENABLE_CURL=ON             - Build with cURL; Enables use of online mod repo, public serverlist and remote media fetching via http
     ENABLE_CURSES=ON           - Build with (n)curses; Enables a server side terminal (command line option: --terminal)
-    ENABLE_GETTEXT=ON          - Build with Gettext; Allows using translations
     ENABLE_SPATIAL=ON          - Build with LibSpatial; Speeds up AreaStores
     ENABLE_OPENSSL=ON          - Build with OpenSSL; Speeds up SHA1 and SHA2 hashing
     ENABLE_LTO=<varies>        - Build with IPO/LTO optimizations (smaller and more efficient than regular build)
@@ -42,9 +41,6 @@ Library specific options:
     FREETYPE_INCLUDE_DIR_freetype2  - Directory that contains files such as ftimage.h
     FREETYPE_INCLUDE_DIR_ft2build   - Directory that contains ft2build.h
     FREETYPE_LIBRARY                - Path to libfreetype.a/libfreetype.so/freetype.lib
-    GETTEXT_INCLUDE_DIR             - Only when building with gettext; directory that contains libintl.h
-    GETTEXT_LIBRARY                 - Optional/platform-dependent with gettext; path to libintl.so/libintl.dll.a
-    GETTEXT_MSGFMT                  - Only when building with gettext; path to msgfmt/msgfmt.exe
     GMP_INCLUDE_DIR                 - Directory that contains gmp.h
     GMP_LIBRARY                     - Path to libgmp.a/libgmp.so/libgmp.lib
     ICONV_LIBRARY                   - Optional/platform-dependent; path to libiconv.so/libiconv.dylib

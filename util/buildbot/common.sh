@@ -4,7 +4,6 @@ CORE_NAME=minetest
 
 openal_version=1.23.1
 curl_version=8.9.1
-gettext_version=0.20.2
 freetype_version=2.13.3
 sqlite3_version=3.46.1
 luajit_version=20240905
@@ -106,11 +105,6 @@ add_cmake_libs () {
 		-DCURL_DLL="$(_dlls $libdir/curl/bin/libcurl*)"
 		-DCURL_INCLUDE_DIR=$libdir/curl/include
 		-DCURL_LIBRARY=$libdir/curl/lib/libcurl.dll.a
-
-		-DGETTEXT_MSGFMT=`command -v msgfmt`
-		-DGETTEXT_DLL="$(_dlls $libdir/gettext/bin/lib{intl,iconv}*)"
-		-DGETTEXT_INCLUDE_DIR=$libdir/gettext/include
-		-DGETTEXT_LIBRARY=$libdir/gettext/lib/libintl.dll.a
 
 		-DFREETYPE_INCLUDE_DIR_freetype2=$libdir/freetype/include/freetype2
 		-DFREETYPE_INCLUDE_DIR_ft2build=$libdir/freetype/include/freetype2
