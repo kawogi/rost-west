@@ -373,20 +373,6 @@ endif()
 FILE(READ "${CMAKE_SOURCE_DIR}/src/unsupported_language_list.txt" GETTEXT_BLACKLISTED_LOCALES)
 STRING(REGEX REPLACE "\n" ";" GETTEXT_BLACKLISTED_LOCALES "${GETTEXT_BLACKLISTED_LOCALES}")
 
-option(APPLY_LOCALE_BLACKLIST "Use a blacklist to avoid known broken locales" TRUE)
-
-if (GETTEXTLIB_FOUND AND APPLY_LOCALE_BLACKLIST)
-	set(GETTEXT_USED_LOCALES "")
-	foreach(LOCALE ${GETTEXT_AVAILABLE_LOCALES})
-		if (NOT "${LOCALE}" IN_LIST GETTEXT_BLACKLISTED_LOCALES)
-			list(APPEND GETTEXT_USED_LOCALES ${LOCALE})
-		endif()
-	endforeach()
-	message(STATUS "Locale blacklist applied; Locales used: ${GETTEXT_USED_LOCALES}")
-elseif (GETTEXTLIB_FOUND)
-	set(GETTEXT_USED_LOCALES ${GETTEXT_AVAILABLE_LOCALES})
-endif()
-
 # Set some optimizations and tweaks
 
 include(CheckCSourceCompiles)

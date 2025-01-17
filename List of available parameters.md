@@ -5,9 +5,6 @@ cmake . -LH
 ```
 
 ```text
-// Use a blacklist to avoid known broken locales
-APPLY_LOCALE_BLACKLIST:BOOL=ON
-
 // Choose the type of build. Options are: None;Release;Debug;SemiDebug;RelWithDebInfo;MinSizeRel.
 CMAKE_BUILD_TYPE:STRING=Release
 
@@ -22,12 +19,6 @@ ENABLE_LTO:BOOL=TRUE
 
 // Enable LuaJIT support
 ENABLE_LUAJIT:BOOL=ON
-
-// Enable OpenGL
-ENABLE_OPENGL:BOOL=ON
-
-// Enable OpenGL 3+
-ENABLE_OPENGL3:BOOL=ON
 
 // Use OpenSSL's libcrypto for faster SHA implementations
 ENABLE_OPENSSL:BOOL=ON
