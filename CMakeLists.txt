@@ -150,3 +150,5 @@ set(CPACK_GENERATOR TGZ)
 set(CPACK_SOURCE_GENERATOR TGZ)
 
 include(CPack)
+
+add_subdirectory(rustlantis)
