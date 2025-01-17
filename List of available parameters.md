@@ -35,23 +35,11 @@ ENABLE_UPDATE_CHECKER:BOOL=(;NOT;TRUE;)
 // Install Development Test
 INSTALL_DEVTEST:BOOL=FALSE
 
-// Path to a file listing all headers to precompile
-PRECOMPILED_HEADERS_PATH:FILEPATH=
-
-// Precompile some headers (experimental; requires CMake 3.16 or later)
-PRECOMPILE_HEADERS:BOOL=OFF
-
 // Require LuaJIT support
 REQUIRE_LUAJIT:BOOL=OFF
 
 // The directory containing a CMake configuration file for SDL2.
 SDL2_DIR:PATH=/usr/lib/x86_64-linux-gnu/cmake/SDL2
-
-// Use the SDL2 backend
-USE_SDL2:BOOL=ON
-
-// Stuff to append to version string
-VERSION_EXTRA:STRING=
 
 // Enable -Wall for Release build
 WARN_ALL:BOOL=TRUE

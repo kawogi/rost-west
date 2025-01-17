@@ -12,9 +12,6 @@ General options and their default values:
         SemiDebug              - Partially optimized debug build
         RelWithDebInfo         - Release build with debug information
         MinSizeRel             - Release build with -Os passed to compiler to make executable as small as possible
-    PRECOMPILE_HEADERS=FALSE   - Precompile some headers (experimental; requires CMake 3.16 or later)
-    PRECOMPILED_HEADERS_PATH=  - Path to a file listing all headers to precompile (default points to src/precompiled_headers.txt)
-    USE_SDL2=TRUE              - Build with SDL2; Enables IrrlichtMt device SDL2
     ENABLE_CURL=ON             - Build with cURL; Enables use of online mod repo, public serverlist and remote media fetching via http
     ENABLE_OPENSSL=ON          - Build with OpenSSL; Speeds up SHA1 and SHA2 hashing
     ENABLE_LTO=<varies>        - Build with IPO/LTO optimizations (smaller and more efficient than regular build)
@@ -24,7 +21,6 @@ General options and their default values:
     ENABLE_SYSTEM_JSONCPP=ON   - Use JsonCPP from system
     ENABLE_UPDATE_CHECKER=TRUE - Whether to enable update checks by default
     INSTALL_DEVTEST=FALSE      - Whether the Development Test game should be installed alongside Luanti
-    VERSION_EXTRA=             - Text to append to version (e.g. VERSION_EXTRA=foobar -> Luanti 5.10.0-foobar)
 
 Library specific options:
 
