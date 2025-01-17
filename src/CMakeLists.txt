@@ -364,9 +364,6 @@ if(USE_CURL)
 		${CURL_LIBRARY}
 	)
 endif()
-if(BUILD_WITH_TRACY)
-	target_link_libraries(${PROJECT_NAME}server Tracy::TracyClient)
-endif()
 
 if(PRECOMPILE_HEADERS)
 	target_precompile_headers(${PROJECT_NAME}server PRIVATE ${PRECOMPILED_HEADERS_LIST})

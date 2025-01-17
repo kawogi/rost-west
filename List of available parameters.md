@@ -8,9 +8,6 @@ cmake . -LH
 // Use a blacklist to avoid known broken locales
 APPLY_LOCALE_BLACKLIST:BOOL=ON
 
-// Fetch and build with the Tracy profiler client
-BUILD_WITH_TRACY:BOOL=FALSE
-
 // Choose the type of build. Options are: None;Release;Debug;SemiDebug;RelWithDebInfo;MinSizeRel.
 CMAKE_BUILD_TYPE:STRING=Release
 
@@ -46,9 +43,6 @@ ENABLE_SYSTEM_JSONCPP:BOOL=ON
 
 // Whether to enable update checks by default
 ENABLE_UPDATE_CHECKER:BOOL=(;NOT;TRUE;)
-
-// Git tag for fetching Tracy client. Match with your server (gui) version
-FETCH_TRACY_GIT_TAG:STRING=master
 
 // Install Development Test
 INSTALL_DEVTEST:BOOL=FALSE

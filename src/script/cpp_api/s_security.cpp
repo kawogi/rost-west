@@ -95,9 +95,6 @@ void ScriptApiSecurity::initializeSecurity()
 		"bit",
 		// Not sure if completely safe. But if someone enables tracy, they'll
 		// know what they do.
-#if BUILD_WITH_TRACY
-		"tracy",
-#endif
 	};
 	static const char *io_whitelist[] = {
 		"close",

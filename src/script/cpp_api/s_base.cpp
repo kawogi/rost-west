@@ -14,10 +14,6 @@
 #include "util/string.h"
 #include "server.h"
 
-#if BUILD_WITH_TRACY
-	#include "tracy/TracyLua.hpp"
-#endif
-
 extern "C" {
 #include "lualib.h"
 #if USE_LUAJIT
@@ -79,11 +75,6 @@ ScriptApiBase::ScriptApiBase(ScriptingType type):
 	lua_pushcfunction(m_luastack, luaopen_bit);
 	lua_pushstring(m_luastack, LUA_BITLIBNAME);
 	lua_call(m_luastack, 1, 0);
-
-#if BUILD_WITH_TRACY
-	// Load tracy lua bindings
-	tracy::LuaRegister(m_luastack);
-#endif
 
 	// Make the ScriptApiBase* accessible to ModApiBase
 #if INDIRECT_SCRIPTAPI_RIDX

@@ -23,7 +23,6 @@
 #include "filesys.h"
 #include "log.h"
 #include "util/string.h"
-#include "util/tracy_wrapper.h"
 #include <vector>
 #include <cstdarg>
 #include <cstdio>
@@ -419,8 +418,6 @@ void TrackFreedMemory(size_t amount)
 
 void TriggerMemoryTrim()
 {
-	ZoneScoped;
-
 	constexpr auto MO = std::memory_order_relaxed;
 	if (memory_freed.load(MO) >= MEMORY_TRIM_THRESHOLD) {
 		// Synchronize call

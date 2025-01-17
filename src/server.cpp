@@ -60,7 +60,6 @@
 #include "gameparams.h"
 #include "particles.h"
 #include "gettext.h"
-#include "util/tracy_wrapper.h"
 
 class ClientNotFoundException : public BaseException
 {
@@ -96,8 +95,6 @@ private:
 
 void *ServerThread::run()
 {
-	ZoneScoped;
-
 	BEGIN_DEBUG_EXCEPTION_HANDLER
 
 	/*
@@ -107,7 +104,6 @@ void *ServerThread::run()
 	 * server-step frequency. Receive() is used for waiting between the steps.
 	 */
 
-	auto framemarker = FrameMarker("ServerThread::run()-frame").started();
 	try {
 		m_server->AsyncRunStep(0.0f, true);
 	} catch (con::ConnectionBindFailed &e) {
@@ -117,12 +113,10 @@ void *ServerThread::run()
 	} catch (ModError &e) {
 		m_server->setAsyncFatalError(e.what());
 	}
-	framemarker.end();
 
 	float dtime = 0.0f;
 
 	while (!stopRequested()) {
-		framemarker.start();
 		ScopeProfiler spm(g_profiler, "Server::RunStep() (max)", SPT_MAX);
 
 		u64 t0 = porting::getTimeUs();
@@ -154,7 +148,6 @@ void *ServerThread::run()
 		}
 
 		dtime = 1e-6f * (porting::getTimeUs() - t0);
-		framemarker.end();
 	}
 
 	END_DEBUG_EXCEPTION_HANDLER
@@ -612,9 +605,6 @@ void Server::step()
 
 void Server::AsyncRunStep(float dtime, bool initial_step)
 {
-	ZoneScoped;
-	auto framemarker = FrameMarker("Server::AsyncRunStep()-frame").started();
-
 	if (!m_async_fatal_error.get().empty()) {
 		infostream << "Refusing server step in error state" << std::endl;
 		return;
@@ -1069,9 +1059,6 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 
 void Server::Receive(float min_time)
 {
-	ZoneScoped;
-	auto framemarker = FrameMarker("Server::Receive()-frame").started();
-
 	const u64 t0 = porting::getTimeUs();
 	const float min_time_us = min_time * 1e6f;
 	auto remaining_time_us = [&]() -> float {

@@ -37,11 +37,6 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
 endif()
 set(ENABLE_LTO ${DEFAULT_ENABLE_LTO} CACHE BOOL "Use Link Time Optimization")
 
-set(BUILD_WITH_TRACY FALSE CACHE BOOL
-	"Fetch and build with the Tracy profiler client")
-set(FETCH_TRACY_GIT_TAG "master" CACHE STRING
-	"Git tag for fetching Tracy client. Match with your server (gui) version")
-
 message(STATUS "*** Will build version ${VERSION_STRING} ***")
 
 set(WARN_ALL TRUE CACHE BOOL "Enable -Wall for Release build")
@@ -160,19 +155,3 @@ set(CPACK_GENERATOR TGZ)
 set(CPACK_SOURCE_GENERATOR TGZ)
 
 include(CPack)
-
-# Fetch Tracy
-if(BUILD_WITH_TRACY)
-	include(FetchContent)
-
-	message(STATUS "Fetching Tracy (${FETCH_TRACY_GIT_TAG})...")
-	FetchContent_Declare(
-		tracy
-		GIT_REPOSITORY https://github.com/wolfpld/tracy.git
-		GIT_TAG ${FETCH_TRACY_GIT_TAG}
-		GIT_SHALLOW TRUE
-		GIT_PROGRESS TRUE
-	)
-	FetchContent_MakeAvailable(tracy)
-	message(STATUS "Fetching Tracy - done")
-endif()
