@@ -47,9 +47,6 @@ REQUIRE_LUAJIT:BOOL=OFF
 // The directory containing a CMake configuration file for SDL2.
 SDL2_DIR:PATH=/usr/lib/x86_64-linux-gnu/cmake/SDL2
 
-// Use -pg flag for g++
-USE_GPROF:BOOL=FALSE
-
 // Use the SDL2 backend
 USE_SDL2:BOOL=ON
 

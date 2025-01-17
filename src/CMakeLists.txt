@@ -100,8 +100,6 @@ find_package(ZLIB REQUIRED)
 find_package(Zstd REQUIRED)
 
 
-set(USE_GPROF FALSE CACHE BOOL "Use -pg flag for g++")
-
 # Use cmake_config.h
 add_compile_definitions(USE_CMAKE_CONFIG_H)
 
@@ -466,10 +464,6 @@ else()
 
 	# enable assertions for libstdc++ or libc++
 	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wp,-D_GLIBCXX_ASSERTIONS -Wp,-D_LIBCPP_ENABLE_ASSERTIONS=1")
-	if(USE_GPROF)
-		set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -pg")
-	endif()
-
 endif()
 
 macro(CreateLegacyAlias _cmake_target _old_path _new_name)
