@@ -28,7 +28,6 @@ COPY textures /usr/src/luanti/textures
 
 WORKDIR /usr/src/luanti
 RUN cmake -B build \
-		-DCMAKE_INSTALL_PREFIX=/usr/local \
 		-DCMAKE_BUILD_TYPE=Release \
 		-DBUILD_UNITTESTS=FALSE -DBUILD_BENCHMARKS=FALSE \
 		-GNinja && \

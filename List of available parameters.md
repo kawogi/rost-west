@@ -8,9 +8,6 @@ cmake . -LH
 // Choose the type of build. Options are: None;Release;Debug;SemiDebug;RelWithDebInfo;MinSizeRel.
 CMAKE_BUILD_TYPE:STRING=Release
 
-// Install path prefix, prepended onto install directories.
-CMAKE_INSTALL_PREFIX:PATH=/usr/local
-
 // Enable cURL support for fetching media
 ENABLE_CURL:BOOL=ON
 
