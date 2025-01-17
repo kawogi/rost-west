@@ -25,9 +25,6 @@
 #include "serialization.h" // SER_FMT_VER_HIGHEST_*
 #include "network/socket.h"
 #include "mapblock.h"
-#if USE_CURSES
-#include "terminal_chat_console.h"
-#endif
 
 // for version information only
 extern "C"
@@ -337,8 +334,6 @@ static void set_allowed_options(OptionList *allowed_options)
 																	 _("Migrate from current auth backend to another" SERVER_ONLY))));
 	allowed_options->insert(std::make_pair("migrate-mod-storage", ValueSpec(VALUETYPE_STRING,
 																			_("Migrate from current mod storage backend to another" SERVER_ONLY))));
-	allowed_options->insert(std::make_pair("terminal", ValueSpec(VALUETYPE_FLAG,
-																 _("Enable ncurses interactive terminal" SERVER_ONLY))));
 	allowed_options->insert(std::make_pair("recompress", ValueSpec(VALUETYPE_FLAG,
 																   _("Recompress the blocks of the given map database" SERVER_ONLY))));
 
@@ -1063,76 +1058,7 @@ static bool run_dedicated_server(const GameParams &game_params, const Settings &
 		return false;
 	}
 
-	if (cmd_args.exists("terminal"))
 	{
-#if USE_CURSES
-		std::string admin_nick = g_settings->get("name");
-
-		if (!is_valid_player_name(admin_nick))
-		{
-			if (admin_nick.empty())
-			{
-				errorstream << "No name given for admin. "
-							<< "Please check your configuration that it "
-							<< "contains a 'name = ...' for your main admin account."
-							<< std::endl;
-			}
-			else
-			{
-				errorstream << "Name for admin '"
-							<< admin_nick << "' is not valid. "
-							<< "Please check that it only contains allowed characters "
-							<< "and that it is at most 20 characters long. "
-							<< "Valid characters are: " << PLAYERNAME_ALLOWED_CHARS_USER_EXPL
-							<< std::endl;
-			}
-			return false;
-		}
-		ChatInterface iface;
-		bool &kill = *porting::signal_handler_killstatus();
-
-		try
-		{
-			// Create server
-			Server server(game_params.world_path, game_params.game_spec,
-						  false, bind_addr, true, &iface);
-
-			g_term_console.setup(&iface, &kill, admin_nick);
-
-			g_term_console.start();
-
-			server.start();
-			// Run server
-			dedicated_server_loop(server, kill);
-		}
-		catch (const ModError &e)
-		{
-			g_term_console.stopAndWaitforThread();
-			errorstream << "ModError: " << e.what() << std::endl;
-			return false;
-		}
-		catch (const ServerError &e)
-		{
-			g_term_console.stopAndWaitforThread();
-			errorstream << "ServerError: " << e.what() << std::endl;
-			return false;
-		}
-
-		// Tell the console to stop, and wait for it to finish,
-		// only then leave context and free iface
-		g_term_console.stop();
-		g_term_console.wait();
-
-		g_term_console.clearKillStatus();
-	}
-	else
-	{
-#else
-		errorstream << "Cmd arg --terminal passed, but "
-					<< "compiled without ncurses. Ignoring." << std::endl;
-	}
-	{
-#endif
 		try
 		{
 			// Create server

@@ -15,10 +15,6 @@
 #include "threading/mutex_auto_lock.h"
 #include "config.h"
 
-#if USE_CURSES
-	#include "terminal_chat_console.h"
-#endif
-
 /*
 	Assert
 */
@@ -26,9 +22,6 @@
 void sanity_check_fn(const char *assertion, const char *file,
 		unsigned int line, const char *function)
 {
-#if USE_CURSES
-	g_term_console.stopAndWaitforThread();
-#endif
 
 	errorstream << std::endl << "In thread " << std::hex
 		<< std::this_thread::get_id() << ":\n" << std::dec;
@@ -41,10 +34,6 @@ void sanity_check_fn(const char *assertion, const char *file,
 void fatal_error_fn(const char *msg, const char *file,
 		unsigned int line, const char *function)
 {
-#if USE_CURSES
-	g_term_console.stopAndWaitforThread();
-#endif
-
 	errorstream << std::endl << "In thread " << std::hex
 		<< std::this_thread::get_id() << ":\n" << std::dec;
 	errorstream << file << ":" << line << ": " << function

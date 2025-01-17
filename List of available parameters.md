@@ -20,12 +20,6 @@ CMAKE_INSTALL_PREFIX:PATH=/usr/local
 // Enable cURL support for fetching media
 ENABLE_CURL:BOOL=ON
 
-// Enable ncurses console
-ENABLE_CURSES:BOOL=ON
-
-// Enable OpenGL ES 2+
-ENABLE_GLES2:BOOL=OFF
-
 // Use Link Time Optimization
 ENABLE_LTO:BOOL=TRUE
 
