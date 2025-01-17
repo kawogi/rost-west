@@ -29,7 +29,7 @@ add_custom_command(
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_link_libraries(rustlantis pthread dl ${RUSTLANTIS})
+target_link_libraries(rustlantis pthread dl ${RUSTLANTIS_LIB})
 
 add_test(NAME rustlantis_test 
     COMMAND cargo test

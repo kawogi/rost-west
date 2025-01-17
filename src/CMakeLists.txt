@@ -284,9 +284,10 @@ target_include_directories(EngineCommon PRIVATE ${IRRLICHT_INCLUDES})
 add_executable(${PROJECT_NAME}server)
 list(SORT server_SRCS)
 target_sources(${PROJECT_NAME}server PRIVATE
-	$<TARGET_OBJECTS:EngineCommon>
-	${server_SRCS}
+$<TARGET_OBJECTS:EngineCommon>
+${server_SRCS}
 )
+target_link_libraries(${PROJECT_NAME}server rustlantis)
 
 # don't link the irrlicht library
 get_target_property(
