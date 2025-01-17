@@ -13,6 +13,7 @@
 #include "voxelalgorithms.h"
 #include "emerge.h"
 
+#include "../rustlantis/rustlantis.h"
 
 MapgenSinglenode::MapgenSinglenode(MapgenParams *params, EmergeParams *emerge)
 	: Mapgen(MAPGEN_SINGLENODE, params, emerge)
@@ -25,17 +26,18 @@ MapgenSinglenode::MapgenSinglenode(MapgenParams *params, EmergeParams *emerge)
 	set_light = (ndef->getLightingFlags(n_node).sunlight_propagates) ? LIGHT_SUN : 0x00;
 }
 
-
 //////////////////////// Map generator
 
 void MapgenSinglenode::makeChunk(BlockMakeData *data)
 {
+	rustlantis::rustprint();
+
 	// Pre-conditions
 	assert(data->vmanip);
 	assert(data->nodedef);
 
 	this->generating = true;
-	this->vm   = data->vmanip;
+	this->vm = data->vmanip;
 	this->ndef = data->nodedef;
 
 	v3s16 blockpos_min = data->blockpos_min;
@@ -50,14 +52,16 @@ void MapgenSinglenode::makeChunk(BlockMakeData *data)
 	MapNode n_node(c_node);
 
 	for (s16 z = node_min.Z; z <= node_max.Z; z++)
-	for (s16 y = node_min.Y; y <= node_max.Y; y++) {
-		u32 i = vm->m_area.index(node_min.X, y, z);
-		for (s16 x = node_min.X; x <= node_max.X; x++) {
-			if (vm->m_data[i].getContent() == CONTENT_IGNORE)
-				vm->m_data[i] = n_node;
-			i++;
+		for (s16 y = node_min.Y; y <= node_max.Y; y++)
+		{
+			u32 i = vm->m_area.index(node_min.X, y, z);
+			for (s16 x = node_min.X; x <= node_max.X; x++)
+			{
+				if (vm->m_data[i].getContent() == CONTENT_IGNORE)
+					vm->m_data[i] = n_node;
+				i++;
+			}
 		}
-	}
 
 	if (ndef->get(n_node).isLiquid())
 		updateLiquid(&data->transforming_liquid, node_min, node_max);
@@ -68,7 +72,6 @@ void MapgenSinglenode::makeChunk(BlockMakeData *data)
 
 	this->generating = false;
 }
-
 
 int MapgenSinglenode::getSpawnLevelAtPoint(v2s16 p)
 {

@@ -1,2 +1,13 @@
 # Cargo build artifacts
 /target
+
+build
+build-*
+cmake-build*
+
+# TODO clean up this mess
+cxxbridge
+release
+rustlantis.cpp
+rustlantis.h
+.rustc_info.json

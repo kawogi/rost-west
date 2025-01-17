@@ -1,43 +1,78 @@
 // use std::fmt;
 
-// #[cxx::bridge]
-// mod ffi {
-//     #[namespace = "shared"]
-//     struct Color {
-//         r: u8,
-//         g: u8,
-//         b: u8,
-//     }
+// TODO rename to Rost-West
 
-//     #[namespace = "shared"]
-//     struct SharedThing {
-//         points: Box<Points>,
-//         persons: UniquePtr<Person>,
-//         pixels: Vec<Color>,
-//     }
+#[cxx::bridge]
+mod ffi {
+    // unsafe extern "C++" {
+    // include!("src/mapgen/mapgen.h");
 
-//     unsafe extern "C++" {
-//         include!("cpp_part.h");
-//         type Person;
+    // type Settings;
+    // type MMVManip;
+    // type NodeDefManager;
+    // type Biome;
+    // type BiomeGen;
+    // type BiomeParams;
+    // type BiomeManager;
+    // type EmergeParams;
+    // type EmergeManager;
+    // type MapBlock;
+    // type VoxelManipulator;
+    // type BlockMakeData;
+    // type VoxelArea;
+    // type Map;
 
-//         fn get_name(person: &Person) -> &CxxString;
-//         fn make_person() -> UniquePtr<Person>;
-//         fn is_black(self: &Color) -> bool;
-//     }
+    // type Person;
 
-//     #[namespace = "rustlantis"]
-//     extern "Rust" {
-//         type Points;
-//         fn print_shared_thing(points: &SharedThing);
-//         fn make_shared_thing() -> SharedThing;
-//         fn rust_echo(val: i32) -> i32;
-//     }
+    // fn get_name(person: &Person) -> &CxxString;
+    // fn make_person() -> UniquePtr<Person>;
+    // fn is_black(self: &Color) -> bool;
+    // }
 
-//     #[namespace = "shared"]
-//     extern "Rust" {
-//         fn is_white(self: &Color) -> bool;
-//     }
-// }
+    //     #[namespace = "shared"]
+    //     struct Color {
+    //         r: u8,
+    //         g: u8,
+    //         b: u8,
+    //     }
+
+    //     #[namespace = "shared"]
+    //     struct SharedThing {
+    //         points: Box<Points>,
+    //         persons: UniquePtr<Person>,
+    //         pixels: Vec<Color>,
+    //     }
+
+    //     unsafe extern "C++" {
+    //         include!("cpp_part.h");
+    //         type Person;
+
+    //         fn get_name(person: &Person) -> &CxxString;
+    //         fn make_person() -> UniquePtr<Person>;
+    //         fn is_black(self: &Color) -> bool;
+    //     }
+
+    //     #[namespace = "rustlantis"]
+    //     extern "Rust" {
+    //         type Points;
+    //         fn print_shared_thing(points: &SharedThing);
+    //         fn make_shared_thing() -> SharedThing;
+    //         fn rust_echo(val: i32) -> i32;
+    //     }
+
+    //     #[namespace = "shared"]
+    //     extern "Rust" {
+    //         fn is_white(self: &Color) -> bool;
+    //     }
+    #[namespace = "rustlantis"]
+    extern "Rust" {
+        fn rustprint();
+    }
+}
+
+pub fn rustprint() {
+    println!("Hello Rust");
+}
 
 // #[derive(Debug)]
 // pub struct Points {

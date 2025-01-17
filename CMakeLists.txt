@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.15)
 
 # This can be read from ${PROJECT_NAME} after project() is called
 project(luanti)
@@ -25,12 +25,13 @@ if (CMAKE_BUILD_TYPE STREQUAL Debug)
 	set(VERSION_STRING "${VERSION_STRING}-debug")
 endif()
 
-set(DEFAULT_ENABLE_LTO TRUE)
-# by default don't enable on Debug builds to get faster builds
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  set(DEFAULT_ENABLE_LTO FALSE)
-endif()
-set(ENABLE_LTO ${DEFAULT_ENABLE_LTO} CACHE BOOL "Use Link Time Optimization")
+# set(DEFAULT_ENABLE_LTO TRUE)
+# # by default don't enable on Debug builds to get faster builds
+# if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+#   set(DEFAULT_ENABLE_LTO FALSE)
+# endif()
+# set(ENABLE_LTO ${DEFAULT_ENABLE_LTO} CACHE BOOL "Use Link Time Optimization")
+set(ENABLE_LTO FALSE)
 
 message(STATUS "*** Will build version ${VERSION_STRING} ***")
 
@@ -152,3 +153,7 @@ set(CPACK_SOURCE_GENERATOR TGZ)
 include(CPack)
 
 add_subdirectory(rustlantis)
+include_directories(${CMAKE_BINARY_DIR}/rustlantis)
+# include_directories(rustlantis)
+# add_executable(main main.cpp)
+target_link_libraries(rustlantis)
