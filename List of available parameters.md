@@ -17,27 +17,6 @@ CMAKE_BUILD_TYPE:STRING=Release
 // Install path prefix, prepended onto install directories.
 CMAKE_INSTALL_PREFIX:PATH=/usr/local
 
-// Directory to install binaries into
-CUSTOM_BINDIR:STRING=
-
-// Directory to install example config file into
-CUSTOM_EXAMPLE_CONF_DIR:STRING=
-
-// Directory to install icons into
-CUSTOM_ICONDIR:STRING=
-
-// Directory to install l10n files into
-CUSTOM_LOCALEDIR:STRING=
-
-// Directory to install manpages into
-CUSTOM_MANDIR:STRING=
-
-// Directory to install data files into
-CUSTOM_SHAREDIR:STRING=
-
-// Directory to install .desktop files into
-CUSTOM_XDG_APPS_DIR:STRING=
-
 // Enable cURL support for fetching media
 ENABLE_CURL:BOOL=ON
 
