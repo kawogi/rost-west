@@ -82,21 +82,6 @@ message(STATUS "GetText disabled.")
 
 find_package(SQLite3 REQUIRED)
 
-OPTION(ENABLE_SPATIAL "Enable SpatialIndex AreaStore backend" TRUE)
-set(USE_SPATIAL FALSE)
-
-if(ENABLE_SPATIAL)
-	find_library(SPATIAL_LIBRARY spatialindex)
-	find_path(SPATIAL_INCLUDE_DIR spatialindex/SpatialIndex.h)
-	if(SPATIAL_LIBRARY AND SPATIAL_INCLUDE_DIR)
-		set(USE_SPATIAL TRUE)
-		message(STATUS "SpatialIndex AreaStore backend enabled.")
-		include_directories(${SPATIAL_INCLUDE_DIR})
-	else(SPATIAL_LIBRARY AND SPATIAL_INCLUDE_DIR)
-		message(STATUS "SpatialIndex not found!")
-	endif(SPATIAL_LIBRARY AND SPATIAL_INCLUDE_DIR)
-endif(ENABLE_SPATIAL)
-
 option(ENABLE_OPENSSL "Use OpenSSL's libcrypto for faster SHA implementations" TRUE)
 set(USE_OPENSSL FALSE)
 
@@ -352,9 +337,6 @@ if(NOT USE_LUAJIT)
 	)
 endif()
 
-if (USE_SPATIAL)
-	target_link_libraries(${PROJECT_NAME}server ${SPATIAL_LIBRARY})
-endif()
 if (USE_OPENSSL)
 	target_link_libraries(${PROJECT_NAME}server OpenSSL::Crypto)
 endif()

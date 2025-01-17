@@ -23,9 +23,6 @@ ENABLE_LUAJIT:BOOL=ON
 // Use OpenSSL's libcrypto for faster SHA implementations
 ENABLE_OPENSSL:BOOL=ON
 
-// Enable SpatialIndex AreaStore backend
-ENABLE_SPATIAL:BOOL=ON
-
 // Use GMP from system
 ENABLE_SYSTEM_GMP:BOOL=ON
 
@@ -49,12 +46,6 @@ REQUIRE_LUAJIT:BOOL=OFF
 
 // The directory containing a CMake configuration file for SDL2.
 SDL2_DIR:PATH=/usr/lib/x86_64-linux-gnu/cmake/SDL2
-
-// Path to a file.
-SPATIAL_INCLUDE_DIR:PATH=SPATIAL_INCLUDE_DIR-NOTFOUND
-
-// Path to a library.
-SPATIAL_LIBRARY:FILEPATH=SPATIAL_LIBRARY-NOTFOUND
 
 // Use -pg flag for g++
 USE_GPROF:BOOL=FALSE

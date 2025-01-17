@@ -47,7 +47,6 @@ WORKDIR /var/lib/minetest
 COPY --from=builder /usr/local/share/luanti /usr/local/share/luanti
 COPY --from=builder /usr/local/bin/luantiserver /usr/local/bin/luantiserver
 COPY --from=builder /usr/local/share/doc/luanti/minetest.conf.example /etc/minetest/minetest.conf
-COPY --from=builder /usr/local/lib/libspatialindex* /usr/local/lib/
 COPY --from=builder /usr/local/lib/libluajit* /usr/local/lib/
 USER minetest:minetest
 

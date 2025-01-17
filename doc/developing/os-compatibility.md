@@ -45,9 +45,6 @@ In general also consider:
 * Maybe even vendor the library?
 * Or could the engine include a transparent fallback implementation?
 
-The SpatialIndex support is a good example for the latter. It is only used to speed up some (relatively unimportant)
-API feature, but there's no loss of functionality if you don't have it.
-
 ## A concrete example
 
 (as of April 2024)

@@ -18,7 +18,6 @@
 #cmakedefine01 ENABLE_UPDATE_CHECKER
 #cmakedefine01 USE_CURL
 #cmakedefine01 USE_LUAJIT
-#cmakedefine01 USE_SPATIAL
 #cmakedefine01 USE_SYSTEM_GMP
 #cmakedefine01 USE_SYSTEM_JSONCPP
 #cmakedefine01 USE_OPENSSL

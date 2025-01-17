@@ -16,7 +16,6 @@ General options and their default values:
     PRECOMPILED_HEADERS_PATH=  - Path to a file listing all headers to precompile (default points to src/precompiled_headers.txt)
     USE_SDL2=TRUE              - Build with SDL2; Enables IrrlichtMt device SDL2
     ENABLE_CURL=ON             - Build with cURL; Enables use of online mod repo, public serverlist and remote media fetching via http
-    ENABLE_SPATIAL=ON          - Build with LibSpatial; Speeds up AreaStores
     ENABLE_OPENSSL=ON          - Build with OpenSSL; Speeds up SHA1 and SHA2 hashing
     ENABLE_LTO=<varies>        - Build with IPO/LTO optimizations (smaller and more efficient than regular build)
     ENABLE_LUAJIT=ON           - Build with LuaJIT (much faster than non-JIT Lua)
@@ -44,8 +43,6 @@ Library specific options:
     JPEG_LIBRARY                    - Path to libjpeg.a/libjpeg.so/libjpeg.lib
     JSON_INCLUDE_DIR                - Directory that contains json/allocator.h
     JSON_LIBRARY                    - Path to libjson.a/libjson.so/libjson.lib
-    SPATIAL_INCLUDE_DIR             - Only when building with LibSpatial; directory that contains spatialindex/SpatialIndex.h
-    SPATIAL_LIBRARY                 - Only when building with LibSpatial; path to libspatialindex.so/spatialindex-32.lib
     LUA_INCLUDE_DIR                 - Only if you want to use LuaJIT; directory where luajit.h is located
     LUA_LIBRARY                     - Only if you want to use LuaJIT; path to libluajit.a/libluajit.so
     OGG_INCLUDE_DIR                 - Only if building with sound; directory that contains an ogg directory which contains ogg.h

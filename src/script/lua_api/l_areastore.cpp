@@ -293,11 +293,6 @@ LuaAreaStore::LuaAreaStore() : as(AreaStore::getOptimalImplementation())
 
 LuaAreaStore::LuaAreaStore(const std::string &type)
 {
-#if USE_SPATIAL
-	if (type == "LibSpatial") {
-		as = new SpatialAreaStore();
-	} else
-#endif
 	{
 		as = new VectorAreaStore();
 	}

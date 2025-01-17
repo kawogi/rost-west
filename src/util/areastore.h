@@ -13,11 +13,6 @@
 #include "util/container.h"
 #include "util/numeric.h"
 #include "cmake_config.h"
-#if USE_SPATIAL
-	#include <spatialindex/SpatialIndex.h>
-	#include "util/serialize.h"
-#endif
-
 
 struct Area {
 	Area(u32 area_id) : id(area_id) {}
@@ -125,56 +120,3 @@ protected:
 private:
 	std::vector<Area *> m_areas;
 };
-
-
-#if USE_SPATIAL
-
-class SpatialAreaStore : public AreaStore {
-public:
-	SpatialAreaStore();
-	virtual ~SpatialAreaStore();
-
-	virtual bool insertArea(Area *a);
-	virtual bool removeArea(u32 id);
-	virtual void getAreasInArea(std::vector<Area *> *result,
-		v3s16 minedge, v3s16 maxedge, bool accept_overlap);
-
-protected:
-	virtual void getAreasForPosImpl(std::vector<Area *> *result, v3s16 pos);
-
-private:
-	SpatialIndex::ISpatialIndex *m_tree = nullptr;
-	SpatialIndex::IStorageManager *m_storagemanager = nullptr;
-
-	class VectorResultVisitor : public SpatialIndex::IVisitor {
-	public:
-		VectorResultVisitor(std::vector<Area *> *result, SpatialAreaStore *store) :
-			m_store(store),
-			m_result(result)
-		{}
-		~VectorResultVisitor() {}
-
-		virtual void visitNode(const SpatialIndex::INode &in) {}
-
-		virtual void visitData(const SpatialIndex::IData &in)
-		{
-			u32 id = in.getIdentifier();
-
-			std::map<u32, Area>::iterator itr = m_store->areas_map.find(id);
-			assert(itr != m_store->areas_map.end());
-			m_result->push_back(&itr->second);
-		}
-
-		virtual void visitData(std::vector<const SpatialIndex::IData *> &v)
-		{
-			for (size_t i = 0; i < v.size(); i++)
-				visitData(*(v[i]));
-		}
-
-	private:
-		SpatialAreaStore *m_store = nullptr;
-		std::vector<Area *> *m_result = nullptr;
-	};
-};
-
-#endif // USE_SPATIAL
