@@ -2,10 +2,52 @@
 
 // TODO rename to Rost-West
 
+use core::slice;
+use std::mem::transmute;
+
+use ffi::VoxelArea;
+// use ffi::VoxelArea;
+use rand::Rng;
+
+/*
+    A solid walkable node with the texture unknown_node.png.
+
+    For example, used on the client to display unregistered node IDs
+    (instead of expanding the vector of node definitions each time
+    such a node is received).
+*/
+const CONTENT_UNKNOWN: u16 = 125;
+
+/*
+    The common material through which the player can walk and which
+    is transparent to light
+*/
+const CONTENT_AIR: u16 = 126;
+
+/*
+    Ignored node.
+
+    Unloaded chunks are considered to consist of this. Several other
+    methods return this when an error occurs. Also, during
+    map generation this means the node has not been set yet.
+
+    Doesn't create faces with anything and is considered being
+    out-of-map in the game map.
+*/
+const CONTENT_IGNORE: u16 = 127;
+
 #[cxx::bridge]
 mod ffi {
-    // unsafe extern "C++" {
-    // include!("src/mapgen/mapgen.h");
+    // #[namespace = "voxel"]
+    unsafe extern "C++" {
+        include!("voxel.h");
+
+        type VoxelArea;
+
+        // s32 index(s16 x, s16 y, s16 z) const
+        fn index(self: &VoxelArea, x: i16, y: i16, z: i16) -> i32;
+
+    }
 
     // type Settings;
     // type MMVManip;
@@ -66,12 +108,31 @@ mod ffi {
     //     }
     #[namespace = "rustlantis"]
     extern "Rust" {
-        fn rustprint();
+        // fn make_chunk(area: &VoxelArea, data: &mut [u32]);
+        fn make_chunk(area: &VoxelArea, data: &mut [u32]);
     }
 }
 
-pub fn rustprint() {
-    println!("Hello Rust");
+#[repr(C)]
+#[derive(Clone, Copy)]
+struct MapData {
+    id: u16,
+    d1: u8,
+    d2: u8,
+}
+
+pub fn make_chunk(area: &VoxelArea, data: &mut [u32]) {
+    // let size = usize::from(size_x) * usize::from(size_y) * usize::from(size_z);
+    // println!("z {size_x} {size_y} {size_z} {size} {}", data.len());
+    println!("area {}", area.index(0, 0, 0));
+
+    let data: &mut [MapData] = unsafe { transmute(data) };
+
+    for (i, data) in data.iter_mut().enumerate() {
+        if rand::thread_rng().gen_bool(0.5) {
+            data.id = rand::thread_rng().gen::<u8>() as u16;
+        }
+    }
 }
 
 // #[derive(Debug)]

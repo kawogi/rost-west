@@ -10,4 +10,5 @@
 #include "irr_v3d.h"
 #include "irr_aabb3d.h"
 
-#include <SColor.h>
+// #include <SColor.h>
+#include "../irr/include/SColor.h"

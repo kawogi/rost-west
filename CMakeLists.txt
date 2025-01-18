@@ -151,9 +151,3 @@ set(CPACK_GENERATOR TGZ)
 set(CPACK_SOURCE_GENERATOR TGZ)
 
 include(CPack)
-
-add_subdirectory(rustlantis)
-include_directories(${CMAKE_BINARY_DIR}/rustlantis)
-# include_directories(rustlantis)
-# add_executable(main main.cpp)
-# target_link_libraries(rustlantis)

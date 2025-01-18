@@ -30,8 +30,6 @@ MapgenSinglenode::MapgenSinglenode(MapgenParams *params, EmergeParams *emerge)
 
 void MapgenSinglenode::makeChunk(BlockMakeData *data)
 {
-	rustlantis::rustprint();
-
 	// Pre-conditions
 	assert(data->vmanip);
 	assert(data->nodedef);
@@ -51,17 +49,26 @@ void MapgenSinglenode::makeChunk(BlockMakeData *data)
 
 	MapNode n_node(c_node);
 
-	for (s16 z = node_min.Z; z <= node_max.Z; z++)
-		for (s16 y = node_min.Y; y <= node_max.Y; y++)
-		{
-			u32 i = vm->m_area.index(node_min.X, y, z);
-			for (s16 x = node_min.X; x <= node_max.X; x++)
-			{
-				if (vm->m_data[i].getContent() == CONTENT_IGNORE)
-					vm->m_data[i] = n_node;
-				i++;
-			}
-		}
+	auto size = blockpos_max - blockpos_min;
+	auto block_count = u64(size.X) * u64(size.Y) * u64(size.Z);
+
+	u32 *m_data = reinterpret_cast<u32 *>(vm->m_data);
+
+	// u32 i = vm->m_area.index(node_min.X, y, z);
+	rustlantis::make_chunk(vm->m_area, ::rust::Slice(m_data, block_count));
+	// rustlantis::make_chunk(::rust::Slice(m_data, block_count));
+
+	// for (s16 z = node_min.Z; z <= node_max.Z; z++)
+	// 	for (s16 y = node_min.Y; y <= node_max.Y; y++)
+	// 	{
+	// 		u32 i = vm->m_area.index(node_min.X, y, z);
+	// 		for (s16 x = node_min.X; x <= node_max.X; x++)
+	// 		{
+	// 			if (vm->m_data[i].getContent() == CONTENT_IGNORE)
+	// 				vm->m_data[i] = n_node;
+	// 			i++;
+	// 		}
+	// 	}
 
 	if (ndef->get(n_node).isLiquid())
 		updateLiquid(&data->transforming_liquid, node_min, node_max);

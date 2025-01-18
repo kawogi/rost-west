@@ -289,6 +289,11 @@ ${server_SRCS}
 )
 target_link_libraries(${PROJECT_NAME}server rustlantis)
 
+add_subdirectory(rustlantis)
+# include_directories(${CMAKE_BINARY_DIR}/rustlantis)
+include_directories(rustlantis)
+
+
 # don't link the irrlicht library
 get_target_property(
 	IRRLICHT_INCLUDES IrrlichtMt::IrrlichtMt INTERFACE_INCLUDE_DIRECTORIES)

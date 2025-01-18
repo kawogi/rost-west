@@ -4,8 +4,10 @@
 
 #pragma once
 #include <ostream>
-#include <vector2d.h>
-#include <vector3d.h>
+// #include <vector2d.h>
+#include "../irr/include/vector2d.h"
+// #include <vector3d.h>
+#include "../irr/include/vector3d.h"
 
 namespace irr::core {
 
