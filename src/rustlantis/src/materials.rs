@@ -1,0 +1,214 @@
+use cxx::let_cxx_string;
+
+use crate::ffi::NodeDefManager;
+
+/*
+    A solid walkable node with the texture unknown_node.png.
+
+    For example, used on the client to display unregistered node IDs
+    (instead of expanding the vector of node definitions each time
+    such a node is received).
+*/
+const CONTENT_UNKNOWN: u16 = 125;
+
+/*
+    The common material through which the player can walk and which
+    is transparent to light
+*/
+const CONTENT_AIR: u16 = 126;
+
+/*
+    Ignored node.
+
+    Unloaded chunks are considered to consist of this. Several other
+    methods return this when an error occurs. Also, during
+    map generation this means the node has not been set yet.
+
+    Doesn't create faces with anything and is considered being
+    out-of-map in the game map.
+*/
+const CONTENT_IGNORE: u16 = 127;
+
+const BASENODE_STONE: &str = "basenodes:stone";
+const BASENODE_DESERT_STONE: &str = "basenodes:desert_stone";
+const BASENODE_DIRT_WITH_GRASS: &str = "basenodes:dirt_with_grass";
+const BASENODE_DIRT_WITH_SNOW: &str = "basenodes:dirt_with_snow";
+const BASENODE_DIRT: &str = "basenodes:dirt";
+const BASENODE_SAND: &str = "basenodes:sand";
+const BASENODE_DESERT_SAND: &str = "basenodes:desert_sand";
+const BASENODE_GRAVEL: &str = "basenodes:gravel";
+const BASENODE_JUNGLEGRASS: &str = "basenodes:junglegrass";
+const BASENODE_TREE: &str = "basenodes:tree";
+const BASENODE_LEAVES: &str = "basenodes:leaves";
+const BASENODE_JUNGLETREE: &str = "basenodes:jungletree";
+const BASENODE_JUNGLELEAVES: &str = "basenodes:jungleleaves";
+const BASENODE_PINE_TREE: &str = "basenodes:pine_tree";
+const BASENODE_PINE_NEEDLES: &str = "basenodes:pine_needles";
+const BASENODE_WATER_SOURCE: &str = "basenodes:water_source";
+const BASENODE_WATER_FLOWING: &str = "basenodes:water_flowing";
+const BASENODE_RIVER_WATER_SOURCE: &str = "basenodes:river_water_source";
+const BASENODE_RIVER_WATER_FLOWING: &str = "basenodes:river_water_flowing";
+const BASENODE_LAVA_FLOWING: &str = "basenodes:lava_flowing";
+const BASENODE_LAVA_SOURCE: &str = "basenodes:lava_source";
+const BASENODE_COBBLE: &str = "basenodes:cobble";
+const BASENODE_MOSSYCOBBLE: &str = "basenodes:mossycobble";
+const BASENODE_APPLE: &str = "basenodes:apple";
+const BASENODE_ICE: &str = "basenodes:ice";
+const BASENODE_SNOW: &str = "basenodes:snow";
+const BASENODE_SNOWBLOCK: &str = "basenodes:snowblock";
+
+pub(crate) struct Materials {
+    // hardcoded
+    pub(crate) unknown: u16,
+    pub(crate) air: u16,
+    pub(crate) ignore: u16,
+    // basenodes
+    pub(crate) stone: u16,
+    pub(crate) desert_stone: u16,
+    pub(crate) dirt_with_grass: u16,
+    pub(crate) dirt_with_snow: u16,
+    pub(crate) dirt: u16,
+    pub(crate) sand: u16,
+    pub(crate) desert_sand: u16,
+    pub(crate) gravel: u16,
+    pub(crate) junglegrass: u16,
+    pub(crate) tree: u16,
+    pub(crate) leaves: u16,
+    pub(crate) jungletree: u16,
+    pub(crate) jungleleaves: u16,
+    pub(crate) pine_tree: u16,
+    pub(crate) pine_needles: u16,
+    pub(crate) water_source: u16,
+    pub(crate) water_flowing: u16,
+    pub(crate) river_water_source: u16,
+    pub(crate) river_water_flowing: u16,
+    pub(crate) lava_flowing: u16,
+    pub(crate) lava_source: u16,
+    pub(crate) cobble: u16,
+    pub(crate) mossycobble: u16,
+    pub(crate) apple: u16,
+    pub(crate) ice: u16,
+    pub(crate) snow: u16,
+    pub(crate) snowblock: u16,
+}
+
+impl Materials {
+    pub(crate) fn load(node_def_manager: &NodeDefManager) -> Self {
+        let mut result = Self {
+            unknown: CONTENT_UNKNOWN,
+            air: CONTENT_AIR,
+            ignore: CONTENT_IGNORE,
+            // basenodes
+            stone: CONTENT_UNKNOWN,
+            desert_stone: CONTENT_UNKNOWN,
+            dirt_with_grass: CONTENT_UNKNOWN,
+            dirt_with_snow: CONTENT_UNKNOWN,
+            dirt: CONTENT_UNKNOWN,
+            sand: CONTENT_UNKNOWN,
+            desert_sand: CONTENT_UNKNOWN,
+            gravel: CONTENT_UNKNOWN,
+            junglegrass: CONTENT_UNKNOWN,
+            tree: CONTENT_UNKNOWN,
+            leaves: CONTENT_UNKNOWN,
+            jungletree: CONTENT_UNKNOWN,
+            jungleleaves: CONTENT_UNKNOWN,
+            pine_tree: CONTENT_UNKNOWN,
+            pine_needles: CONTENT_UNKNOWN,
+            water_source: CONTENT_UNKNOWN,
+            water_flowing: CONTENT_UNKNOWN,
+            river_water_source: CONTENT_UNKNOWN,
+            river_water_flowing: CONTENT_UNKNOWN,
+            lava_flowing: CONTENT_UNKNOWN,
+            lava_source: CONTENT_UNKNOWN,
+            cobble: CONTENT_UNKNOWN,
+            mossycobble: CONTENT_UNKNOWN,
+            apple: CONTENT_UNKNOWN,
+            ice: CONTENT_UNKNOWN,
+            snow: CONTENT_UNKNOWN,
+            snowblock: CONTENT_UNKNOWN,
+        };
+
+        let_cxx_string!(stone = BASENODE_STONE);
+        node_def_manager.getId(&stone, &mut result.stone);
+
+        let_cxx_string!(desert_stone = BASENODE_DESERT_STONE);
+        node_def_manager.getId(&desert_stone, &mut result.desert_stone);
+
+        let_cxx_string!(dirt_with_grass = BASENODE_DIRT_WITH_GRASS);
+        node_def_manager.getId(&dirt_with_grass, &mut result.dirt_with_grass);
+
+        let_cxx_string!(dirt_with_snow = BASENODE_DIRT_WITH_SNOW);
+        node_def_manager.getId(&dirt_with_snow, &mut result.dirt_with_snow);
+
+        let_cxx_string!(dirt = BASENODE_DIRT);
+        node_def_manager.getId(&dirt, &mut result.dirt);
+
+        let_cxx_string!(sand = BASENODE_SAND);
+        node_def_manager.getId(&sand, &mut result.sand);
+
+        let_cxx_string!(desert_sand = BASENODE_DESERT_SAND);
+        node_def_manager.getId(&desert_sand, &mut result.desert_sand);
+
+        let_cxx_string!(gravel = BASENODE_GRAVEL);
+        node_def_manager.getId(&gravel, &mut result.gravel);
+
+        let_cxx_string!(junglegrass = BASENODE_JUNGLEGRASS);
+        node_def_manager.getId(&junglegrass, &mut result.junglegrass);
+
+        let_cxx_string!(tree = BASENODE_TREE);
+        node_def_manager.getId(&tree, &mut result.tree);
+
+        let_cxx_string!(leaves = BASENODE_LEAVES);
+        node_def_manager.getId(&leaves, &mut result.leaves);
+
+        let_cxx_string!(jungletree = BASENODE_JUNGLETREE);
+        node_def_manager.getId(&jungletree, &mut result.jungletree);
+
+        let_cxx_string!(jungleleaves = BASENODE_JUNGLELEAVES);
+        node_def_manager.getId(&jungleleaves, &mut result.jungleleaves);
+
+        let_cxx_string!(pine_tree = BASENODE_PINE_TREE);
+        node_def_manager.getId(&pine_tree, &mut result.pine_tree);
+
+        let_cxx_string!(pine_needles = BASENODE_PINE_NEEDLES);
+        node_def_manager.getId(&pine_needles, &mut result.pine_needles);
+
+        let_cxx_string!(water_source = BASENODE_WATER_SOURCE);
+        node_def_manager.getId(&water_source, &mut result.water_source);
+
+        let_cxx_string!(water_flowing = BASENODE_WATER_FLOWING);
+        node_def_manager.getId(&water_flowing, &mut result.water_flowing);
+
+        let_cxx_string!(river_water_source = BASENODE_RIVER_WATER_SOURCE);
+        node_def_manager.getId(&river_water_source, &mut result.river_water_source);
+
+        let_cxx_string!(river_water_flowing = BASENODE_RIVER_WATER_FLOWING);
+        node_def_manager.getId(&river_water_flowing, &mut result.river_water_flowing);
+
+        let_cxx_string!(lava_flowing = BASENODE_LAVA_FLOWING);
+        node_def_manager.getId(&lava_flowing, &mut result.lava_flowing);
+
+        let_cxx_string!(lava_source = BASENODE_LAVA_SOURCE);
+        node_def_manager.getId(&lava_source, &mut result.lava_source);
+
+        let_cxx_string!(cobble = BASENODE_COBBLE);
+        node_def_manager.getId(&cobble, &mut result.cobble);
+
+        let_cxx_string!(mossycobble = BASENODE_MOSSYCOBBLE);
+        node_def_manager.getId(&mossycobble, &mut result.mossycobble);
+
+        let_cxx_string!(apple = BASENODE_APPLE);
+        node_def_manager.getId(&apple, &mut result.apple);
+
+        let_cxx_string!(ice = BASENODE_ICE);
+        node_def_manager.getId(&ice, &mut result.ice);
+
+        let_cxx_string!(snow = BASENODE_SNOW);
+        node_def_manager.getId(&snow, &mut result.snow);
+
+        let_cxx_string!(snowblock = BASENODE_SNOWBLOCK);
+        node_def_manager.getId(&snowblock, &mut result.snowblock);
+
+        result
+    }
+}

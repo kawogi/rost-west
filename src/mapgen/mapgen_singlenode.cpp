@@ -29,7 +29,6 @@ MapgenSinglenode::MapgenSinglenode(MapgenParams *params, EmergeParams *emerge)
 
 MapgenSinglenode::~MapgenSinglenode()
 {
-	printf("C++ destructor");
 	rustlantis::mapgen_destroy(this->mapgen_id);
 }
 
