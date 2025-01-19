@@ -9,6 +9,7 @@ crate-type = ["staticlib"]
 [dependencies]
 cxx = "1.0"
 rand = "0.8"
+glam = "0.29"
 
 [build-dependencies]
 cxx-build = "1.0"

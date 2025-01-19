@@ -4,7 +4,7 @@
 
 #pragma once
 
-#include "irrTypes.h"
+#include "../irr/include/irrTypes.h"
 using namespace irr;
 
 extern const u16 LATEST_PROTOCOL_VERSION;
@@ -41,7 +41,7 @@ enum ToClientCommand : u16
 		u64 map seed
 		f1000 recommended send interval
 		u32 : supported auth methods for sudo mode
-		      (where the user can change their password)
+			  (where the user can change their password)
 	*/
 	TOCLIENT_ACCEPT_SUDO_MODE = 0x04,
 	/*
@@ -416,7 +416,7 @@ enum ToClientCommand : u16
 			tween<v3f>        attractor_origin
 			u16               attractor_origin_attachment_object_id
 			u8                spawner_flags
-			    bit 1: attractor_kill (particles dies on contact)
+				bit 1: attractor_kill (particles dies on contact)
 			if attraction_mode > point {
 				tween<v3f> attractor_direction
 				u16        attractor_direction_attachment_object_id
@@ -574,8 +574,8 @@ enum ToClientCommand : u16
 	*/
 	TOCLIENT_UPDATE_PLAYER_LIST = 0x56,
 	/*
-	 	u8 type
-	 	u16 number of players
+		u8 type
+		u16 number of players
 		for each player
 			u16 len
 			u8[len] player name
@@ -584,18 +584,18 @@ enum ToClientCommand : u16
 	TOCLIENT_MODCHANNEL_MSG = 0x57,
 	/*
 		u16 channel name length
-	 	std::string channel name
-	 	u16 channel name sender
-	 	std::string channel name
-	 	u16 message length
-	 	std::string message
+		std::string channel name
+		u16 channel name sender
+		std::string channel name
+		u16 message length
+		std::string message
 	*/
 
 	TOCLIENT_MODCHANNEL_SIGNAL = 0x58,
 	/*
 		u8 signal id
-	 	u16 channel name length
-	 	std::string channel name
+		u16 channel name length
+		std::string channel name
 	*/
 
 	TOCLIENT_NODEMETA_CHANGED = 0x59,
@@ -697,21 +697,21 @@ enum ToServerCommand : u16
 	TOSERVER_MODCHANNEL_JOIN = 0x17,
 	/*
 		u16 channel name length
-	 	std::string channel name
+		std::string channel name
 	 */
 
 	TOSERVER_MODCHANNEL_LEAVE = 0x18,
 	/*
 		u16 channel name length
-	 	std::string channel name
+		std::string channel name
 	 */
 
 	TOSERVER_MODCHANNEL_MSG = 0x19,
 	/*
 		u16 channel name length
-	 	std::string channel name
-	 	u16 message length
-	 	std::string message
+		std::string channel name
+		u16 message length
+		std::string message
 	 */
 
 	TOSERVER_PLAYERPOS = 0x23,
@@ -862,8 +862,8 @@ enum ToServerCommand : u16
 
 		std::string bytes_A
 		u8 current_login_based_on : on which version of the password's
-		                            hash this login is based on (0 legacy hash,
-		                            or 1 directly the password)
+									hash this login is based on (0 legacy hash,
+									or 1 directly the password)
 	*/
 
 	TOSERVER_SRP_BYTES_M = 0x52,
@@ -899,7 +899,8 @@ enum AuthMechanism
 	AUTH_MECHANISM_FIRST_SRP = 1 << 2,
 };
 
-enum AccessDeniedCode : u8 {
+enum AccessDeniedCode : u8
+{
 	SERVER_ACCESSDENIED_WRONG_PASSWORD,
 	SERVER_ACCESSDENIED_UNEXPECTED_DATA,
 	SERVER_ACCESSDENIED_SINGLEPLAYER,
@@ -923,27 +924,28 @@ enum PlayerListModifer : u8
 	PLAYER_LIST_REMOVE,
 };
 
-enum CSMRestrictionFlags : u64 {
+enum CSMRestrictionFlags : u64
+{
 	CSM_RF_NONE = 0x00000000,
 	// Until server-sent CSM and verifying of builtin are complete,
 	// 'CSM_RF_LOAD_CLIENT_MODS' also disables loading 'builtin'.
 	// When those are complete, this should return to only being a restriction on the
 	// loading of client mods.
 	CSM_RF_LOAD_CLIENT_MODS = 0x00000001, // Don't load client-provided mods or 'builtin'
-	CSM_RF_CHAT_MESSAGES = 0x00000002,    // Disable chat message sending from CSM
-	CSM_RF_READ_ITEMDEFS = 0x00000004,    // Disable itemdef lookups
-	CSM_RF_READ_NODEDEFS = 0x00000008,    // Disable nodedef lookups
-	CSM_RF_LOOKUP_NODES = 0x00000010,     // Limit node lookups
+	CSM_RF_CHAT_MESSAGES = 0x00000002,	  // Disable chat message sending from CSM
+	CSM_RF_READ_ITEMDEFS = 0x00000004,	  // Disable itemdef lookups
+	CSM_RF_READ_NODEDEFS = 0x00000008,	  // Disable nodedef lookups
+	CSM_RF_LOOKUP_NODES = 0x00000010,	  // Limit node lookups
 	CSM_RF_READ_PLAYERINFO = 0x00000020,  // Disable player info lookups
 	CSM_RF_ALL = 0xFFFFFFFF,
 };
 
 enum InteractAction : u8
 {
-	INTERACT_START_DIGGING,     // 0: start digging (from undersurface) or use
-	INTERACT_STOP_DIGGING,      // 1: stop digging (all parameters ignored)
+	INTERACT_START_DIGGING,		// 0: start digging (from undersurface) or use
+	INTERACT_STOP_DIGGING,		// 1: stop digging (all parameters ignored)
 	INTERACT_DIGGING_COMPLETED, // 2: digging completed
-	INTERACT_PLACE,             // 3: place block or item (to abovesurface)
-	INTERACT_USE,               // 4: use item
-	INTERACT_ACTIVATE           // 5: rightclick air ("activate")
+	INTERACT_PLACE,				// 3: place block or item (to abovesurface)
+	INTERACT_USE,				// 4: use item
+	INTERACT_ACTIVATE			// 5: rightclick air ("activate")
 };

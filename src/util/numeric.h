@@ -10,8 +10,8 @@
 #include "irr_v2d.h"
 #include "irr_v3d.h"
 #include "irr_aabb3d.h"
-#include "SColor.h"
-#include <matrix4.h>
+#include "../irr/include/SColor.h"
+#include "../irr/include/matrix4.h"
 #include <cmath>
 #include <algorithm>
 
