@@ -8,6 +8,6 @@ cmake-build*
 # TODO clean up this mess
 cxxbridge
 release
-rustlantis.cpp
-rustlantis.h
+rost_west.cpp
+rost_west.h
 .rustc_info.json

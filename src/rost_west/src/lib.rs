@@ -1,5 +1,3 @@
-// TODO rename to Rost-West
-
 mod generator;
 mod materials;
 
@@ -55,7 +53,7 @@ mod ffi {
 
     }
 
-    #[namespace = "rustlantis"]
+    #[namespace = "rost_west"]
     extern "Rust" {
         fn mapgen_new() -> u32;
         fn mapgen_destroy(mapgen_id: u32) -> bool;

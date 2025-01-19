@@ -70,6 +70,49 @@ const BASENODE_ICE: &str = "basenodes:ice";
 const BASENODE_SNOW: &str = "basenodes:snow";
 const BASENODE_SNOWBLOCK: &str = "basenodes:snowblock";
 
+// nimap->set(0, "default:stone");
+// nimap->set(2, "default:water_flowing");
+// nimap->set(3, "default:torch");
+// nimap->set(9, "default:water_source");
+// nimap->set(14, "default:sign_wall");
+// nimap->set(15, "default:chest");
+// nimap->set(16, "default:furnace");
+// nimap->set(17, "default:chest_locked");
+// nimap->set(21, "default:fence_wood");
+// nimap->set(30, "default:rail");
+// nimap->set(31, "default:ladder");
+// nimap->set(32, "default:lava_flowing");
+// nimap->set(33, "default:lava_source");
+// nimap->set(0x800, "default:dirt_with_grass");
+// nimap->set(0x801, "default:tree");
+// nimap->set(0x802, "default:leaves");
+// nimap->set(0x803, "default:dirt_with_grass_footsteps");
+// nimap->set(0x804, "default:mese");
+// nimap->set(0x805, "default:dirt");
+// nimap->set(0x806, "default:cloud");
+// nimap->set(0x807, "default:coalstone");
+// nimap->set(0x808, "default:wood");
+// nimap->set(0x809, "default:sand");
+// nimap->set(0x80a, "default:cobble");
+// nimap->set(0x80b, "default:steelblock");
+// nimap->set(0x80c, "default:glass");
+// nimap->set(0x80d, "default:mossycobble");
+// nimap->set(0x80e, "default:gravel");
+// nimap->set(0x80f, "default:sandstone");
+// nimap->set(0x810, "default:cactus");
+// nimap->set(0x811, "default:brick");
+// nimap->set(0x812, "default:clay");
+// nimap->set(0x813, "default:papyrus");
+// nimap->set(0x814, "default:bookshelf");
+// nimap->set(0x815, "default:jungletree");
+// nimap->set(0x816, "default:junglegrass");
+// nimap->set(0x817, "default:nyancat");
+// nimap->set(0x818, "default:nyancat_rainbow");
+// nimap->set(0x819, "default:apple");
+// nimap->set(0x820, "default:sapling");
+// nimap->set(CONTENT_IGNORE, "ignore");
+// nimap->set(CONTENT_AIR, "air");
+
 pub(crate) struct Materials {
     // hardcoded
     #[allow(dead_code, reason = "those are not going away anytime soon")]

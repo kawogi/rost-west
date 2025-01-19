@@ -36,14 +36,6 @@
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "MinSizeRel"
             }
-        },
-        {
-            "name": "Rustlantis",
-            "description": "",
-            "displayName": "",
-            "inherits": [
-                "Debug"
-            ]
         }
     ]
 }

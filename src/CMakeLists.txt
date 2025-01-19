@@ -287,11 +287,11 @@ target_sources(${PROJECT_NAME}server PRIVATE
 $<TARGET_OBJECTS:EngineCommon>
 ${server_SRCS}
 )
-target_link_libraries(${PROJECT_NAME}server rustlantis)
+target_link_libraries(${PROJECT_NAME}server rost_west)
 
-add_subdirectory(rustlantis)
-# include_directories(${CMAKE_BINARY_DIR}/rustlantis)
-include_directories(rustlantis)
+add_subdirectory(rost_west)
+# include_directories(${CMAKE_BINARY_DIR}/rost_west)
+include_directories(rost_west)
 
 
 # don't link the irrlicht library

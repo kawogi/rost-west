@@ -226,7 +226,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "rustlantis"
+name = "rost-west"
 version = "0.1.0"
 dependencies = [
  "cxx",

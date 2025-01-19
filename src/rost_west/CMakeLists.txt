@@ -17,20 +17,20 @@ if(ENABLE_LTO)
     set(RUST_FLAGS "-Clinker-plugin-lto" "-Clinker=clang-17" "-Clink-arg=-fuse-ld=lld-17")
 endif()
 
-set(RUSTLANTIS_LIB "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_DIR}/librustlantis.a")
+set(ROST_WEST_LIB "${CMAKE_CURRENT_BINARY_DIR}/${TARGET_DIR}/librost_west.a")
 
-set(RUSTLANTIS_CXX "${CMAKE_CURRENT_BINARY_DIR}/rustlantis.cpp")
-add_library(rustlantis STATIC ${RUSTLANTIS_CXX})
+set(ROST_WEST_CXX "${CMAKE_CURRENT_BINARY_DIR}/rost_west.cpp")
+add_library(rost_west STATIC ${ROST_WEST_CXX})
 add_custom_command(
-    OUTPUT ${RUSTLANTIS_CXX}
+    OUTPUT ${ROST_WEST_CXX}
     COMMAND CARGO_TARGET_DIR=${CMAKE_CURRENT_BINARY_DIR} RUSTFLAGS="${RUST_FLAGS}" ${CARGO_CMD}
-    COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/cxxbridge/rustlantis/src/lib.rs.cc ${RUSTLANTIS_CXX}
-    COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/cxxbridge/rustlantis/src/lib.rs.h ${CMAKE_CURRENT_BINARY_DIR}/rustlantis.h
+    COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/cxxbridge/rost_west/src/lib.rs.cc ${ROST_WEST_CXX}
+    COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/cxxbridge/rost_west/src/lib.rs.h ${CMAKE_CURRENT_BINARY_DIR}/rost_west.h
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-target_link_libraries(rustlantis pthread dl ${RUSTLANTIS_LIB})
+target_link_libraries(rost_west pthread dl ${ROST_WEST_LIB})
 
-add_test(NAME rustlantis_test 
+add_test(NAME rost_west_test 
     COMMAND cargo test
     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
