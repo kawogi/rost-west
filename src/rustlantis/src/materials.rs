@@ -29,38 +29,54 @@ const CONTENT_AIR: u16 = 126;
 */
 const CONTENT_IGNORE: u16 = 127;
 
+// stone
 const BASENODE_STONE: &str = "basenodes:stone";
 const BASENODE_DESERT_STONE: &str = "basenodes:desert_stone";
+const BASENODE_COBBLE: &str = "basenodes:cobble";
+const BASENODE_MOSSYCOBBLE: &str = "basenodes:mossycobble";
+
+// dirt
+const BASENODE_DIRT: &str = "basenodes:dirt";
 const BASENODE_DIRT_WITH_GRASS: &str = "basenodes:dirt_with_grass";
 const BASENODE_DIRT_WITH_SNOW: &str = "basenodes:dirt_with_snow";
-const BASENODE_DIRT: &str = "basenodes:dirt";
+
+// sand
 const BASENODE_SAND: &str = "basenodes:sand";
 const BASENODE_DESERT_SAND: &str = "basenodes:desert_sand";
 const BASENODE_GRAVEL: &str = "basenodes:gravel";
-const BASENODE_JUNGLEGRASS: &str = "basenodes:junglegrass";
+
+// trees
 const BASENODE_TREE: &str = "basenodes:tree";
 const BASENODE_LEAVES: &str = "basenodes:leaves";
 const BASENODE_JUNGLETREE: &str = "basenodes:jungletree";
 const BASENODE_JUNGLELEAVES: &str = "basenodes:jungleleaves";
 const BASENODE_PINE_TREE: &str = "basenodes:pine_tree";
 const BASENODE_PINE_NEEDLES: &str = "basenodes:pine_needles";
+
+// fluids
 const BASENODE_WATER_SOURCE: &str = "basenodes:water_source";
 const BASENODE_WATER_FLOWING: &str = "basenodes:water_flowing";
 const BASENODE_RIVER_WATER_SOURCE: &str = "basenodes:river_water_source";
 const BASENODE_RIVER_WATER_FLOWING: &str = "basenodes:river_water_flowing";
 const BASENODE_LAVA_FLOWING: &str = "basenodes:lava_flowing";
 const BASENODE_LAVA_SOURCE: &str = "basenodes:lava_source";
-const BASENODE_COBBLE: &str = "basenodes:cobble";
-const BASENODE_MOSSYCOBBLE: &str = "basenodes:mossycobble";
+
+// plants
+const BASENODE_JUNGLEGRASS: &str = "basenodes:junglegrass";
 const BASENODE_APPLE: &str = "basenodes:apple";
+
+// snow
 const BASENODE_ICE: &str = "basenodes:ice";
 const BASENODE_SNOW: &str = "basenodes:snow";
 const BASENODE_SNOWBLOCK: &str = "basenodes:snowblock";
 
 pub(crate) struct Materials {
     // hardcoded
+    #[allow(dead_code, reason = "those are not going away anytime soon")]
     pub(crate) unknown: u16,
+    #[allow(dead_code, reason = "those are not going away anytime soon")]
     pub(crate) air: u16,
+    #[allow(dead_code, reason = "those are not going away anytime soon")]
     pub(crate) ignore: u16,
     // basenodes
     pub(crate) stone: u16,
