@@ -5,7 +5,8 @@
 use core::slice;
 use std::mem::transmute;
 
-use ffi::VoxelArea;
+use cxx::{let_cxx_string, CxxString};
+use ffi::{NodeDefManager, VoxelArea};
 use glam::{I16Vec3, IVec3};
 // use ffi::VoxelArea;
 use rand::Rng;
@@ -43,6 +44,7 @@ const CONTENT_IGNORE: u16 = 127;
 #[cxx::bridge]
 mod ffi {
     // #[namespace = "voxel"]
+
     unsafe extern "C++" {
         include!("voxel.h");
         type VoxelArea;
@@ -69,6 +71,10 @@ mod ffi {
     unsafe extern "C++" {
         include!("nodedef.h");
         type NodeDefManager;
+
+        // 	bool getId(const std::string &name, content_t &result) const;
+        fn getId(&self, name: &CxxString, result: &mut u16) -> bool;
+
     }
 
     // #[namespace = "rustlantis"]
@@ -141,6 +147,7 @@ mod ffi {
             blockpos_max: [i16; 3],
             extent: [i32; 3],
             area: &VoxelArea,
+            node_def_manager: &NodeDefManager,
             data: &mut [u32],
         );
     }
@@ -161,6 +168,7 @@ pub fn make_chunk(
     blockpos_max: [i16; 3],
     extent: [i32; 3],
     area: &VoxelArea,
+    node_def_manager: &NodeDefManager,
     data: &mut [u32],
 ) {
     let blockpos_min = I16Vec3::from(blockpos_min);
@@ -183,6 +191,10 @@ pub fn make_chunk(
 
     let data: &mut [MapData] = unsafe { transmute(data) };
 
+    let_cxx_string!(stone_name = "basenodes:stone");
+    let mut stone_id = CONTENT_UNKNOWN;
+    node_def_manager.getId(&stone_name, &mut stone_id);
+
     for z in node_min.z..=node_max.z {
         for y in node_min.y..=node_max.y {
             let is_floor = y == -1;
@@ -190,7 +202,8 @@ pub fn make_chunk(
             for x in node_min.x..=node_max.x {
                 // if (vm->m_data[i].getContent() == CONTENT_IGNORE)
                 data[i].id = if is_floor {
-                    ((z as u16) % 20 * 20) + ((x as u16) % 20)
+                    stone_id
+                    // ((z as u16) % 20 * 20) + ((x as u16) % 20)
                 } else {
                     CONTENT_AIR
                 };
