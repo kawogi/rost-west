@@ -24,6 +24,13 @@ MapgenSinglenode::MapgenSinglenode(MapgenParams *params, EmergeParams *emerge)
 
 	MapNode n_node(c_node);
 	set_light = (ndef->getLightingFlags(n_node).sunlight_propagates) ? LIGHT_SUN : 0x00;
+	this->mapgen_id = rustlantis::mapgen_new();
+}
+
+MapgenSinglenode::~MapgenSinglenode()
+{
+	printf("C++ destructor");
+	rustlantis::mapgen_destroy(this->mapgen_id);
 }
 
 //////////////////////// Map generator
@@ -68,7 +75,7 @@ void MapgenSinglenode::makeChunk(BlockMakeData *data)
 	u32 *m_data = reinterpret_cast<u32 *>(vm->m_data);
 
 	// u32 i = vm->m_area.index(node_min.X, y, z);
-	rustlantis::make_chunk(ffi_blockpos_min, ffi_blockpos_max, ffi_extent, vm->m_area, *data->nodedef, ::rust::Slice(m_data, block_count));
+	rustlantis::mapgen_make_chunk(this->mapgen_id, ffi_blockpos_min, ffi_blockpos_max, ffi_extent, vm->m_area, *data->nodedef, ::rust::Slice(m_data, block_count));
 	// rustlantis::make_chunk(::rust::Slice(m_data, block_count));
 
 	// for (s16 z = node_min.Z; z <= node_max.Z; z++)

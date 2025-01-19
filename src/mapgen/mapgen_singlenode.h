@@ -24,10 +24,13 @@ public:
 	u8 set_light;
 
 	MapgenSinglenode(MapgenParams *params, EmergeParams *emerge);
-	~MapgenSinglenode() = default;
+	~MapgenSinglenode(); // = default;
 
 	virtual MapgenType getType() const { return MAPGEN_SINGLENODE; }
 
 	void makeChunk(BlockMakeData *data);
 	int getSpawnLevelAtPoint(v2s16 p);
+
+private:
+	u32 mapgen_id;
 };

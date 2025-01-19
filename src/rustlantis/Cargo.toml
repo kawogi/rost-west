@@ -10,6 +10,7 @@ crate-type = ["staticlib"]
 cxx = "1.0"
 rand = "0.8"
 glam = "0.29"
+lazy_static = "1"
 
 [build-dependencies]
 cxx-build = "1.0"
