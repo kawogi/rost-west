@@ -25,8 +25,8 @@ add_custom_command(
     OUTPUT ${ROST_WEST_CXX}
     DEPENDS
         ${CMAKE_CURRENT_BINARY_DIR}/src/*
-        ${CMAKE_CURRENT_BINARY_DIR}/cxxbridge/rost_west/src/lib.rs.cc
-        ${CMAKE_CURRENT_BINARY_DIR}/cxxbridge/rost_west/src/lib.rs.h
+        # ${CMAKE_CURRENT_BINARY_DIR}/cxxbridge/rost_west/src/lib.rs.cc
+        # ${CMAKE_CURRENT_BINARY_DIR}/cxxbridge/rost_west/src/lib.rs.h
     COMMAND CARGO_TARGET_DIR=${CMAKE_CURRENT_BINARY_DIR} RUSTFLAGS="${RUST_FLAGS}" ${CARGO_CMD}
     COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/cxxbridge/rost_west/src/lib.rs.cc ${ROST_WEST_CXX}
     COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/cxxbridge/rost_west/src/lib.rs.h ${CMAKE_CURRENT_BINARY_DIR}/rost_west.h
