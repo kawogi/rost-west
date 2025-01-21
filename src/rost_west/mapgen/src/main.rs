@@ -1,5 +1,6 @@
 use std::{f32::consts::PI, fs::OpenOptions};
 
+use glam::{I8Vec3, U8Vec3, Vec3};
 use rand::Rng;
 
 const MAP_BITS: u16 = 12;
@@ -62,108 +63,38 @@ fn split_scale(value: u16, fract_bits: u16) -> (u16, f32) {
     )
 }
 
-#[derive(Clone, Copy)]
-struct CubicInterpolation {
-    v1: f32,
-    v2: f32,
-    m1: f32,
-    m2: f32,
-}
+const ERROR: Vec3 = Vec3::new(1.0, 0.0, 0.0);
+const DEEP_SEA: Vec3 = Vec3::new(0.0, 0.0, 0.3);
+const MID_SEA: Vec3 = Vec3::new(0.0, 0.0, 0.5);
+const SHALLOW_SEA: Vec3 = Vec3::new(0.0, 0.6, 0.7);
+const COAST: Vec3 = Vec3::new(0.5, 0.6, 0.3);
+const GRASS: Vec3 = Vec3::new(0.4, 0.6, 0.1);
+const DIRT: Vec3 = Vec3::new(0.6, 0.5, 0.2);
+const ROCK: Vec3 = Vec3::new(0.7, 0.7, 0.7);
+const SNOW: Vec3 = Vec3::new(1.0, 1.0, 1.0);
 
-// +--------+--------+--------+--------+--------+
+fn map_color(value: f32) -> U8Vec3 {
+    let color = if value < -1.0 {
+        DEEP_SEA
+    } else if value < -0.5 {
+        DEEP_SEA.lerp(MID_SEA, (value + 1.0) / 0.5)
+    } else if value < -0.1 {
+        MID_SEA.lerp(SHALLOW_SEA, (value + 0.5) / 0.4)
+    } else if value < 0.0 {
+        SHALLOW_SEA.lerp(COAST, (value + 0.1) / 0.1)
+    } else if value < 0.2 {
+        COAST.lerp(GRASS, (value + 0.0) / 0.2)
+    } else if value < 0.4 {
+        GRASS.lerp(DIRT, (value - 0.2) / 0.2)
+    } else if value < 0.7 {
+        DIRT.lerp(ROCK, (value - 0.4) / 0.3)
+    } else if value < 1.0 {
+        ROCK.lerp(SNOW, (value - 0.7) / 0.3)
+    } else {
+        SNOW
+    };
 
-/// through a limitation of Rust we cannot pass the kernel grade `A` directly, as we'd have to double it in the type declaration
-/// instead we pass `WINDOW_LEN` which is `A * 2` and thus must be an even number
-struct LanczosUpscaler<const WINDOW_LEN: usize, const SCALE: usize> {
-    kernels: [[f32; WINDOW_LEN]; SCALE],
-}
-
-impl<const WINDOW_LEN: usize, const SCALE: usize> LanczosUpscaler<WINDOW_LEN, SCALE> {
-    const WINDOW_OFFSET: usize = (WINDOW_LEN / 2) - 1;
-    const A: f32 = (WINDOW_LEN / 2) as f32;
-
-    fn new() -> Self {
-        let lanczos = |x: f32| -> f32 {
-            // kernel is symmetric around 0.0
-            let x = x.abs();
-            if x < f32::EPSILON {
-                1.0
-            } else if x >= Self::A {
-                0.0
-            } else {
-                let pix = PI * x;
-                Self::A * pix.sin() * (pix / Self::A).sin() / (pix * pix)
-            }
-        };
-
-        let kernels = std::array::from_fn(|shift| {
-            let shift = shift as f32 / SCALE as f32;
-            std::array::from_fn(|index| {
-                let x = (index as i32 - Self::WINDOW_OFFSET as i32) as f32 + shift;
-                lanczos(x)
-            })
-        });
-
-        Self { kernels }
-    }
-
-    fn get_value(&self, source: &[f32; WINDOW_LEN], shift: usize) -> f32 {
-        self.kernels[shift]
-            .iter()
-            .zip(source)
-            .map(|(kernel, source)| kernel * source)
-            .sum()
-    }
-
-    /// scales the input in y direction and returns the interpolated data in transposed orientation (x and y flipped)
-    fn upscale_y(&self, data: &[f32], width: usize, height: usize) -> Vec<f32> {
-        assert_eq!(data.len(), width * height);
-
-        let mut result = Vec::with_capacity(width * (height * SCALE));
-
-        for (kernel_shift, kernel) in self.kernels.iter().enumerate() {
-            for source_y in 0..height {
-                let rows: [&[f32]; WINDOW_LEN] = std::array::from_fn(|i| {
-                    &data[((source_y + height + i - Self::WINDOW_OFFSET) % height)..][..width]
-                });
-                let dest_x = source_y * SCALE + kernel_shift;
-                for source_x in 0..width {
-                    result[source_x * height * SCALE + dest_x] = kernel
-                        .iter()
-                        .zip(rows)
-                        .map(|(&weight, row)| weight * row[source_x])
-                        .sum();
-                }
-            }
-        }
-
-        result
-    }
-
-    /// scales the input in y direction and returns the interpolated data in transposed orientation (x and y flipped)
-    fn upscale_x(&self, data: &[f32], width: usize, height: usize) -> Vec<f32> {
-        assert_eq!(data.len(), width * height);
-
-        let mut result = Vec::with_capacity((width * SCALE) * height);
-
-        for (kernel_shift, kernel) in self.kernels.iter().enumerate() {
-            for source_y in 0..height {
-                let rows: [&[f32]; WINDOW_LEN] = std::array::from_fn(|i| {
-                    &data[((source_y + height + i - Self::WINDOW_OFFSET) % height)..][..width]
-                });
-                let dest_x = source_y * SCALE + kernel_shift;
-                for source_x in 0..width {
-                    result[source_x * height * SCALE + dest_x] = kernel
-                        .iter()
-                        .zip(rows)
-                        .map(|(&weight, row)| weight * row[source_x])
-                        .sum();
-                }
-            }
-        }
-
-        result
-    }
+    (color * 255.0).as_u8vec3()
 }
 
 /// through a limitation of Rust we cannot pass the kernel grade `A` directly, as we'd have to double it in the type declaration
@@ -247,7 +178,7 @@ impl<const WINDOW_LEN: usize> LanczosDoubler<WINDOW_LEN> {
                 .for_each(|(out, &value_in)| *out = value_in);
         }
 
-        // fill every odd row of result with interpolated values
+        // fill every odd row and even column of result with interpolated values
         for (y_in, row_out) in result
             // slice into rows
             .chunks_exact_mut(size_out)
@@ -267,6 +198,7 @@ impl<const WINDOW_LEN: usize> LanczosDoubler<WINDOW_LEN> {
                 // select input pixels
                 let values = std::array::from_fn(|i| rows_in[i][x_in]);
 
+                // only even columns
                 values_out[0] = self.get_value(&values);
                 // values_out[1] will be filled by the horizontal stage
             }
@@ -282,45 +214,12 @@ impl<const WINDOW_LEN: usize> LanczosDoubler<WINDOW_LEN> {
                     let x_in = (x_in + i).wrapping_sub(Self::WINDOW_OFFSET) & mask_in;
                     row[x_in * 2]
                 });
-                // intersperse interpolated values into off columns
+                // intersperse interpolated values into odd columns
                 row[x_in * 2 + 1] = self.get_value(&values);
             }
         }
 
         result
-    }
-}
-
-impl CubicInterpolation {
-    fn new(v1: f32, v2: f32, m1: f32, m2: f32) -> Self {
-        Self { v1, v2, m1, m2 }
-    }
-
-    fn get(self, x: f32) -> f32 {
-        let Self { v1, v2, m1, m2 } = self;
-        let xx = x * x;
-        let xxx = x * x * x;
-        (2.0 * (v1 - v2) + m2 + m1) * xxx + (3.0 * (v2 - v1) - 2.0 * m1 - m2) * xx + m1 * x + v1
-    }
-
-    fn derive(self, x: f32) -> f32 {
-        let Self { v1, v2, m1, m2 } = self;
-        let xx = x * x;
-        (6.0 * (v1 - v2) + 3.0 * (m2 + m1)) * xx + (6.0 * (v2 - v1) - 4.0 * m1 - 2.0 * m2) * x + m1
-    }
-
-    fn get_derive(self, x: f32) -> (f32, f32) {
-        let Self { v1, v2, m1, m2 } = self;
-        let xx = x * x;
-        let xxx = x * x * x;
-        let d_v2v1 = v2 - v1;
-        let s_m1m2 = m1 + m2;
-        let s_2m1m2 = 2.0 * m1 + m2;
-        let a = -2.0 * d_v2v1 + s_m1m2;
-        let b = 3.0 * d_v2v1 - s_2m1m2;
-        let y = a * xxx + b * xx + m1 * x + v1;
-        let m = 3.0 * a * xx + 2.0 * b * x + m1;
-        (y, m)
     }
 }
 
@@ -381,7 +280,7 @@ fn main() {
 
     let data = grid
         .into_iter()
-        .map(|v| ((v + 0.5) * 255.0).round() as u8)
+        .flat_map(|v| map_color(v).to_array())
         .collect::<Vec<_>>();
 
     // let grid = grid
@@ -430,7 +329,7 @@ fn main() {
         .unwrap();
 
     let mut encoder = png::Encoder::new(out_file, u32::from(MAP_SIZE), u32::from(MAP_SIZE));
-    encoder.set_color(png::ColorType::Grayscale);
+    encoder.set_color(png::ColorType::Rgb);
     let mut writer = encoder.write_header().unwrap();
     writer.write_image_data(&data).unwrap();
     writer.finish().unwrap();
