@@ -1,13 +1,29 @@
+pub mod data_square;
 pub mod fractal_noise;
 mod lanczos_doubler;
 
 use core::f32;
 use std::{f32::consts::PI, fs::OpenOptions};
 
+use data_square::{DataSquare, GetWrapping, Sampler};
 use fractal_noise::noise_2d;
 use glam::{I8Vec3, U8Vec3, Vec2, Vec3};
-use lanczos_doubler::LanczosDoubler;
+use lanczos_doubler::{LanczosDoubler, LanczosSampler};
 use rand::Rng;
+
+type WorldCoordinate = u16;
+
+const WORLD_BITS: u32 = WorldCoordinate::BITS;
+const WORLD_SHIFT: u32 = 0; // WORLD_BITS - WORLD_BITS;
+const WORLD_SIZE: u32 = 1 << WORLD_BITS;
+const WORLD_MASK: WorldCoordinate = (WORLD_SIZE - 1) as WorldCoordinate;
+
+const ELEVATION_MAP_BITS: u32 = 12;
+const ELEVATION_MAP_SHIFT: u32 = WORLD_BITS - ELEVATION_MAP_BITS;
+const ELEVATION_MAP_SIZE: WorldCoordinate = 1 << MAP_BITS;
+const ELEVATION_MAP_MASK: WorldCoordinate = (ELEVATION_MAP_SIZE - 1) as WorldCoordinate;
+
+const TEMPERATURE_MAP_BITS: u32 = 8;
 
 const MAP_BITS: u16 = 12;
 const MAP_SIZE: u16 = 1 << MAP_BITS;
@@ -22,6 +38,10 @@ const COARSE_MAP_SHIFT: u16 = MAP_BITS - COARSE_BITS;
 const COARSE_MAP_FACTOR: u16 = 1 << COARSE_MAP_SHIFT;
 const COARSE_MAP_MASK: u16 = COARSE_MAP_FACTOR - 1;
 const COARSE_MAP_SCALE: f32 = 1.0 / COARSE_MAP_FACTOR as f32;
+
+pub const MEAN_TEMPERATURE: f32 = 15.1;
+pub const TEMPERATURE_RANGE: f32 = 30.0;
+// Temperature shift per elevation: 70 °C / 10_000 m
 
 // bit levels
 // 16 65536 size of the entire map
@@ -70,7 +90,7 @@ fn split_scale(value: u16, fract_bits: u16) -> (u16, f32) {
 }
 const ERROR: Vec3 = Vec3::new(255.0, 0.0, 0.0);
 const DEEP_SEA: Vec3 = MID_SEA;
-const MID_SEA: Vec3 = Vec3::new(5.2, 17.7, 22.1);
+const MID_SEA: Vec3 = Vec3::new(5.2 * 0.7, 17.7 * 0.7, 22.1 * 0.7);
 const SHALLOW_SEA: Vec3 = MID_SEA;
 const COAST: Vec3 = Vec3::new(49.8 * 0.7, 47.1 * 0.7, 39.6 * 0.7);
 const GRASS: Vec3 = Vec3::new(26.5, 33.4, 27.2);
@@ -108,66 +128,116 @@ fn map_color(value: f32) -> Vec3 {
 }
 
 fn main() {
-    let amps = [
-        0.0, // 32768
-        0.0, // 16384
-        0.0, // 8192
-        1.0, // 4096
-        1.0 / 2.0,
-        1.0 / 4.0,
-        1.0 / 8.0,
-        1.0 / 16.0,
-        1.0 / 32.0,
-        1.0 / 64.0,
-        1.0 / 128.0,
-        1.0 / 256.0,
+    let elevation_amps = [
+        0.0, // map=2048, world=32768
+        0.0, // map=1024, world=16384
+        0.0, // map= 512, world= 8192
+        1.0, // map= 256, world= 4096 continent
+        1.0, // map= 128, world= 2048
+        1.0, // map=  64, world= 1024
+        1.0, // map=  32, world=  512
+        1.0, // map=  16, world=  256
+        1.0, // map=   8, world=  128
+        1.0, // map=   4, world=   64
+        1.0, // map=   2, world=   32
+        1.0, // map=   1, world=   16 (block size)
     ];
-    assert_eq!(amps.len(), usize::from(COARSE_BITS));
 
-    let grid = noise_2d(0.0, &amps);
+    let expected_max_elevation = elevation_amps
+        .iter()
+        .copied()
+        .fold(0.0, |height, amp| height * 2.0 + amp * 0.5);
+    println!("expected_max_elevation: {expected_max_elevation}");
 
-    assert_eq!(grid.len(), 16_777_216);
+    let elevation_map = noise_2d::<ELEVATION_MAP_BITS>(0.0, &elevation_amps);
 
-    let mut slope = Vec::with_capacity(grid.len());
+    let lanczos_sampler = LanczosSampler::<6>::new(u16::BITS - ELEVATION_MAP_BITS);
+    let sampler = Sampler::new(&elevation_map, &lanczos_sampler);
+
+    // let temperature_amps = [
+    //     1.0, // 128
+    //     0.0, // 64
+    //     0.0, // 32
+    //     0.0, // 16
+    //     0.0, // 8
+    //     0.0, // 4
+    //     0.0, // 2
+    //     0.0, // 1
+    // ];
+
+    // let expected_max_temperature = temperature_amps
+    //     .iter()
+    //     .copied()
+    //     .fold(0.0, |height, amp| height * 2.0 + amp * 0.5);
+    // println!("expected_max_temperature: {expected_max_temperature}");
+
+    // let mut temperature_map = noise_2d::<TEMPERATURE_MAP_BITS>(0.0, &temperature_amps);
+
+    // temperature_map.as_mut().iter_mut().for_each(|temperature| {
+    //     *temperature =
+    //         MEAN_TEMPERATURE + *temperature / expected_max_temperature * TEMPERATURE_RANGE
+    // });
+
+    let mut slope: DataSquare<Vec2, ELEVATION_MAP_BITS> = DataSquare::new(Vec2::default());
 
     let offset = |x, y| (usize::from(y & MAP_MASK) << MAP_BITS) | usize::from(x & MAP_MASK);
 
     let mut i = 0;
-    for y in 0..MAP_SIZE {
-        let up = y.wrapping_sub(1) & MAP_MASK;
-        let down = y.wrapping_add(1) & MAP_MASK;
-        for x in 0..MAP_SIZE {
-            let left = x.wrapping_sub(1) & MAP_MASK;
-            let right = x.wrapping_add(1) & MAP_MASK;
-            let dx = (grid[offset(right, y)] - grid[offset(left, y)]) / 2.0;
-            let dy = (grid[offset(x, down)] - grid[offset(x, up)]) / 2.0;
-            slope.push(Vec2::new(dx, dy));
+    for y in 0..ELEVATION_MAP_SIZE {
+        for x in 0..ELEVATION_MAP_SIZE {
+            let [top_left, top, top_right, left, _center, right, bottom_left, bottom, bottom_right] =
+                elevation_map.get_3x3([x, y]);
+            let left = top_left + left * 2.0 + bottom_left;
+            let right = top_right + right * 2.0 + bottom_right;
+            let top = top_left + top * 2.0 + top_right;
+            let bottom = bottom_left + bottom * 2.0 + bottom_right;
+            let dx = (right - left) / 8.0;
+            let dy = (bottom - top) / 8.0;
+            slope.set([x, y], Vec2::new(dx, dy));
             assert_eq!(i, offset(x, y));
             i += 1;
         }
     }
 
-    let data = grid
-        .into_iter()
-        .zip(slope)
-        .flat_map(|(height, slope)| {
-            let slope = if height <= 0.0 {
-                Vec2::new(0.0, 0.0)
-            } else {
-                slope
-            };
+    let mut color_rgb = Vec::with_capacity(4096 * 4096 * 3);
+    for y in 0..4096 {
+        let world_y = y << 4;
+        for x in 0..4096 {
+            let world_x = x << 4;
 
-            let normal = Vec3::new(-slope.x * 200.0, -slope.y * 200.0, 1.0).normalize();
-            let light_direction = Vec3::new(-1.0, -1.0, 1.0).normalize();
-            let light = normal.dot(light_direction);
+            let elevation = sampler.sample([world_x, world_y]);
+            // let slope = sampler.sample([world_x, world_y]);
 
-            let light = (light * 0.5 + 0.5).clamp(0.0, 1.0);
+            let slope = Vec2::new(0.0, 0.0);
+            let light = 1.0;
 
-            let color = map_color(height) * light;
+            let color = map_color(elevation / expected_max_elevation) * light;
 
-            color.as_u8vec3().to_array()
-        })
-        .collect::<Vec<_>>();
+            color_rgb.extend_from_slice(&color.as_u8vec3().to_array());
+        }
+    }
+
+    // let color_rgb = elevation_map
+    //     .iter()
+    //     .zip(slope.iter())
+    //     .flat_map(|(&height, &slope)| {
+    //         let slope = if height <= 0.0 {
+    //             Vec2::new(0.0, 0.0)
+    //         } else {
+    //             slope
+    //         };
+
+    //         let normal = Vec3::new(-slope.x, -slope.y, 1.0).normalize();
+    //         let light_direction = Vec3::new(-1.0, -1.0, 1.0).normalize();
+    //         let light = normal.dot(light_direction);
+
+    //         let light = (light * 0.5 + 0.5).clamp(0.0, 1.0);
+
+    //         let color = map_color(height / expected_max_elevation) * light;
+
+    //         color.as_u8vec3().to_array()
+    //     })
+    //     .collect::<Vec<_>>();
 
     // let grid = grid
     //     .chunks_exact(COARSE_USIZE)
@@ -217,6 +287,6 @@ fn main() {
     let mut encoder = png::Encoder::new(out_file, u32::from(MAP_SIZE), u32::from(MAP_SIZE));
     encoder.set_color(png::ColorType::Rgb);
     let mut writer = encoder.write_header().unwrap();
-    writer.write_image_data(&data).unwrap();
+    writer.write_image_data(&color_rgb).unwrap();
     writer.finish().unwrap();
 }

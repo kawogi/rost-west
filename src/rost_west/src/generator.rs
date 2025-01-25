@@ -1,4 +1,5 @@
 use glam::{I16Vec3, IVec3};
+use mapgen::data_square::DataSquare;
 
 use crate::{
     ffi::{NodeDefManager, VoxelArea},
@@ -9,11 +10,52 @@ use crate::{
 pub(crate) struct Generator {
     id: MapgenId,
     materials: Option<Materials>,
+    elevation: DataSquare<f32, 12>,
 }
+
+fn get_material(y: i16, h: i16, materials: &Materials) -> u16 {
+    match h {
+        ..-5 => materials.stone,
+        -5..-1 => materials.dirt,
+        -1 => materials.dirt_with_grass,
+        0.. => {
+            if y < 0 {
+                materials.water_source
+            } else {
+                materials.air
+            }
+        }
+    }
+}
+
+// fn get_material(y: i16, h: i16, materials: &Materials) -> u16 {
+//     if y < 0 {
+//         materials.lava_source
+//     } else {
+//         materials.air
+//     }
+// }
 
 impl Generator {
     pub(crate) fn new(id: MapgenId) -> Self {
+        let amplitudes = [
+            0.0, // 32768
+            0.0, // 16384
+            0.0, // 8192
+            0.0, // 4096
+            1.0, //
+            1.0, //
+            1.0, //
+            1.0, //
+            1.0, //
+            1.0, //
+            1.0, //
+            1.0, //
+        ];
+
+        let elevation = mapgen::fractal_noise::noise_2d(0.0, &amplitudes);
         Self {
+            elevation,
             id,
             materials: None,
         }
@@ -51,15 +93,14 @@ impl Generator {
         );
 
         for z in node_min.z..=node_max.z {
+            let row_offset = usize::from(((z >> 0) as u16) & 4095) << 12;
             for y in node_min.y..=node_max.y {
-                let material = match y {
-                    ..-5 => materials.stone,
-                    -5..-1 => materials.dirt,
-                    -1 => materials.dirt_with_grass,
-                    0.. => materials.air,
-                };
                 let mut i: usize = area.index(node_min.x, y, z) as usize;
-                for _ in node_min.x..=node_max.x {
+                for x in node_min.x..=node_max.x {
+                    let col = usize::from(((x >> 0) as u16) & 4095);
+                    let elevation = self.elevation[row_offset + col];
+                    let h = y + ((elevation / 200.0).powi(3) * 200.0).round() as i16;
+                    let material = get_material(y, h, materials);
                     data[i].id = material;
                     i += 1;
                 }
