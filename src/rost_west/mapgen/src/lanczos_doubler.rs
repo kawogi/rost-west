@@ -103,7 +103,7 @@ impl<const WINDOW_LEN: usize> LanczosDoubler<WINDOW_LEN> {
 
         // resize vertically
 
-        // fill every even row of result with original values (but spread out and doubled)
+        // fill every even row of result with original values (but spread out)
         for (row_out, row_in) in result
             // slice into rows
             .chunks_exact_mut(size_out)
@@ -115,7 +115,7 @@ impl<const WINDOW_LEN: usize> LanczosDoubler<WINDOW_LEN> {
                 .iter_mut()
                 .step_by(2)
                 .zip(row_in)
-                .for_each(|(out, &value_in)| *out = value_in * 2.0);
+                .for_each(|(out, &value_in)| *out = value_in);
         }
 
         // fill every odd row and even column of result with interpolated values
@@ -139,7 +139,7 @@ impl<const WINDOW_LEN: usize> LanczosDoubler<WINDOW_LEN> {
                 let values = std::array::from_fn(|i| rows_in[i][x_in]);
 
                 // only even columns
-                values_out[0] = self.kernel.fold(&values) * 2.0;
+                values_out[0] = self.kernel.fold(&values);
                 // values_out[1] will be filled by the horizontal stage
             }
         }

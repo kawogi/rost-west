@@ -187,22 +187,27 @@ impl Materials {
             snowblock: CONTENT_UNKNOWN,
         };
 
-        let_cxx_string!(stone = BASENODE_STONE);
+        // let_cxx_string!(stone = BASENODE_STONE);
+        let_cxx_string!(stone = "mcl_core:stone");
         node_def_manager.getId(&stone, &mut result.stone);
 
         let_cxx_string!(desert_stone = BASENODE_DESERT_STONE);
         node_def_manager.getId(&desert_stone, &mut result.desert_stone);
 
-        let_cxx_string!(dirt_with_grass = BASENODE_DIRT_WITH_GRASS);
+        // let_cxx_string!(dirt_with_grass = BASENODE_DIRT_WITH_GRASS);
+        let_cxx_string!(dirt_with_grass = "mcl_core:dirt_with_grass");
         node_def_manager.getId(&dirt_with_grass, &mut result.dirt_with_grass);
 
-        let_cxx_string!(dirt_with_snow = BASENODE_DIRT_WITH_SNOW);
+        // let_cxx_string!(dirt_with_snow = BASENODE_DIRT_WITH_SNOW);
+        let_cxx_string!(dirt_with_snow = "mcl_core:dirt_with_grass_snow");
         node_def_manager.getId(&dirt_with_snow, &mut result.dirt_with_snow);
 
-        let_cxx_string!(dirt = BASENODE_DIRT);
+        // let_cxx_string!(dirt = BASENODE_DIRT);
+        let_cxx_string!(dirt = "mcl_core:dirt");
         node_def_manager.getId(&dirt, &mut result.dirt);
 
-        let_cxx_string!(sand = BASENODE_SAND);
+        // let_cxx_string!(sand = BASENODE_SAND);
+        let_cxx_string!(sand = "mcl_core:sand");
         node_def_manager.getId(&sand, &mut result.sand);
 
         let_cxx_string!(desert_sand = BASENODE_DESERT_SAND);
@@ -232,7 +237,8 @@ impl Materials {
         let_cxx_string!(pine_needles = BASENODE_PINE_NEEDLES);
         node_def_manager.getId(&pine_needles, &mut result.pine_needles);
 
-        let_cxx_string!(water_source = BASENODE_WATER_SOURCE);
+        // let_cxx_string!(water_source = BASENODE_WATER_SOURCE);
+        let_cxx_string!(water_source = "mcl_core:water_source");
         node_def_manager.getId(&water_source, &mut result.water_source);
 
         let_cxx_string!(water_flowing = BASENODE_WATER_FLOWING);
@@ -247,7 +253,8 @@ impl Materials {
         let_cxx_string!(lava_flowing = BASENODE_LAVA_FLOWING);
         node_def_manager.getId(&lava_flowing, &mut result.lava_flowing);
 
-        let_cxx_string!(lava_source = BASENODE_LAVA_SOURCE);
+        // let_cxx_string!(lava_source = BASENODE_LAVA_SOURCE);
+        let_cxx_string!(lava_source = "mcl_core:lava_source");
         node_def_manager.getId(&lava_source, &mut result.lava_source);
 
         let_cxx_string!(cobble = BASENODE_COBBLE);

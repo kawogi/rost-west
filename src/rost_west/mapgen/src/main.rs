@@ -3,7 +3,7 @@ pub mod fractal_noise;
 mod lanczos_doubler;
 
 use core::f32;
-use std::{f32::consts::PI, fs::OpenOptions};
+use std::{collections::HashMap, f32::consts::PI, fs::OpenOptions};
 
 use data_square::{DataSquare, GetWrapping, Sampler};
 use fractal_noise::noise_2d;
@@ -129,18 +129,18 @@ fn map_color(value: f32) -> Vec3 {
 
 fn main() {
     let elevation_amps = [
-        0.0, // map=2048, world=32768
-        0.0, // map=1024, world=16384
-        0.0, // map= 512, world= 8192
-        1.0, // map= 256, world= 4096 continent
-        1.0, // map= 128, world= 2048
-        1.0, // map=  64, world= 1024
-        1.0, // map=  32, world=  512
-        1.0, // map=  16, world=  256
-        1.0, // map=   8, world=  128
-        1.0, // map=   4, world=   64
-        1.0, // map=   2, world=   32
-        1.0, // map=   1, world=   16 (block size)
+        0.0,   // map=2048, world=32768
+        0.0,   // map=1024, world=16384
+        0.0,   // map= 512, world= 8192
+        1.0,   // map= 256, world= 4096 continent
+        128.0, // map= 128, world= 2048
+        64.0,  // map=  64, world= 1024
+        32.0,  // map=  32, world=  512
+        16.0,  // map=  16, world=  256
+        8.0,   // map=   8, world=  128
+        4.0,   // map=   4, world=   64
+        2.0,   // map=   2, world=   32
+        1.0,   // map=   1, world=   16 (block size)
     ];
 
     let expected_max_elevation = elevation_amps
@@ -150,6 +150,32 @@ fn main() {
     println!("expected_max_elevation: {expected_max_elevation}");
 
     let elevation_map = noise_2d::<ELEVATION_MAP_BITS>(0.0, &elevation_amps);
+
+    let mut histogram = HashMap::<i16, u32>::new();
+    for h in elevation_map
+        .iter()
+        .copied()
+        .map(|i| i / expected_max_elevation)
+    {
+        let offset = elevation_map.get([0, (h * f32::from(ELEVATION_MAP_SIZE / 2)) as i64 as u16])
+            / expected_max_elevation;
+        let h = h + offset;
+        // let h = if h > 0.0 { h.powf(2.0) } else { h };
+
+        let i = (h * expected_max_elevation / 10.0).round() as i16;
+        *histogram.entry(i).or_default() += 1;
+    }
+
+    let mut count = 0;
+    for i in (-24..=24).rev() {
+        count += histogram.get(&i).copied().unwrap_or_default();
+        println!(
+            "{i:4}: |{:indent$}# {count}",
+            "",
+            i = i * 10,
+            indent = (count / (16777216 / 100)) as usize
+        );
+    }
 
     let lanczos_sampler = LanczosSampler::<6>::new(u16::BITS - ELEVATION_MAP_BITS);
     let sampler = Sampler::new(&elevation_map, &lanczos_sampler);
