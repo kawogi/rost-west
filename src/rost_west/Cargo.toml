@@ -8,7 +8,8 @@ crate-type = ["staticlib"]
 
 [dependencies]
 cxx = "1"
-rand = "0.8"
+rand = "0.9"
+rand_pcg = "0.9"
 glam = "0.29"
 lazy_static = "1"
 mapgen = { path = "mapgen" }

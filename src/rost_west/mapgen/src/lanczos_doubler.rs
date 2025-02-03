@@ -190,4 +190,5 @@ impl<const WINDOW_LEN: usize> LanczosSampler<WINDOW_LEN> {
     pub fn get(&self, shift: u16, window: &[f32; WINDOW_LEN]) -> f32 {
         self.kernels[usize::from(shift) & (self.kernels.len() - 1)].fold(window)
     }
+
 }

@@ -5,7 +5,7 @@ mod lanczos_doubler;
 use core::f32;
 use std::{collections::HashMap, f32::consts::PI, fs::OpenOptions};
 
-use data_square::{DataSquare, GetWrapping, Sampler};
+use data_square::{DataSquare, GetWrapping, Sampler2d};
 use fractal_noise::noise_2d;
 use glam::{I8Vec3, U8Vec3, Vec2, Vec3};
 use lanczos_doubler::{LanczosDoubler, LanczosSampler};
@@ -71,11 +71,11 @@ struct Vertex {
 
 impl Vertex {
     fn rand() -> Self {
-        let mut rng = rand::thread_rng();
+        let mut rng = rand::rng();
         Self {
-            h: rng.gen_range(-0.5..=0.5),
-            dx: rng.gen_range(-0.5..=0.5),
-            dy: rng.gen_range(-0.5..=0.5),
+            h: rng.random_range(-0.5..=0.5),
+            dx: rng.random_range(-0.5..=0.5),
+            dy: rng.random_range(-0.5..=0.5),
         }
     }
 }
@@ -149,7 +149,7 @@ fn main() {
         .fold(0.0, |height, amp| height * 2.0 + amp * 0.5);
     println!("expected_max_elevation: {expected_max_elevation}");
 
-    let elevation_map = noise_2d::<ELEVATION_MAP_BITS>(0.0, &elevation_amps);
+    let elevation_map = noise_2d::<ELEVATION_MAP_BITS>(0.0, &elevation_amps, rand::rng());
 
     let mut histogram = HashMap::<i16, u32>::new();
     for h in elevation_map
@@ -178,7 +178,7 @@ fn main() {
     }
 
     let lanczos_sampler = LanczosSampler::<6>::new(u16::BITS - ELEVATION_MAP_BITS);
-    let sampler = Sampler::new(&elevation_map, &lanczos_sampler);
+    let sampler = Sampler2d::new(&elevation_map, &lanczos_sampler);
 
     // let temperature_amps = [
     //     1.0, // 128

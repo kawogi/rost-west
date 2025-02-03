@@ -177,13 +177,13 @@ pub trait GetWrapping {
     fn get_3x3(&self, xy: [u16; 2]) -> [Self::Item; 9];
 }
 
-pub struct Sampler<'sampler, 'data, const SIZE_BITS: u32, const WINDOW_SIZE: usize> {
+pub struct Sampler2d<'sampler, 'data, const SIZE_BITS: u32, const WINDOW_SIZE: usize> {
     sampler: &'sampler LanczosSampler<WINDOW_SIZE>,
     data: &'data DataSquare<f32, SIZE_BITS>,
 }
 
 impl<'sampler, 'data, const SIZE_BITS: u32, const WINDOW_SIZE: usize>
-    Sampler<'sampler, 'data, SIZE_BITS, WINDOW_SIZE>
+    Sampler2d<'sampler, 'data, SIZE_BITS, WINDOW_SIZE>
 {
     const WINDOW_OFFSET: u16 = LanczosSampler::<WINDOW_SIZE>::WINDOW_OFFSET as u16;
     const WORLD_SHIFT: u32 = DataSquare::<f32, SIZE_BITS>::WORLD_SHIFT;
@@ -224,3 +224,36 @@ impl<'sampler, 'data, const SIZE_BITS: u32, const WINDOW_SIZE: usize>
         self.sampler.get(world_y, &column)
     }
 }
+
+// pub struct Sampler1d<'sampler, 'data, const SIZE_BITS: u32, const WINDOW_SIZE: usize> {
+//     sampler: &'sampler LanczosSampler<WINDOW_SIZE>,
+//     data: &'data DataSquare<f32, SIZE_BITS>,
+// }
+
+// impl<'sampler, 'data, const SIZE_BITS: u32, const WINDOW_SIZE: usize>
+//     Sampler1d<'sampler, 'data, SIZE_BITS, WINDOW_SIZE>
+// {
+//     const WINDOW_OFFSET: u16 = LanczosSampler::<WINDOW_SIZE>::WINDOW_OFFSET as u16;
+//     const WORLD_SHIFT: u32 = DataSquare::<f32, SIZE_BITS>::WORLD_SHIFT;
+
+//     pub fn new(
+//         data: &'data DataSquare<f32, SIZE_BITS>,
+//         sampler: &'sampler LanczosSampler<WINDOW_SIZE>,
+//     ) -> Self {
+//         assert_eq!(sampler.resolution_bits(), Self::WORLD_SHIFT, "the samplers resolution and the map's size (in bits) need to add up to the width of the world coordinates (u16)");
+//         Self { data, sampler }
+//     }
+
+//     pub fn sample(&self, world_x: u16) -> f32 {
+//         let x = world_x >> Self::WORLD_SHIFT;
+
+//         let values = array::from_fn(|col_index| {
+//             let offset = DataSquare::<f32, SIZE_BITS>::col_offset(
+//                 x.wrapping_add(col_index as u16)
+//                     .wrapping_sub(Self::WINDOW_OFFSET),
+//             );
+//             self.data[offset]
+//         });
+//         self.sampler.get(world_x, &values)
+//     }
+// }

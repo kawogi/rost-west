@@ -1,5 +1,6 @@
 mod generator;
 mod materials;
+mod surface;
 
 use std::{
     collections::{hash_map::Entry, HashMap},
