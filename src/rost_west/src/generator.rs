@@ -17,46 +17,58 @@ pub(crate) struct Generator {
 fn get_material(y: i16, surface: &NodeSurface, materials: &Materials) -> u16 {
     let mut rng = rand::rng();
     let elevation = surface.elevation;
-    let temperature =
-        surface.temperature + TEMPERATURE_LAPSE_RATE * (f32::from(y) + rng.random_range(-3.0..3.0));
+    let temperature = surface.temperature + f32::from(y) * TEMPERATURE_LAPSE_RATE;
     let altitude = f32::from(y) - elevation;
 
-    // let y = f32::from(y);
-
-    if altitude.is_sign_positive() {
-    } else {
-        // below sea level
-    }
-
-    match (altitude, y) {
-        // top layer
-        (-1.0..0.0, y) => {
-            let y = f32::from(y);
-            if y < rng.random_range(-1.0..=1.0) {
-                materials.sand
-            } else if temperature < celsius_to_kelvin(-10.0) {
-                materials.snow
-            } else if temperature < celsius_to_kelvin(0.0) {
-                materials.dirt_with_snow
-            } else if temperature > celsius_to_kelvin(30.0) {
-                materials.sand
-            } else {
-                materials.dirt_with_grass
+    if elevation.is_sign_positive() {
+        // above sea level
+        match altitude {
+            // top layer
+            -1.0..0.0 => {
+                let temperature =
+                    temperature + rng.random_range(-3.0..3.0) * TEMPERATURE_LAPSE_RATE;
+                if elevation < rng.random_range(0.0..2.0) {
+                    materials.sand
+                } else if temperature < celsius_to_kelvin(0.0) {
+                    materials.dirt_with_snow
+                } else if temperature > celsius_to_kelvin(30.0) {
+                    materials.sand
+                } else {
+                    materials.dirt_with_grass
+                }
+            }
+            // below top layer
+            -3.0..-1.0 => materials.dirt,
+            -10.0..-3.0 => materials.stone,
+            // bottom layer
+            ..-64.0 => materials.lava_source,
+            _ => {
+                let snow_level = (celsius_to_kelvin(-10.0) - temperature).max(0.0) * 0.3;
+                if altitude < snow_level {
+                    materials.snowblock
+                } else {
+                    materials.air
+                }
             }
         }
-        // below top layer
-        (-3.0..-1.0, _) => materials.dirt,
-        (-10.0..-3.0, _) => materials.stone,
-        // bottom layer
-        (..-10.0, _) => materials.stone, // materials.lava_source,
-        (_, ..0) => {
-            if temperature < celsius_to_kelvin(-5.0) {
+    } else {
+        // elevation is below sea level
+        if y >= 0 {
+            // everything above sea level
+            materials.air
+        } else if altitude < 0.0 {
+            // everything below ground level
+            materials.sand
+        } else if y == -1 {
+            // exactly on surface level
+            if temperature < celsius_to_kelvin(-10.0) {
                 materials.ice
             } else {
                 materials.water_source
             }
+        } else {
+            materials.water_source
         }
-        (_, _) => materials.air,
     }
 }
 
