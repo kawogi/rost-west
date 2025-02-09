@@ -19,7 +19,7 @@ pub fn noise_2d<const SIZE_BITS: u32>(
         assert_eq!(data.len(), 1 << (i * 2 + 2));
         if amp.abs() > f32::EPSILON {
             for value in data.iter_mut() {
-                *value += (rng.random::<f32>() - 0.5) * amp;
+                *value += (rng.random::<f32>() * 2.0 - 1.0) * amp;
             }
         }
     }

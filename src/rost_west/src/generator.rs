@@ -4,7 +4,7 @@ use rand::Rng;
 use crate::{
     ffi::{NodeDefManager, VoxelArea},
     materials::Materials,
-    surface::Surface,
+    surface::{celsius_to_kelvin, NodeSurface, Surface, TEMPERATURE_LAPSE_RATE},
     MapData, MapgenId, MAP_BLOCKSIZE,
 };
 
@@ -14,11 +14,19 @@ pub(crate) struct Generator {
     surface: Surface,
 }
 
-fn get_material(y: i16, elevation: f32, materials: &Materials) -> u16 {
+fn get_material(y: i16, surface: &NodeSurface, materials: &Materials) -> u16 {
+    let mut rng = rand::rng();
+    let elevation = surface.elevation;
+    let temperature =
+        surface.temperature + TEMPERATURE_LAPSE_RATE * (f32::from(y) + rng.random_range(-3.0..3.0));
     let altitude = f32::from(y) - elevation;
 
-    let mut rng = rand::rng();
     // let y = f32::from(y);
+
+    if altitude.is_sign_positive() {
+    } else {
+        // below sea level
+    }
 
     match (altitude, y) {
         // top layer
@@ -26,8 +34,12 @@ fn get_material(y: i16, elevation: f32, materials: &Materials) -> u16 {
             let y = f32::from(y);
             if y < rng.random_range(-1.0..=1.0) {
                 materials.sand
-            } else if y > 20.0 + rng.random_range(-2.0..=2.0) {
+            } else if temperature < celsius_to_kelvin(-10.0) {
+                materials.snow
+            } else if temperature < celsius_to_kelvin(0.0) {
                 materials.dirt_with_snow
+            } else if temperature > celsius_to_kelvin(30.0) {
+                materials.sand
             } else {
                 materials.dirt_with_grass
             }
@@ -37,7 +49,13 @@ fn get_material(y: i16, elevation: f32, materials: &Materials) -> u16 {
         (-10.0..-3.0, _) => materials.stone,
         // bottom layer
         (..-10.0, _) => materials.stone, // materials.lava_source,
-        (_, ..0) => materials.water_source,
+        (_, ..0) => {
+            if temperature < celsius_to_kelvin(-5.0) {
+                materials.ice
+            } else {
+                materials.water_source
+            }
+        }
         (_, _) => materials.air,
     }
 }
@@ -92,8 +110,7 @@ impl Generator {
                             let surface_row = surface.row(z);
                             for (map_data, surface_node) in map_data_row.iter_mut().zip(surface_row)
                             {
-                                map_data.id =
-                                    get_material(node_y, surface_node.elevation, materials);
+                                map_data.id = get_material(node_y, surface_node, materials);
                             }
                         }
                     }
