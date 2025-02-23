@@ -183,12 +183,6 @@ inline const char *getPlatformName()
 
 bool secure_rand_fill_buf(void *buf, size_t len);
 
-// Call once near beginning of main function.
-void osSpecificInit();
-
-// This attaches to the parents process console, or creates a new one if it doesnt exist.
-void attachOrCreateConsole();
-
 #if HAVE_MALLOC_TRIM
 /**
  * Call this after freeing bigger blocks of memory. Used on some platforms to

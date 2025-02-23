@@ -49,7 +49,3 @@ std::string debug_describe_exc(const std::exception &e)
 	return std::string("\"").append(e.what()).append("\"");
 }
 
-void debug_set_exception_handler()
-{
-}
-

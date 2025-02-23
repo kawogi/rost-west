@@ -52,8 +52,6 @@
 
 std::string debug_describe_exc(const std::exception &e);
 
-void debug_set_exception_handler();
-
 /*
 	These should be put into every thread
 */

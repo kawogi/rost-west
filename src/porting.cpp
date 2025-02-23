@@ -335,14 +335,6 @@ bool secure_rand_fill_buf(void *buf, size_t len)
 }
 
 
-void osSpecificInit()
-{
-}
-
-void attachOrCreateConsole()
-{
-}
-
 int mt_snprintf(char *buf, const size_t buf_size, const char *fmt, ...)
 {
 	// https://msdn.microsoft.com/en-us/library/bt7tawza.aspx
