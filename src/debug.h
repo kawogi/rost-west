@@ -62,7 +62,7 @@ std::string debug_describe_exc(const std::exception &e);
 		} catch (std::exception &e) {                          \
 			std::string e_descr = debug_describe_exc(e);       \
 			errorstream << "An unhandled exception occurred: " \
-				<< e_descr << std::endl;                       \
+				<< e_descr << '\n';                            \
 			FATAL_ERROR(e_descr.c_str());                      \
 		}
 #else

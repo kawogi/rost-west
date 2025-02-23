@@ -106,7 +106,6 @@ int ModApiBase::l_deprecated_function(lua_State *L, const char *good, const char
 	if (dep_mode == DeprecatedHandlingMode::Ignore)
 		return func(L);
 
-	u64 start_time = porting::getTimeUs();
 	lua_Debug ar;
 
 	// Get caller name with line and script backtrace
@@ -131,8 +130,6 @@ int ModApiBase::l_deprecated_function(lua_State *L, const char *good, const char
 		if (dep_mode == DeprecatedHandlingMode::Error)
 			throw LuaError(msg.str());
 	}
-
-	u64 end_time = porting::getTimeUs();
 
 	return func(L);
 }

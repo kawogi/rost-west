@@ -135,7 +135,7 @@ void *ServerThread::run()
 		} catch (con::PeerNotFoundException &e) {
 			infostream<<"Server: PeerNotFoundException"<<std::endl;
 		} catch (ClientNotFoundException &e) {
-			infostream<<"Server: ClientNotFoundException"<<std::endl;
+			infostream<<"Server: ClientNotFoundException"<<'\n';
 		} catch (con::ConnectionBindFailed &e) {
 			m_server->setAsyncFatalError(e.what());
 		} catch (LuaError &e) {
