@@ -39,7 +39,13 @@ fn get_material(y: i16, surface: &NodeSurface, materials: &Materials) -> u16 {
             }
             // below top layer
             -3.0..-1.0 => materials.dirt,
-            -10.0..-3.0 => materials.stone,
+            -64.0..-3.0 => {
+                if temperature > celsius_to_kelvin(30.0) {
+                    materials.desert_stone
+                } else {
+                    materials.stone
+                }
+            }
             // bottom layer
             ..-64.0 => materials.lava_source,
             _ => {
