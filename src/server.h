@@ -435,9 +435,6 @@ public:
 	static ModStorageDatabase *openModStorageDatabase(const std::string &backend,
 			const std::string &world_path, const Settings &world_mt);
 
-	static bool migrateModStorageDatabase(const GameParams &game_params,
-			const Settings &cmd_args);
-
 	static u16 getProtocolVersionMin();
 	static u16 getProtocolVersionMax();
 

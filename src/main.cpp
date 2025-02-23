@@ -72,13 +72,6 @@ static bool get_game_from_cmdline(GameParams *game_params,
                                   const Settings &cmd_args);
 static bool determine_subgame(GameParams *game_params);
 
-static bool run_dedicated_server(const GameParams &game_params,
-                                 const Settings &cmd_args);
-static bool migrate_map_database(const GameParams &game_params,
-                                 const Settings &cmd_args);
-static bool recompress_map_database(const GameParams &game_params,
-                                    const Settings &cmd_args);
-
 /**********************************************************************/
 
 static FileLogOutput file_log_output;
@@ -150,7 +143,49 @@ int main(int argc, char *argv[]) {
 
     sanity_check(!game_params.world_path.empty());
 
-    return run_dedicated_server(game_params, cmd_args) ? 0 : 1;
+    verbosestream << _("Using world path") << " [" << game_params.world_path
+                  << "]" << '\n';
+    verbosestream << _("Using gameid") << " [" << game_params.game_spec.id
+                  << "]" << '\n';
+
+    // Bind address
+    std::string bind_str = g_settings->get("bind_address");
+    Address bind_addr(0, 0, 0, 0, game_params.socket_port);
+
+    if (g_settings->getBool("ipv6_server")) {
+        bind_addr.setAddress(static_cast<IPv6AddressBytes *>(nullptr));
+    }
+    try {
+        bind_addr.Resolve(bind_str.c_str());
+    } catch (const ResolveError &e) {
+        warningstream << "Resolving bind address \"" << bind_str
+                      << "\" failed: " << e.what()
+                      << " -- Listening on all addresses." << '\n';
+    }
+    if (bind_addr.isIPv6() && !g_settings->getBool("enable_ipv6")) {
+        errorstream << "Unable to listen on " << bind_addr.serializeString()
+                    << " because IPv6 is disabled" << '\n';
+        return 1;
+    }
+
+    try {
+        // Create server
+        Server server(game_params.world_path, game_params.game_spec, false,
+                      bind_addr, true);
+        server.start();
+
+        // Run server
+        bool &kill = *porting::signal_handler_killstatus();
+        dedicated_server_loop(server, kill);
+    } catch (const ModError &e) {
+        errorstream << "ModError: " << e.what() << '\n';
+        return 1;
+    } catch (const ServerError &e) {
+        errorstream << "ServerError: " << e.what() << '\n';
+        return 1;
+    }
+
+    return 0;
 
     END_DEBUG_EXCEPTION_HANDLER
 }
@@ -177,37 +212,9 @@ static void set_allowed_options(OptionList *allowed_options) {
         "worldname",
         ValueSpec(VALUETYPE_STRING, _("Set world by name" LOCAL_GAME))));
     allowed_options->insert(std::make_pair(
-        "logfile",
-        ValueSpec(VALUETYPE_STRING, _("Set log file path ('' = no logging)"))));
-    allowed_options->insert(std::make_pair(
         "gameid",
         ValueSpec(VALUETYPE_STRING,
                   _("Set gameid (\"--gameid list\" prints available ones)"))));
-    allowed_options->insert(std::make_pair(
-        "migrate",
-        ValueSpec(
-            VALUETYPE_STRING,
-            _("Migrate from current map backend to another" SERVER_ONLY))));
-    allowed_options->insert(std::make_pair(
-        "migrate-players",
-        ValueSpec(
-            VALUETYPE_STRING,
-            _("Migrate from current players backend to another" SERVER_ONLY))));
-    allowed_options->insert(std::make_pair(
-        "migrate-auth",
-        ValueSpec(
-            VALUETYPE_STRING,
-            _("Migrate from current auth backend to another" SERVER_ONLY))));
-    allowed_options->insert(
-        std::make_pair("migrate-mod-storage",
-                       ValueSpec(VALUETYPE_STRING,
-                                 _("Migrate from current mod storage backend "
-                                   "to another" SERVER_ONLY))));
-    allowed_options->insert(std::make_pair(
-        "recompress",
-        ValueSpec(
-            VALUETYPE_FLAG,
-            _("Recompress the blocks of the given map database" SERVER_ONLY))));
 
 #undef SERVER_ONLY
 #undef LOCAL_GAME
@@ -352,7 +359,7 @@ static bool get_world_from_cmdline(GameParams *game_params,
             if (name == commanded_worldname) {
                 dstream << "Using world specified by --worldname on the "
                            "command line"
-                        << std::endl;
+                        << '\n';
                 commanded_world = worldspec.path;
                 found = true;
                 break;
@@ -360,7 +367,7 @@ static bool get_world_from_cmdline(GameParams *game_params,
         }
         if (!found) {
             dstream << "World '" << commanded_worldname
-                    << "' not available. Available worlds:" << std::endl;
+                    << "' not available. Available worlds:" << '\n';
             print_worldspecs(worldspecs, dstream);
             return false;
         }
@@ -406,13 +413,13 @@ static bool auto_select_world(GameParams *game_params) {
     if (worldspecs.size() == 1) {
         world_path = worldspecs[0].path;
         dstream << "Automatically selecting world at [" << world_path << "]"
-                << std::endl;
+                << '\n';
         // If there are multiple worlds, list them
     } else if (worldspecs.size() > 1) {
         rawstream
             << "Multiple worlds are available.\n"
             << "Please select one using --worldname <name> or --world <path>"
-            << std::endl;
+            << '\n';
         print_worldspecs(worldspecs, rawstream);
         return false;
         // If there are no worlds, automatically create a new one
@@ -420,8 +427,7 @@ static bool auto_select_world(GameParams *game_params) {
         // This is the ultimate default world path
         world_path =
             porting::path_user + DIR_DELIM + "worlds" + DIR_DELIM + "world";
-        infostream << "Using default world at [" << world_path << "]"
-                   << std::endl;
+        infostream << "Using default world at [" << world_path << "]" << '\n';
     }
 
     assert(!world_path.empty()); // Post-condition
@@ -435,7 +441,7 @@ static std::string get_clean_world_path(const std::string &path) {
 
     if (path.size() > worldmt.size() &&
         path.substr(path.size() - worldmt.size()) == worldmt) {
-        dstream << _("Supplied world.mt file - stripping it off.") << std::endl;
+        dstream << _("Supplied world.mt file - stripping it off.") << '\n';
         clean_path = path.substr(0, path.size() - worldmt.size());
     } else {
         clean_path = path;
@@ -463,11 +469,11 @@ static bool get_game_from_cmdline(GameParams *game_params,
         std::string gameid = cmd_args.get("gameid");
         commanded_gamespec = findSubgame(gameid);
         if (!commanded_gamespec.isValid()) {
-            errorstream << "Game \"" << gameid << "\" not found" << std::endl;
+            errorstream << "Game \"" << gameid << "\" not found" << '\n';
             return false;
         }
         dstream << _("Using game specified by --gameid on the command line")
-                << std::endl;
+                << '\n';
         game_params->game_spec = commanded_gamespec;
         return true;
     }
@@ -487,7 +493,7 @@ static bool determine_subgame(GameParams *game_params) {
         if (game_params->game_spec.isValid()) {
             gamespec = game_params->game_spec;
             infostream << "Using commanded gameid [" << gamespec.id << "]"
-                       << std::endl;
+                       << '\n';
         } else {
             std::string contentdb_url = g_settings->get("contentdb_url");
 
@@ -497,10 +503,10 @@ static bool determine_subgame(GameParams *game_params) {
                 << "To run a " PROJECT_NAME_C
                    " server, you need to select a game using the "
                    "'--gameid' argument."
-                << std::endl
+                << '\n'
                 << "Check out " << contentdb_url
                 << " for a selection of games to pick from and download."
-                << std::endl;
+                << '\n';
 
             return false;
         }
@@ -514,244 +520,22 @@ static bool determine_subgame(GameParams *game_params) {
                 warningstream
                     << "Using commanded gameid [" << gamespec.id << "]"
                     << " instead of world gameid [" << world_gameid << "]"
-                    << std::endl;
+                    << '\n';
             }
         } else {
             // If world contains an embedded game, use it;
             // Otherwise find world from local system.
             gamespec = findWorldSubgame(game_params->world_path);
-            infostream << "Using world gameid [" << gamespec.id << "]"
-                       << std::endl;
+            infostream << "Using world gameid [" << gamespec.id << "]" << '\n';
         }
     }
 
     if (!gamespec.isValid()) {
         errorstream << "Game [" << gamespec.id << "] could not be found."
-                    << std::endl;
+                    << '\n';
         return false;
     }
 
     game_params->game_spec = gamespec;
-    return true;
-}
-
-/*****************************************************************************
- * Dedicated server
- *****************************************************************************/
-static bool run_dedicated_server(const GameParams &game_params,
-                                 const Settings &cmd_args) {
-    verbosestream << _("Using world path") << " [" << game_params.world_path
-                  << "]" << std::endl;
-    verbosestream << _("Using gameid") << " [" << game_params.game_spec.id
-                  << "]" << std::endl;
-
-    // Database migration/compression
-    if (cmd_args.exists("migrate")) {
-        return migrate_map_database(game_params, cmd_args);
-    }
-
-    if (cmd_args.exists("migrate-players")) {
-        return ServerEnvironment::migratePlayersDatabase(game_params, cmd_args);
-    }
-
-    if (cmd_args.exists("migrate-auth")) {
-        return ServerEnvironment::migrateAuthDatabase(game_params, cmd_args);
-    }
-
-    if (cmd_args.exists("migrate-mod-storage")) {
-        return Server::migrateModStorageDatabase(game_params, cmd_args);
-    }
-
-    if (cmd_args.getFlag("recompress")) {
-        return recompress_map_database(game_params, cmd_args);
-    }
-
-    // Bind address
-    std::string bind_str = g_settings->get("bind_address");
-    Address bind_addr(0, 0, 0, 0, game_params.socket_port);
-
-    if (g_settings->getBool("ipv6_server")) {
-        bind_addr.setAddress(static_cast<IPv6AddressBytes *>(nullptr));
-    }
-    try {
-        bind_addr.Resolve(bind_str.c_str());
-    } catch (const ResolveError &e) {
-        warningstream << "Resolving bind address \"" << bind_str
-                      << "\" failed: " << e.what()
-                      << " -- Listening on all addresses." << std::endl;
-    }
-    if (bind_addr.isIPv6() && !g_settings->getBool("enable_ipv6")) {
-        errorstream << "Unable to listen on " << bind_addr.serializeString()
-                    << " because IPv6 is disabled" << std::endl;
-        return false;
-    }
-
-    {
-        try {
-            // Create server
-            Server server(game_params.world_path, game_params.game_spec, false,
-                          bind_addr, true);
-            server.start();
-
-            // Run server
-            bool &kill = *porting::signal_handler_killstatus();
-            dedicated_server_loop(server, kill);
-        } catch (const ModError &e) {
-            errorstream << "ModError: " << e.what() << std::endl;
-            return false;
-        } catch (const ServerError &e) {
-            errorstream << "ServerError: " << e.what() << std::endl;
-            return false;
-        }
-    }
-
-    return true;
-}
-
-static bool migrate_map_database(const GameParams &game_params,
-                                 const Settings &cmd_args) {
-    std::string migrate_to = cmd_args.get("migrate");
-    Settings world_mt;
-    std::string world_mt_path = game_params.world_path + DIR_DELIM + "world.mt";
-    if (!world_mt.readConfigFile(world_mt_path.c_str())) {
-        errorstream << "Cannot read world.mt!" << std::endl;
-        return false;
-    }
-
-    if (!world_mt.exists("backend")) {
-        errorstream << "Please specify your current backend in world.mt:"
-                    << std::endl
-                    << "	backend = {sqlite3|dummy}" << std::endl;
-        return false;
-    }
-
-    std::string backend = world_mt.get("backend");
-    if (backend == migrate_to) {
-        errorstream << "Cannot migrate: new backend is same"
-                    << " as the old one" << std::endl;
-        return false;
-    }
-
-    MapDatabase *old_db = ServerMap::createDatabase(
-                    backend, game_params.world_path, world_mt),
-                *new_db = ServerMap::createDatabase(
-                    migrate_to, game_params.world_path, world_mt);
-
-    u32 count = 0;
-    u64 last_update_time = 0;
-    bool &kill = *porting::signal_handler_killstatus();
-
-    std::vector<v3s16> blocks;
-    old_db->listAllLoadableBlocks(blocks);
-    new_db->beginSave();
-    for (std::vector<v3s16>::const_iterator it = blocks.begin();
-         it != blocks.end(); ++it) {
-        if (kill) {
-            return false;
-        }
-
-        std::string data;
-        old_db->loadBlock(*it, &data);
-        if (!data.empty()) {
-            new_db->saveBlock(*it, data);
-            count++;
-        } else {
-            errorstream << "Failed to load block " << *it << ", skipping it."
-                        << std::endl;
-        }
-        if (porting::getTimeS() - last_update_time >= 1) {
-            std::cerr << " Migrated " << count << " blocks, "
-                      << (100.0 * count / blocks.size()) << "% completed.\r"
-                      << std::flush;
-            new_db->endSave();
-            new_db->beginSave();
-            last_update_time = porting::getTimeS();
-        }
-    }
-    std::cerr << std::endl;
-    new_db->endSave();
-    delete old_db;
-    delete new_db;
-
-    actionstream << "Successfully migrated " << count << " blocks" << std::endl;
-    world_mt.set("backend", migrate_to);
-    if (!world_mt.updateConfigFile(world_mt_path.c_str())) {
-        errorstream << "Failed to update world.mt!" << std::endl;
-    } else {
-        actionstream << "world.mt updated" << std::endl;
-    }
-
-    return true;
-}
-
-static bool recompress_map_database(const GameParams &game_params,
-                                    const Settings &cmd_args) {
-    Settings world_mt;
-    const std::string world_mt_path =
-        game_params.world_path + DIR_DELIM + "world.mt";
-
-    if (!world_mt.readConfigFile(world_mt_path.c_str())) {
-        errorstream << "Cannot read world.mt at " << world_mt_path << std::endl;
-        return false;
-    }
-    const std::string &backend = world_mt.get("backend");
-    Server server(game_params.world_path, game_params.game_spec, false,
-                  Address(), false);
-    MapDatabase *db =
-        ServerMap::createDatabase(backend, game_params.world_path, world_mt);
-
-    u32 count = 0;
-    u64 last_update_time = 0;
-    bool &kill = *porting::signal_handler_killstatus();
-    const u8 serialize_as_ver = SER_FMT_VER_HIGHEST_WRITE;
-
-    // This is ok because the server doesn't actually run
-    std::vector<v3s16> blocks;
-    db->listAllLoadableBlocks(blocks);
-    db->beginSave();
-    std::istringstream iss(std::ios_base::binary);
-    std::ostringstream oss(std::ios_base::binary);
-    for (auto it = blocks.begin(); it != blocks.end(); ++it) {
-        if (kill) {
-            return false;
-        }
-
-        std::string data;
-        db->loadBlock(*it, &data);
-        if (data.empty()) {
-            errorstream << "Failed to load block " << *it << std::endl;
-            return false;
-        }
-
-        iss.str(data);
-        iss.clear();
-
-        {
-            MapBlock mb(v3s16(0, 0, 0), &server);
-            ServerMap::deSerializeBlock(&mb, iss);
-
-            oss.str("");
-            oss.clear();
-            writeU8(oss, serialize_as_ver);
-            mb.serialize(oss, serialize_as_ver, true, -1);
-        }
-
-        db->saveBlock(*it, oss.str());
-        count++;
-
-        if (porting::getTimeS() - last_update_time >= 1) {
-            std::cerr << " Recompressed " << count << " blocks, "
-                      << (100.0f * count / blocks.size()) << "% completed.\r"
-                      << std::flush;
-            db->endSave();
-            db->beginSave();
-            last_update_time = porting::getTimeS();
-        }
-    }
-    std::cerr << std::endl;
-    db->endSave();
-
-    actionstream << "Done, " << count << " blocks were recompressed."
-                 << std::endl;
     return true;
 }

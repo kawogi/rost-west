@@ -383,12 +383,7 @@ public:
 	const std::vector<RemotePlayer *> getPlayers() const { return m_players; }
 	u32 getPlayerCount() const { return m_players.size(); }
 
-	static bool migratePlayersDatabase(const GameParams &game_params,
-			const Settings &cmd_args);
-
 	AuthDatabase *getAuthDatabase() { return m_auth_database; }
-	static bool migrateAuthDatabase(const GameParams &game_params,
-			const Settings &cmd_args);
 private:
 
 	/**
