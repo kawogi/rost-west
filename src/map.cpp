@@ -385,9 +385,6 @@ void Map::timerUpdate(float dtime, float unload_timeout, s32 max_loaded_blocks,
 	}
 
 	endSave();
-	const auto end_time = porting::getTimeUs();
-
-	reportMetrics(end_time - start_time, saved_blocks_count, block_count_all);
 
 	// Finally delete the empty sectors
 	deleteSectors(sector_deletion_queue);

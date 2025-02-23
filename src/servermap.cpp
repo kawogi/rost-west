@@ -43,7 +43,7 @@ void MapDatabaseAccessor::loadBlock(v3s16 blockpos, std::string &ret)
 */
 
 ServerMap::ServerMap(const std::string &savedir, IGameDef *gamedef,
-		EmergeManager *emerge, MetricsBackend *mb):
+		EmergeManager *emerge):
 	Map(gamedef),
 	settings_mgr(savedir + DIR_DELIM + "map_meta.txt"),
 	m_emerge(emerge)
@@ -79,13 +79,6 @@ ServerMap::ServerMap(const std::string &savedir, IGameDef *gamedef,
 
 	// Inform EmergeManager of db handles
 	m_emerge->initMap(&m_db);
-
-	m_save_time_counter = mb->addCounter(
-		"minetest_map_save_time", "Time spent saving blocks (in microseconds)");
-	m_save_count_counter = mb->addCounter(
-		"minetest_map_saved_blocks", "Number of blocks saved");
-	m_loaded_blocks_gauge = mb->addGauge(
-		"minetest_map_loaded_blocks", "Number of loaded blocks");
 
 	m_map_compression_level = rangelim(g_settings->getS16("map_compression_level_disk"), -1, 9);
 
@@ -460,21 +453,12 @@ void ServerMap::updateVManip(v3s16 pos)
 	vm->m_is_dirty = true;
 }
 
-void ServerMap::reportMetrics(u64 save_time_us, u32 saved_blocks, u32 all_blocks)
-{
-	m_loaded_blocks_gauge->set(all_blocks);
-	m_save_time_counter->increment(save_time_us);
-	m_save_count_counter->increment(saved_blocks);
-}
-
 void ServerMap::save(ModifiedState save_level)
 {
 	if (!m_map_saving_enabled) {
 		warningstream<<"Not saving map, saving disabled."<<std::endl;
 		return;
 	}
-
-	const auto start_time = porting::getTimeUs();
 
 	if(save_level == MOD_STATE_CLEAN)
 		infostream<<"ServerMap: Saving whole map, this can take time."
@@ -528,9 +512,6 @@ void ServerMap::save(ModifiedState save_level)
 		PrintInfo(infostream); // ServerMap/ClientMap:
 		infostream<<"Blocks modified by: "<<std::endl;
 	}
-
-	const auto end_time = porting::getTimeUs();
-	reportMetrics(end_time - start_time, block_count, block_count_all);
 }
 
 void ServerMap::listAllLoadableBlocks(std::vector<v3s16> &dst)

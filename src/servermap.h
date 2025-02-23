@@ -9,7 +9,6 @@
 
 #include "map.h"
 #include "util/container.h" // UniqueQueue
-#include "util/metricsbackend.h" // ptr typedefs
 #include "map_settings_manager.h"
 
 class Settings;
@@ -18,7 +17,6 @@ class IRollbackManager;
 class EmergeManager;
 class ServerEnvironment;
 struct BlockMakeData;
-class MetricsBackend;
 
 // TODO: this could wrap all calls to MapDatabase, including locking
 struct MapDatabaseAccessor {
@@ -46,7 +44,7 @@ public:
 	/*
 		savedir: directory to which map data should be saved
 	*/
-	ServerMap(const std::string &savedir, IGameDef *gamedef, EmergeManager *emerge, MetricsBackend *mb);
+	ServerMap(const std::string &savedir, IGameDef *gamedef, EmergeManager *emerge);
 	~ServerMap();
 
 	/*
@@ -158,10 +156,6 @@ public:
 
 	MapSettingsManager settings_mgr;
 
-protected:
-
-	void reportMetrics(u64 save_time_us, u32 saved_blocks, u32 all_blocks) override;
-
 private:
 	friend class ModApiMapgen; // for m_transforming_liquid
 
@@ -192,9 +186,4 @@ private:
 	bool m_map_metadata_changed = true;
 
 	MapDatabaseAccessor m_db;
-
-	// Map metrics
-	MetricGaugePtr m_loaded_blocks_gauge;
-	MetricCounterPtr m_save_time_counter;
-	MetricCounterPtr m_save_count_counter;
 };

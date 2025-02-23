@@ -7,7 +7,6 @@ set(util_SRCS
 	${CMAKE_CURRENT_SOURCE_DIR}/enriched_string.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/hashing.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/ieee_float.cpp
-	${CMAKE_CURRENT_SOURCE_DIR}/metricsbackend.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/numeric.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/pointedthing.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/pointabilities.cpp

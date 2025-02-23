@@ -248,40 +248,6 @@ Server::Server(const std::string &path_world, const SubgameSpec &gamespec,
         throw ServerError("Supplied invalid gamespec");
     }
 
-    m_metrics_backend = std::make_unique<MetricsBackend>();
-
-    m_uptime_counter = m_metrics_backend->addCounter(
-        "minetest_core_server_uptime", "Server uptime (in seconds)");
-    m_player_gauge = m_metrics_backend->addGauge("minetest_core_player_number",
-                                                 "Number of connected players");
-
-    m_timeofday_gauge = m_metrics_backend->addGauge("minetest_core_timeofday",
-                                                    "Time of day value");
-
-    m_lag_gauge = m_metrics_backend->addGauge("minetest_core_latency",
-                                              "Latency value (in seconds)");
-
-    const std::string aom_types[] = {"reliable", "unreliable"};
-    for (u32 i = 0; i < ARRLEN(aom_types); i++) {
-        std::string help_str("Number of active object messages generated (");
-        help_str.append(aom_types[i]).append(")");
-        m_aom_buffer_counter[i] =
-            m_metrics_backend->addCounter("minetest_core_aom_generated_count",
-                                          help_str, {{"type", aom_types[i]}});
-    }
-
-    m_packet_recv_counter = m_metrics_backend->addCounter(
-        "minetest_core_server_packet_recv", "Processable packets received");
-
-    m_packet_recv_processed_counter = m_metrics_backend->addCounter(
-        "minetest_core_server_packet_recv_processed",
-        "Valid received packets processed");
-
-    m_map_edit_event_counter = m_metrics_backend->addCounter(
-        "minetest_core_map_edit_events", "Number of map edit events");
-
-    m_lag_gauge->set(g_settings->getFloat("dedicated_server_step"));
-
     m_path_mod_data = porting::path_user + DIR_DELIM "mod_data";
     if (!fs::CreateDir(m_path_mod_data)) {
         throw ServerError("Failed to create mod data dir");
@@ -409,7 +375,7 @@ void Server::init() {
     }
 
     // Create emerge manager
-    m_emerge = std::make_unique<EmergeManager>(this, m_metrics_backend.get());
+    m_emerge = std::make_unique<EmergeManager>(this);
 
     // Create ban manager
     std::string ban_path = m_path_world + DIR_DELIM "ipban.txt";
@@ -431,8 +397,8 @@ void Server::init() {
     EnvAutoLock envlock(this);
 
     // Create the Map (loads map_meta.txt, overriding configured mapgen params)
-    auto startup_server_map = std::make_unique<ServerMap>(
-        m_path_world, this, m_emerge.get(), m_metrics_backend.get());
+    auto startup_server_map =
+        std::make_unique<ServerMap>(m_path_world, this, m_emerge.get());
 
     // Initialize scripting
     infostream << "Server: Initializing Lua" << '\n';
@@ -481,8 +447,7 @@ void Server::init() {
     m_craftdef->initHashes(this);
 
     // Initialize Environment
-    m_env = new ServerEnvironment(std::move(startup_server_map), this,
-                                  m_metrics_backend.get());
+    m_env = new ServerEnvironment(std::move(startup_server_map), this);
     m_env->init();
 
     m_inventory_mgr->setEnv(m_env);
@@ -597,11 +562,6 @@ void Server::AsyncRunStep(float dtime, bool initial_step) {
     }
 
     /*
-        Update uptime
-    */
-    m_uptime_counter->increment(dtime);
-
-    /*
         Update time of day and overall game time
     */
     m_env->setTimeOfDaySpeed(g_settings->getFloat("time_speed"));
@@ -617,8 +577,6 @@ void Server::AsyncRunStep(float dtime, bool initial_step) {
         u16 time = m_env->getTimeOfDay();
         float time_speed = g_settings->getFloat("time_speed");
         SendTimeOfDay(PEER_ID_INEXISTENT, time, time_speed);
-
-        m_timeofday_gauge->set(time);
     }
 
     {
@@ -709,13 +667,6 @@ void Server::AsyncRunStep(float dtime, bool initial_step) {
     }
     m_clients.step(dtime);
 
-    // increase/decrease lag gauge gradually
-    if (m_lag_gauge->get() > dtime) {
-        m_lag_gauge->decrement(dtime / 100);
-    } else {
-        m_lag_gauge->increment(dtime / 100);
-    }
-
     {
         float &counter = m_step_pending_dyn_media_timer;
         counter += dtime;
@@ -743,7 +694,6 @@ void Server::AsyncRunStep(float dtime, bool initial_step) {
             ClientInterface::AutoLock clientlock(m_clients);
             const RemoteClientMap &clients = m_clients.getClientList();
 
-            m_player_gauge->set(clients.size());
             for (const auto &client_it : clients) {
                 RemoteClient *client = client_it.second;
 
@@ -809,9 +759,6 @@ void Server::AsyncRunStep(float dtime, bool initial_step) {
             }
             message_list->push_back(std::move(aom));
         }
-
-        m_aom_buffer_counter[0]->increment(count_reliable);
-        m_aom_buffer_counter[1]->increment(count_unreliable);
 
         {
             ClientInterface::AutoLock clientlock(m_clients);
@@ -902,7 +849,6 @@ void Server::AsyncRunStep(float dtime, bool initial_step) {
         }
 
         const auto event_count = m_unsent_map_edit_queue.size();
-        m_map_edit_event_counter->increment(event_count);
 
         std::unordered_set<v3s16> node_meta_updates;
 
@@ -1043,9 +989,7 @@ void Server::Receive(float min_time) {
             }
 
             peer_id = pkt.getPeerId();
-            m_packet_recv_counter->increment();
             ProcessData(&pkt);
-            m_packet_recv_processed_counter->increment();
         } catch (const con::InvalidIncomingDataException &e) {
             infostream
                 << "Server::Receive(): InvalidIncomingDataException: what()="
@@ -1133,8 +1077,7 @@ PlayerSAO *Server::StageTwoClientInit(session_t peer_id) {
         RemotePlayer *joined = m_env->getPlayer(playername.c_str());
         if (joined && joined->getPeerId() != PEER_ID_INEXISTENT) {
             actionstream << "Server: Failed to emerge player \"" << playername
-                         << "\" (player allocated to another client)"
-                         << '\n';
+                         << "\" (player allocated to another client)" << '\n';
             DenyAccess(peer_id, SERVER_ACCESSDENIED_ALREADY_CONNECTED);
         } else {
             errorstream << "Server: " << playername
@@ -3083,8 +3026,7 @@ std::wstring Server::handleChat(const std::string &name, std::wstring wmessage,
     /*
         Send the message to others
     */
-    actionstream << "CHAT: " << wide_to_utf8(unescape_enriched(line))
-                 << '\n';
+    actionstream << "CHAT: " << wide_to_utf8(unescape_enriched(line)) << '\n';
 
     ChatMessage chatmsg(line);
 
@@ -3144,8 +3086,6 @@ std::string Server::getStatusString() {
     // Game
     os << " | game: "
        << (m_gamespec.title.empty() ? m_gamespec.id : m_gamespec.title);
-    // Uptime
-    os << " | uptime: " << duration_to_string((int)m_uptime_counter->get());
     // Max lag estimate
     os << " | max lag: " << std::setprecision(3);
     os << (m_env ? m_env->getMaxLagEstimate() : 0) << "s";
@@ -3644,8 +3584,7 @@ bool Server::dynamicAddMedia(const DynamicMediaArgs &a) {
                 return false;
             }
             verbosestream << "Server: \"" << filename
-                          << "\" temporarily copied to " << filepath
-                          << '\n';
+                          << "\" temporarily copied to " << filepath << '\n';
             media_it->second.path = filepath;
         }
 
@@ -3756,7 +3695,7 @@ bool Server::rollbackRevertActions(const std::list<RollbackAction> &actions,
     // Fail if no actions to handle
     if (actions.empty()) {
         assert(log);
-        log->push_back("Nothing to do.");
+        log->emplace_back("Nothing to do.");
         return false;
     }
 
@@ -3771,8 +3710,7 @@ bool Server::rollbackRevertActions(const std::list<RollbackAction> &actions,
             std::ostringstream os;
             os << "Revert of step (" << num_tried << ") " << action.toString()
                << " failed";
-            infostream << "Map::rollbackRevertActions(): " << os.str()
-                       << '\n';
+            infostream << "Map::rollbackRevertActions(): " << os.str() << '\n';
             if (log) {
                 log->push_back(os.str());
             }
@@ -3780,8 +3718,7 @@ bool Server::rollbackRevertActions(const std::list<RollbackAction> &actions,
             std::ostringstream os;
             os << "Successfully reverted step (" << num_tried << ") "
                << action.toString();
-            infostream << "Map::rollbackRevertActions(): " << os.str()
-                       << '\n';
+            infostream << "Map::rollbackRevertActions(): " << os.str() << '\n';
             if (log) {
                 log->push_back(os.str());
             }
@@ -4184,8 +4121,7 @@ Server::openModStorageDatabase(const std::string &world_path) {
                "release /!\\"
             << '\n'
             << "Switching to SQLite3 is advised, "
-            << "please read https://wiki.luanti.org/Database_backends."
-            << '\n';
+            << "please read https://wiki.luanti.org/Database_backends." << '\n';
     }
 
     return openModStorageDatabase(backend, world_path, world_mt);

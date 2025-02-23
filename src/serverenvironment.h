@@ -13,7 +13,6 @@
 #include "settings.h"
 #include "server/activeobjectmgr.h"
 #include "util/numeric.h"
-#include "util/metricsbackend.h"
 
 class IGameDef;
 struct GameParams;
@@ -218,7 +217,7 @@ enum ClearObjectsMode {
 class ServerEnvironment final : public Environment
 {
 public:
-	ServerEnvironment(std::unique_ptr<ServerMap> map, Server *server, MetricsBackend *mb);
+	ServerEnvironment(std::unique_ptr<ServerMap> map, Server *server);
 	~ServerEnvironment();
 
 	void init();
@@ -499,11 +498,6 @@ private:
 	std::unordered_map<u32, float> m_particle_spawners;
 	u32 m_particle_spawners_id_last_used = 0;
 	std::unordered_map<u32, u16> m_particle_spawner_attachments;
-
-	// Environment metrics
-	MetricCounterPtr m_step_time_counter;
-	MetricGaugePtr m_active_block_gauge;
-	MetricGaugePtr m_active_object_gauge;
 
 	std::unique_ptr<ServerActiveObject> createSAO(ActiveObjectType type, v3f pos,
 			const std::string &data);

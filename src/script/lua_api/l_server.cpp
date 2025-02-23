@@ -40,7 +40,8 @@ int ModApiServer::l_get_server_status(lua_State *L)
 int ModApiServer::l_get_server_uptime(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
-	lua_pushnumber(L, getServer(L)->getUptime());
+	// TODO re-implement uptime measurement
+	lua_pushnumber(L, 0.0);
 	return 1;
 }
 

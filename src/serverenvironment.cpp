@@ -446,20 +446,12 @@ void OnMapblocksChangedReceiver::onMapEditEvent(const MapEditEvent &event)
 */
 
 ServerEnvironment::ServerEnvironment(std::unique_ptr<ServerMap> map,
-		Server *server, MetricsBackend *mb):
+		Server *server):
 	Environment(server),
 	m_map(std::move(map)),
 	m_script(server->getScriptIface()),
 	m_server(server)
 {
-	m_step_time_counter = mb->addCounter(
-		"minetest_env_step_time", "Time spent in environment step (in microseconds)");
-
-	m_active_block_gauge = mb->addGauge(
-		"minetest_env_active_blocks", "Number of active blocks");
-
-	m_active_object_gauge = mb->addGauge(
-		"minetest_env_active_objects", "Number of active objects");
 }
 
 void ServerEnvironment::init()
@@ -1364,8 +1356,6 @@ void ServerEnvironment::clearObjects(ClearObjectsMode mode)
 
 void ServerEnvironment::step(float dtime)
 {
-	const auto start_time = porting::getTimeUs();
-
 	/* Step time of day */
 	stepTimeOfDay(dtime);
 
@@ -1465,9 +1455,6 @@ void ServerEnvironment::step(float dtime)
 
 			activateBlock(block);
 		}
-
-		// Some blocks may be removed again by the code above so do this here
-		m_active_block_gauge->set(m_active_blocks.size());
 
 		if (m_fast_active_block_divider > 1)
 			--m_fast_active_block_divider;
@@ -1583,8 +1570,6 @@ void ServerEnvironment::step(float dtime)
 			obj->dumpAOMessagesToQueue(m_active_object_messages);
 		};
 		m_ao_manager.step(dtime, cb_state);
-
-		m_active_object_gauge->set(object_count);
 	}
 
 	/*
@@ -1633,9 +1618,6 @@ void ServerEnvironment::step(float dtime)
 		std::swap(modified_blocks, m_on_mapblocks_changed_receiver.modified_blocks);
 		m_script->on_mapblocks_changed(modified_blocks);
 	}
-
-	const auto end_time = porting::getTimeUs();
-	m_step_time_counter->increment(end_time - start_time);
 }
 
 ServerEnvironment::BlockStatus ServerEnvironment::getBlockStatus(v3s16 blockpos)

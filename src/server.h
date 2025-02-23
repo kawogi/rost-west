@@ -16,7 +16,6 @@
 #include "util/numeric.h"
 #include "util/thread.h"
 #include "util/basic_macros.h"
-#include "util/metricsbackend.h"
 #include "serverenvironment.h"
 #include "server/clientiface.h"
 #include "threading/ordered_mutex.h"
@@ -252,7 +251,6 @@ public:
 
 	// Connection must be locked when called
 	std::string getStatusString();
-	inline double getUptime() const { return m_uptime_counter->get(); }
 
 	// read shutdown state
 	inline bool isShutdownRequested() const { return m_shutdown_state.is_requested; }
@@ -767,19 +765,6 @@ private:
 
 	// Inventory manager
 	std::unique_ptr<ServerInventoryManager> m_inventory_mgr;
-
-	// Global server metrics backend
-	std::unique_ptr<MetricsBackend> m_metrics_backend;
-
-	// Server metrics
-	MetricCounterPtr m_uptime_counter;
-	MetricGaugePtr m_player_gauge;
-	MetricGaugePtr m_timeofday_gauge;
-	MetricGaugePtr m_lag_gauge;
-	MetricCounterPtr m_aom_buffer_counter[2]; // [0] = rel, [1] = unrel
-	MetricCounterPtr m_packet_recv_counter;
-	MetricCounterPtr m_packet_recv_processed_counter;
-	MetricCounterPtr m_map_edit_event_counter;
 };
 
 /*

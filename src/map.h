@@ -288,9 +288,6 @@ protected:
 	// This stores the properties of the nodes on the map.
 	const NodeDefManager *m_nodedef;
 
-	// Can be implemented by child class
-	virtual void reportMetrics(u64 save_time_us, u32 saved_blocks, u32 all_blocks) {}
-
 	bool determineAdditionalOcclusionCheck(v3s16 pos_camera,
 		const core::aabbox3d<s16> &block_bounds, v3s16 &to_check);
 	bool isOccluded(v3s16 pos_camera, v3s16 pos_target,
