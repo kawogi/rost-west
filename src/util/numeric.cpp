@@ -4,10 +4,8 @@
 
 #include "numeric.h"
 
-#include "log.h"
 #include "constants.h" // BS, MAP_BLOCKSIZE
 #include "noise.h" // PseudoRandom, PcgRandom
-#include "threading/mutex_auto_lock.h"
 #include <cstring>
 #include <cmath>
 
