@@ -236,43 +236,6 @@ static void print_worldspecs(const std::vector<WorldSpec> &worldspecs,
     }
 }
 
-namespace {
-[[maybe_unused]] std::string findProgram(const char *name) {
-    char *path_c = getenv("PATH");
-    if (!path_c) {
-        return "";
-    }
-    std::istringstream iss(path_c);
-    std::string checkpath;
-    while (!iss.eof()) {
-        std::getline(iss, checkpath, PATH_DELIM[0]);
-        if (!checkpath.empty() && checkpath.back() != DIR_DELIM_CHAR) {
-            checkpath.push_back(DIR_DELIM_CHAR);
-        }
-        checkpath.append(name);
-        if (fs::IsExecutable(checkpath)) {
-            return checkpath;
-        }
-    }
-    return "";
-}
-
-[[maybe_unused]] const char *debuggerNames[] = {"gdb", "lldb"};
-
-template <class T> void getDebuggerArgs(T &out, int i) {
-    if (i == 0) {
-        for (auto s : {"-q", "--batch", "-iex", "set confirm off", "-ex", "run",
-                       "-ex", "bt", "--args"}) {
-            out.push_back(s);
-        }
-    } else if (i == 1) {
-        for (auto s : {"-Q", "-b", "-o", "run", "-k", "bt\nq", "--"}) {
-            out.push_back(s);
-        }
-    }
-}
-} // namespace
-
 static void uninit_common() {
     httpfetch_cleanup();
 
