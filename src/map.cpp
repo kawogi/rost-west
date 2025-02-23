@@ -10,7 +10,6 @@
 #include "porting.h"
 #include "nodemetadata.h"
 #include "log.h"
-#include "profiler.h"
 #include "nodedef.h"
 #include "gamedef.h"
 #include "util/directiontables.h"
@@ -278,9 +277,6 @@ void Map::timerUpdate(float dtime, float unload_timeout, s32 max_loaded_blocks,
 {
 	bool save_before_unloading = maySaveBlocks();
 
-	// Profile modified reasons
-	Profiler modprofiler;
-
 	std::vector<v2s16> sector_deletion_queue;
 	u32 deleted_blocks_count = 0;
 	u32 saved_blocks_count = 0;
@@ -310,7 +306,6 @@ void Map::timerUpdate(float dtime, float unload_timeout, s32 max_loaded_blocks,
 					// Save if modified
 					if (block->getModified() != MOD_STATE_CLEAN
 							&& save_before_unloading) {
-						modprofiler.add(block->getModifiedReasonString(), 1);
 						if (!saveBlock(block))
 							continue;
 						saved_blocks_count++;
@@ -366,7 +361,6 @@ void Map::timerUpdate(float dtime, float unload_timeout, s32 max_loaded_blocks,
 
 			// Save if modified
 			if (block->getModified() != MOD_STATE_CLEAN && save_before_unloading) {
-				modprofiler.add(block->getModifiedReasonString(), 1);
 				if (!saveBlock(block))
 					continue;
 				saved_blocks_count++;
@@ -410,7 +404,6 @@ void Map::timerUpdate(float dtime, float unload_timeout, s32 max_loaded_blocks,
 		if(saved_blocks_count != 0){
 			PrintInfo(infostream); // ServerMap/ClientMap:
 			infostream<<"Blocks modified by: "<<std::endl;
-			modprofiler.print(infostream);
 		}
 	}
 }

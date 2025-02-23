@@ -11,7 +11,6 @@
 #include "serialization.h"
 #include "settings.h"
 #include "log.h"
-#include "profiler.h"
 #include "gamedef.h"
 #include "util/directiontables.h"
 #include "rollback_interface.h"
@@ -486,9 +485,6 @@ void ServerMap::save(ModifiedState save_level)
 			m_map_metadata_changed = false;
 	}
 
-	// Profile modified reasons
-	Profiler modprofiler;
-
 	u32 block_count = 0;
 	u32 block_count_all = 0; // Number of blocks in memory
 
@@ -511,8 +507,6 @@ void ServerMap::save(ModifiedState save_level)
 					save_started = true;
 				}
 
-				modprofiler.add(block->getModifiedReasonString(), 1);
-
 				saveBlock(block);
 				block_count++;
 			}
@@ -533,7 +527,6 @@ void ServerMap::save(ModifiedState save_level)
 				<< std::endl;
 		PrintInfo(infostream); // ServerMap/ClientMap:
 		infostream<<"Blocks modified by: "<<std::endl;
-		modprofiler.print(infostream);
 	}
 
 	const auto end_time = porting::getTimeUs();
@@ -621,8 +614,6 @@ bool ServerMap::saveBlock(MapBlock *block, MapDatabase *db, int compression_leve
 
 void ServerMap::deSerializeBlock(MapBlock *block, std::istream &is)
 {
-	ScopeProfiler sp(g_profiler, "ServerMap: deSer block", SPT_AVG, PRECISION_MICRO);
-
 	u8 version = readU8(is);
 	if (is.fail())
 		throw SerializationError("Failed to read MapBlock version");
@@ -632,7 +623,6 @@ void ServerMap::deSerializeBlock(MapBlock *block, std::istream &is)
 
 MapBlock *ServerMap::loadBlock(const std::string &blob, v3s16 p3d, bool save_after_load)
 {
-	ScopeProfiler sp(g_profiler, "ServerMap: load block", SPT_AVG, PRECISION_MICRO);
 	MapBlock *block = nullptr;
 	bool created_new = false;
 
@@ -703,7 +693,6 @@ MapBlock* ServerMap::loadBlock(v3s16 blockpos)
 {
 	std::string data;
 	{
-		ScopeProfiler sp(g_profiler, "ServerMap: load block - sync (sum)");
 		MutexAutoLock dblock(m_db.mutex);
 		m_db.loadBlock(blockpos, data);
 	}

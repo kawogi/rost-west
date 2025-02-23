@@ -5,7 +5,6 @@
 
 #include "network/mtp/threads.h"
 #include "log.h"
-#include "profiler.h"
 #include "settings.h"
 #include "network/networkpacket.h"
 #include "util/serialize.h"
@@ -17,10 +16,8 @@ namespace con
 /* defines used for debugging and profiling                                   */
 /******************************************************************************/
 #ifdef NDEBUG
-#define PROFILE(a)
 #undef DEBUG_CONNECTION_KBPS
 #else
-#define PROFILE(a) a
 //#define DEBUG_CONNECTION_KBPS
 #undef DEBUG_CONNECTION_KBPS
 #endif
@@ -73,14 +70,10 @@ void *ConnectionSendThread::run()
 	u64 curtime = porting::getTimeMs();
 	u64 lasttime = curtime;
 
-	PROFILE(std::stringstream ThreadIdentifier);
-	PROFILE(ThreadIdentifier << "ConnectionSend: [" << m_connection->getDesc() << "]");
-
 	/* if stop is requested don't stop immediately but try to send all        */
 	/* packets first */
 	while (!stopRequested() || packetsQueued()) {
 		BEGIN_DEBUG_EXCEPTION_HANDLER
-		PROFILE(ScopeProfiler sp(g_profiler, ThreadIdentifier.str(), SPT_AVG));
 
 		/* wait for trigger or timeout */
 		m_send_sleep_semaphore.wait(50);
@@ -126,7 +119,6 @@ void *ConnectionSendThread::run()
 		END_DEBUG_EXCEPTION_HANDLER
 	}
 
-	PROFILE(g_profiler->remove(ThreadIdentifier.str()));
 	return NULL;
 }
 
@@ -177,12 +169,6 @@ void ConnectionSendThread::runTimeouts(float dtime, u32 peer_packet_quota)
 		if (!udpPeer)
 			continue;
 
-		PROFILE(std::stringstream peerIdentifier);
-		PROFILE(peerIdentifier << "runTimeouts[" << m_connection->getDesc()
-			<< ";" << peerId << ";RELIABLE]");
-		PROFILE(ScopeProfiler
-		peerprofiler(g_profiler, peerIdentifier.str(), SPT_AVG));
-
 		SharedBuffer<u8> data(2); // data for sending ping, required here because of goto
 
 		/*
@@ -219,7 +205,6 @@ void ConnectionSendThread::runTimeouts(float dtime, u32 peer_packet_quota)
 				resend_timeout, peer_packet_quota);
 
 			channel.UpdatePacketLossCounter(timed_outs.size());
-			g_profiler->graphAdd("packets_lost", timed_outs.size());
 
 			// Note that this only happens during connection setup, it would
 			// break badly otherwise.
@@ -670,14 +655,6 @@ void ConnectionSendThread::sendPackets(float dtime, u32 peer_packet_quota)
 			pendingDisconnect.push_back(peerId);
 		}
 
-		PROFILE(std::stringstream
-		peerIdentifier);
-		PROFILE(
-			peerIdentifier << "sendPackets[" << m_connection->getDesc() << ";" << peerId
-				<< ";RELIABLE]");
-		PROFILE(ScopeProfiler
-		peerprofiler(g_profiler, peerIdentifier.str(), SPT_AVG));
-
 		//LOG(dout_con << m_connection->getDesc()
 		//	<< " Handle per peer queues: peer_id=" << peerId
 		//	<< " packet quota: " << peer->m_increment_packets_remaining << std::endl);
@@ -811,10 +788,6 @@ void *ConnectionReceiveThread::run()
 	LOG(dout_con << m_connection->getDesc()
 		<< "ConnectionReceive thread started" << std::endl);
 
-	PROFILE(std::stringstream
-	ThreadIdentifier);
-	PROFILE(ThreadIdentifier << "ConnectionReceive: [" << m_connection->getDesc() << "]");
-
 	// use IPv6 minimum allowed MTU as receive buffer size as this is
 	// theoretical reliable upper boundary of a udp packet for all IPv6 enabled
 	// infrastructure
@@ -831,8 +804,6 @@ void *ConnectionReceiveThread::run()
 
 	while (!stopRequested()) {
 		BEGIN_DEBUG_EXCEPTION_HANDLER
-		PROFILE(ScopeProfiler
-		sp(g_profiler, ThreadIdentifier.str(), SPT_AVG));
 
 #ifdef DEBUG_CONNECTION_KBPS
 		lasttime = curtime;
@@ -896,7 +867,6 @@ void *ConnectionReceiveThread::run()
 		END_DEBUG_EXCEPTION_HANDLER
 	}
 
-	PROFILE(g_profiler->remove(ThreadIdentifier.str()));
 	return NULL;
 }
 

@@ -24,7 +24,6 @@
 #include "server/serveractiveobject.h"
 #include "serialization.h" // SER_FMT_VER_INVALID
 #include "settings.h"
-#include "profiler.h"
 #include "log.h"
 #include "scripting_server.h"
 #include "nodedef.h"
@@ -117,8 +116,6 @@ void *ServerThread::run()
 	float dtime = 0.0f;
 
 	while (!stopRequested()) {
-		ScopeProfiler spm(g_profiler, "Server::RunStep() (max)", SPT_MAX);
-
 		u64 t0 = porting::getTimeUs();
 
 		const auto step_settings = m_server->getStepSettings();
@@ -619,8 +616,6 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 	if ((dtime == 0.0f) && !initial_step)
 		return;
 
-	ScopeProfiler sp(g_profiler, "Server::AsyncRunStep()", SPT_AVG);
-
 	/*
 		Update uptime
 	*/
@@ -682,7 +677,6 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 	{
 		EnvAutoLock lock(this);
 		// Run Map's timers and unload unused data
-		ScopeProfiler sp(g_profiler, "Server: map timer and unload");
 		m_env->getMap().timerUpdate(map_timer_and_unload_dtime,
 			std::max(g_settings->getFloat("server_unload_unused_data_timeout"), 0.0f),
 			-1);
@@ -720,8 +714,6 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 		m_liquid_transform_timer -= m_liquid_transform_every;
 
 		EnvAutoLock lock(this);
-
-		ScopeProfiler sp(g_profiler, "Server: liquid transform");
 
 		std::map<v3s16, MapBlock*> modified_blocks;
 		m_env->getServerMap().transformLiquids(modified_blocks, m_env);
@@ -791,7 +783,6 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 		{
 			ClientInterface::AutoLock clientlock(m_clients);
 			const RemoteClientMap &clients = m_clients.getClientList();
-			ScopeProfiler sp(g_profiler, "Server: update objects within range");
 
 			m_player_gauge->set(clients.size());
 			for (const auto &client_it : clients) {
@@ -826,7 +817,6 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 	*/
 	{
 		EnvAutoLock envlock(this);
-		ScopeProfiler sp(g_profiler, "Server: send SAO messages");
 
 		// Key = object id
 		// Value = data sent by object
@@ -937,9 +927,6 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 		const auto event_count = m_unsent_map_edit_queue.size();
 		m_map_edit_event_counter->increment(event_count);
 
-		// We'll log the amount of each
-		Profiler prof;
-
 		std::unordered_set<v3s16> node_meta_updates;
 
 		while (!m_unsent_map_edit_queue.empty()) {
@@ -954,18 +941,15 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 			switch (event->type) {
 			case MEET_ADDNODE:
 			case MEET_SWAPNODE:
-				prof.add("MEET_ADDNODE", 1);
 				sendAddNode(event->p, event->n, &far_players,
 						disable_single_change_sending ? 5 : 30,
 						event->type == MEET_ADDNODE);
 				break;
 			case MEET_REMOVENODE:
-				prof.add("MEET_REMOVENODE", 1);
 				sendRemoveNode(event->p, &far_players,
 						disable_single_change_sending ? 5 : 30);
 				break;
 			case MEET_BLOCK_NODE_METADATA_CHANGED: {
-				prof.add("MEET_BLOCK_NODE_METADATA_CHANGED", 1);
 				if (!event->is_private_change) {
 					node_meta_updates.emplace(event->p);
 				}
@@ -978,11 +962,9 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 				break;
 			}
 			case MEET_OTHER:
-				prof.add("MEET_OTHER", 1);
 				m_clients.markBlocksNotSent(event->modified_blocks);
 				break;
 			default:
-				prof.add("unknown", 1);
 				warningstream << "Server: Unknown MapEditEvent "
 						<< ((u32)event->type) << std::endl;
 				break;
@@ -1001,10 +983,8 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 
 		if (event_count >= 5) {
 			infostream << "Server: MapEditEvents:" << std::endl;
-			prof.print(infostream);
 		} else if (event_count != 0) {
 			verbosestream << "Server: MapEditEvents:" << std::endl;
-			prof.print(verbosestream);
 		}
 
 		// Send all metadata updates
@@ -1035,8 +1015,6 @@ void Server::AsyncRunStep(float dtime, bool initial_step)
 		if (counter >= save_interval) {
 			counter = 0.0;
 			EnvAutoLock lock(this);
-
-			ScopeProfiler sp(g_profiler, "Server: map saving (sum)");
 
 			// Save ban file
 			if (m_banmanager->isModified()) {
@@ -1139,7 +1117,6 @@ void Server::yieldToOtherThreads(float dtime)
 
 	int sleep_count = std::clamp<int>(dtime / QUANTUM, 1, SLEEP_MAX);
 
-	ScopeProfiler sp(g_profiler, "Server::yieldTo...() sleep", SPT_AVG);
 	size_t qs = qs_initial;
 	while (sleep_count-- > 0) {
 		sleep_ms(1);
@@ -1149,7 +1126,6 @@ void Server::yieldToOtherThreads(float dtime)
 			break;
 		qs = qs2;
 	}
-	g_profiler->avg("Server::yieldTo...() progress [#]", qs_initial - qs);
 }
 
 PlayerSAO *Server::StageTwoClientInit(session_t peer_id)
@@ -1246,7 +1222,6 @@ void Server::ProcessData(NetworkPacket *pkt)
 	// Environment is locked first.
 	EnvAutoLock envlock(this);
 
-	ScopeProfiler sp(g_profiler, "Server: Process network packet (sum)");
 	u32 peer_id = pkt->getPeerId();
 
 	try {
@@ -2432,8 +2407,6 @@ void Server::SendBlocks(float dtime)
 	u32 total_sending = 0, unique_clients = 0;
 
 	{
-		ScopeProfiler sp2(g_profiler, "Server::SendBlocks(): Collect list");
-
 		std::vector<session_t> clients = m_clients.getClientIDs();
 
 		ClientInterface::AutoLock clientlock(m_clients);
@@ -2462,7 +2435,6 @@ void Server::SendBlocks(float dtime)
 	u32 max_blocks_to_send = (m_env->getPlayerCount() + g_settings->getU32("max_users")) *
 		g_settings->getU32("max_simultaneous_block_sends_per_client") / 4 + 1;
 
-	ScopeProfiler sp(g_profiler, "Server::SendBlocks(): Send to clients");
 	Map &map = m_env->getMap();
 
 	SerializedBlockCache cache, *cache_ptr = nullptr;
@@ -4049,8 +4021,6 @@ void dedicated_server_loop(Server &server, bool &kill)
 		if (profiler_print_interval > 0) {
 			if (m_profiler_interval.step(steplen, profiler_print_interval)) {
 				infostream << "Profiler:" << std::endl;
-				g_profiler->print(infostream);
-				g_profiler->clear();
 			}
 		}
 	}
@@ -4064,8 +4034,6 @@ void dedicated_server_loop(Server &server, bool &kill)
 
 	if (profiler_print_interval > 0) {
 		infostream << "Profiler:" << std::endl;
-		g_profiler->print(infostream);
-		g_profiler->clear();
 	}
 }
 

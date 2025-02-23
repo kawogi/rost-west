@@ -4,7 +4,6 @@
 
 #include <log.h>
 #include "mapblock.h"
-#include "profiler.h"
 #include "activeobjectmgr.h"
 
 namespace server
@@ -34,16 +33,11 @@ void ActiveObjectMgr::clearIf(const std::function<bool(ServerActiveObject *, u16
 void ActiveObjectMgr::step(
 		float dtime, const std::function<void(ServerActiveObject *)> &f)
 {
-	size_t count = 0;
-
 	for (auto &ao_it : m_active_objects.iter()) {
 		if (!ao_it.second)
 			continue;
-		count++;
 		f(ao_it.second.get());
 	}
-
-	g_profiler->avg("ActiveObjectMgr: SAO count [#]", count);
 }
 
 bool ActiveObjectMgr::registerObject(std::unique_ptr<ServerActiveObject> obj)

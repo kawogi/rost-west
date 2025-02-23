@@ -169,7 +169,6 @@ set(independent_SRCS
 	objdef.cpp
 	object_properties.cpp
 	particles.cpp
-	profiler.cpp
 	serialization.cpp
 	settings.cpp
 	staticobject.cpp

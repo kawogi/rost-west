@@ -6,7 +6,6 @@
 #include "lua_api/l_internal.h"
 #include "cpp_api/s_base.h"
 #include "content/mods.h"
-#include "profiler.h"
 #include "server.h"
 #include <algorithm>
 #include <cmath>
@@ -134,7 +133,6 @@ int ModApiBase::l_deprecated_function(lua_State *L, const char *good, const char
 	}
 
 	u64 end_time = porting::getTimeUs();
-	g_profiler->avg("l_deprecated_function", end_time - start_time);
 
 	return func(L);
 }

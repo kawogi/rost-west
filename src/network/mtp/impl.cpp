@@ -17,7 +17,6 @@
 #include "util/numeric.h"
 #include "util/string.h"
 #include "settings.h"
-#include "profiler.h"
 
 namespace con
 {
@@ -25,11 +24,6 @@ namespace con
 /******************************************************************************/
 /* defines used for debugging and profiling                                   */
 /******************************************************************************/
-#ifdef NDEBUG
-	#define PROFILE(a)
-#else
-	#define PROFILE(a) a
-#endif
 
 // TODO: Clean this up.
 #define LOG(a) a
@@ -905,10 +899,6 @@ void Peer::RTTStatistics(float rtt, const std::string &profiler_id,
 			m_rtt.jitter_avg  = m_rtt.jitter_avg * (num_samples/(num_samples-1)) +
 								jitter * (1/num_samples);
 
-		if (!profiler_id.empty()) {
-			g_profiler->graphAdd(profiler_id + " RTT [ms]", rtt * 1000.f);
-			g_profiler->graphAdd(profiler_id + " jitter [ms]", jitter * 1000.f);
-		}
 	}
 	/* save values required for next loop */
 	m_last_rtt = rtt;
@@ -940,15 +930,6 @@ void Peer::Drop()
 		if (m_usage != 0)
 			return;
 	}
-
-	PROFILE(std::stringstream peerIdentifier1);
-	PROFILE(peerIdentifier1 << "runTimeouts[" << m_connection->getDesc()
-			<< ";" << id << ";RELIABLE]");
-	PROFILE(g_profiler->remove(peerIdentifier1.str()));
-	PROFILE(std::stringstream peerIdentifier2);
-	PROFILE(peerIdentifier2 << "sendPackets[" << m_connection->getDesc()
-			<< ";" << id << ";RELIABLE]");
-	PROFILE(ScopeProfiler peerprofiler(g_profiler, peerIdentifier2.str(), SPT_AVG));
 
 	delete this;
 }

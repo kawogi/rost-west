@@ -11,7 +11,6 @@
 #include "serverenvironment.h"
 #include "server/serveractiveobject.h"
 #include "util/timetaker.h"
-#include "profiler.h"
 
 #ifdef __FAST_MATH__
 #warning "-ffast-math is known to cause bugs in collision code, do not use!"
@@ -300,8 +299,6 @@ collisionMoveResult collisionMoveSimple(Environment *env, IGameDef *gamedef,
 {
 	static bool time_notification_done = false;
 
-	ScopeProfiler sp(g_profiler, PROFILER_NAME("collisionMoveSimple()"), SPT_AVG, PRECISION_MICRO);
-
 	collisionMoveResult result;
 
 	/*
@@ -557,8 +554,6 @@ bool collision_check_intersection(Environment *env, IGameDef *gamedef,
 		const aabb3f &box_0, const v3f &pos_f, ActiveObject *self,
 		bool collide_with_objects)
 {
-	ScopeProfiler sp(g_profiler, PROFILER_NAME("collision_check_intersection()"), SPT_AVG, PRECISION_MICRO);
-
 	std::vector<NearbyCollisionInfo> cinfo;
 	{
 		v3s16 min = floatToInt(pos_f + box_0.MinEdge, BS) - v3s16(1, 1, 1);

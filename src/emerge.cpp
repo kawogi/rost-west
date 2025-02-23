@@ -23,7 +23,6 @@
 #include "mapgen/mg_decoration.h"
 #include "mapgen/mg_schematic.h"
 #include "nodedef.h"
-#include "profiler.h"
 #include "scripting_server.h"
 #include "scripting_emerge.h"
 #include "server.h"
@@ -533,7 +532,6 @@ EmergeAction EmergeThread::getBlockOrStartGen(const v3s16 pos, bool allow_gen,
 {
 	//TimeTaker tt("", nullptr, PRECISION_MICRO);
 	Server::EnvAutoLock envlock(m_server);
-	//g_profiler->avg("EmergeThread: lock wait time [us]", tt.stop());
 
 	auto block_ok = [] (MapBlock *b) {
 		return b && b->isGenerated();
@@ -575,8 +573,6 @@ MapBlock *EmergeThread::finishGen(v3s16 pos, BlockMakeData *bmdata,
 	std::map<v3s16, MapBlock *> *modified_blocks)
 {
 	Server::EnvAutoLock envlock(m_server);
-	ScopeProfiler sp(g_profiler,
-		"EmergeThread: after Mapgen::makeChunk", SPT_AVG);
 
 	/*
 		Perform post-processing on blocks (invalidate lighting, queue liquid
@@ -691,8 +687,6 @@ void *EmergeThread::run()
 			continue;
 		}
 
-		g_profiler->add(m_name + ": processed [#]", 1);
-
 		if (blockpos_over_max_limit(pos))
 			continue;
 
@@ -705,7 +699,6 @@ void *EmergeThread::run()
 		if (action == EMERGE_FROM_DISK) {
 			auto &m_db = *m_emerge->m_db;
 			{
-				ScopeProfiler sp(g_profiler, "EmergeThread: load block - async (sum)");
 				MutexAutoLock dblock(m_db.mutex);
 				m_db.loadBlock(pos, databuf);
 			}
@@ -718,24 +711,13 @@ void *EmergeThread::run()
 		if (action == EMERGE_GENERATED) {
 			bool error = false;
 			m_trans_liquid = &bmdata.transforming_liquid;
+			m_mapgen->makeChunk(&bmdata);
 
-			{
-				ScopeProfiler sp(g_profiler,
-					"EmergeThread: Mapgen::makeChunk", SPT_AVG);
-
-				m_mapgen->makeChunk(&bmdata);
-			}
-
-			{
-				ScopeProfiler sp(g_profiler,
-					"EmergeThread: Lua on_generated", SPT_AVG);
-
-				try {
-					m_script->on_generated(&bmdata, m_mapgen->blockseed);
-				} catch (const LuaError &e) {
-					m_server->setAsyncFatalError(e);
-					error = true;
-				}
+			try {
+				m_script->on_generated(&bmdata, m_mapgen->blockseed);
+			} catch (const LuaError &e) {
+				m_server->setAsyncFatalError(e);
+				error = true;
 			}
 
 			if (!error)

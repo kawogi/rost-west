@@ -12,7 +12,6 @@
 #include "map.h"
 #include "nodedef.h"
 #include "voxelalgorithms.h"
-//#include "profiler.h" // For TimeTaker
 #include "settings.h" // For g_settings
 #include "emerge.h"
 #include "dungeongen.h"
