@@ -68,7 +68,7 @@ class ClientNotFoundException : public BaseException {
 ModIPCStore::~ModIPCStore() {
     // we don't have to do this, it's pure debugging aid
     if (!std::unique_lock(mutex, std::try_to_lock).owns_lock()) {
-        errorstream << FUNCTION_NAME << ": lock is still in use!" << std::endl;
+        errorstream << FUNCTION_NAME << ": lock is still in use!" << '\n';
         assert(0);
     }
 }
@@ -124,7 +124,7 @@ void *ServerThread::run() {
             m_server->Receive(remaining_time);
 
         } catch (con::PeerNotFoundException &e) {
-            infostream << "Server: PeerNotFoundException" << std::endl;
+            infostream << "Server: PeerNotFoundException" << '\n';
         } catch (ClientNotFoundException &e) {
             infostream << "Server: ClientNotFoundException" << '\n';
         } catch (con::ConnectionBindFailed &e) {
@@ -204,7 +204,7 @@ void Server::ShutdownState::tick(float dtime, Server *server) {
             if (m_timer > t && m_timer - dtime < t) {
                 std::wstring periodicMsg = getShutdownTimerMessage();
 
-                infostream << wide_to_utf8(periodicMsg).c_str() << std::endl;
+                infostream << wide_to_utf8(periodicMsg).c_str() << '\n';
                 server->SendChatMessage(PEER_ID_INEXISTENT, periodicMsg);
                 break;
             }
@@ -294,7 +294,7 @@ Server::~Server() {
         PEER_ID_INEXISTENT,
         ChatMessage(CHATMESSAGE_TYPE_ANNOUNCE, L"*** Server shutting down"));
 
-    actionstream << "Server: Shutting down" << std::endl;
+    actionstream << "Server: Shutting down" << '\n';
 
     // Stop server step from happening
     if (m_thread) {
@@ -314,17 +314,17 @@ Server::~Server() {
     if (m_env) {
         EnvAutoLock envlock(this);
 
-        infostream << "Server: Executing shutdown hooks" << std::endl;
+        infostream << "Server: Executing shutdown hooks" << '\n';
         try {
             m_script->on_shutdown();
         } catch (ModError &e) {
             addShutdownError(e);
         }
 
-        infostream << "Server: Saving players" << std::endl;
+        infostream << "Server: Saving players" << '\n';
         m_env->saveLoadedPlayers();
 
-        infostream << "Server: Kicking players" << std::endl;
+        infostream << "Server: Kicking players" << '\n';
         std::string kick_msg;
         bool reconnect = false;
         if (isShutdownRequested()) {
@@ -344,7 +344,7 @@ Server::~Server() {
             addShutdownError(e);
         }
 
-        infostream << "Server: Saving environment metadata" << std::endl;
+        infostream << "Server: Saving environment metadata" << '\n';
         m_env->saveMeta();
 
         // Delete classes that depend on the environment
@@ -389,12 +389,12 @@ Server::~Server() {
 void Server::init() {
     infostream << "Server created for gameid \"" << m_gamespec.id << "\"";
     if (m_simple_singleplayer_mode) {
-        infostream << " in simple singleplayer mode" << std::endl;
+        infostream << " in simple singleplayer mode" << '\n';
     } else {
-        infostream << std::endl;
+        infostream << '\n';
     }
-    infostream << "- world:  " << m_path_world << std::endl;
-    infostream << "- game:   " << m_gamespec.path << std::endl;
+    infostream << "- world:  " << m_path_world << '\n';
+    infostream << "- game:   " << m_gamespec.path << '\n';
 
     m_game_settings = Settings::createLayer(SL_GAME);
 
@@ -435,7 +435,7 @@ void Server::init() {
         m_path_world, this, m_emerge.get(), m_metrics_backend.get());
 
     // Initialize scripting
-    infostream << "Server: Initializing Lua" << std::endl;
+    infostream << "Server: Initializing Lua" << '\n';
 
     m_script = std::make_unique<ServerScripting>(this);
 
@@ -524,7 +524,7 @@ void Server::start() {
     init();
 
     infostream << "Starting server on " << m_bind_addr.serializeString()
-               << "..." << std::endl;
+               << "..." << '\n';
 
     // Stop thread if already running
     m_thread->stop();
@@ -547,24 +547,24 @@ void Server::start() {
         // however it would then mess up the ncurses terminal (m_admin_chat),
         // so we skip it in that case.
         for (auto line : art) {
-            std::cerr << line << std::endl;
+            std::cerr << line << '\n';
         }
     }
-    actionstream << "World at [" << m_path_world << "]" << std::endl;
+    actionstream << "World at [" << m_path_world << "]" << '\n';
     actionstream << "Server for gameid=\"" << m_gamespec.id
                  << "\" listening on ";
     m_bind_addr.print(actionstream);
-    actionstream << "." << std::endl;
+    actionstream << "." << '\n';
 }
 
 void Server::stop() {
-    infostream << "Server: Stopping and waiting for threads" << std::endl;
+    infostream << "Server: Stopping and waiting for threads" << '\n';
 
     // Stop threads (set run=false first so both start stopping)
     m_thread->stop();
     m_thread->wait();
 
-    infostream << "Server: Threads stopped" << std::endl;
+    infostream << "Server: Threads stopped" << '\n';
 }
 
 void Server::step() {
@@ -582,7 +582,7 @@ void Server::step() {
 
 void Server::AsyncRunStep(float dtime, bool initial_step) {
     if (!m_async_fatal_error.get().empty()) {
-        infostream << "Refusing server step in error state" << std::endl;
+        infostream << "Refusing server step in error state" << '\n';
         return;
     }
 
@@ -642,7 +642,7 @@ void Server::AsyncRunStep(float dtime, bool initial_step) {
                 auto &to =
                     dtime >= lag_warn_threshold ? warningstream : infostream;
                 to << "Server: Maximum lag peaked at " << dtime
-                   << " (steplen=" << steplen << ")" << std::endl;
+                   << " (steplen=" << steplen << ")" << '\n';
             }
         }
         max_lag = std::max(max_lag, dtime),
@@ -943,7 +943,7 @@ void Server::AsyncRunStep(float dtime, bool initial_step) {
                 break;
             default:
                 warningstream << "Server: Unknown MapEditEvent "
-                              << ((u32)event->type) << std::endl;
+                              << ((u32)event->type) << '\n';
                 break;
             }
 
@@ -960,9 +960,9 @@ void Server::AsyncRunStep(float dtime, bool initial_step) {
         }
 
         if (event_count >= 5) {
-            infostream << "Server: MapEditEvents:" << std::endl;
+            infostream << "Server: MapEditEvents:" << '\n';
         } else if (event_count != 0) {
-            verbosestream << "Server: MapEditEvents:" << std::endl;
+            verbosestream << "Server: MapEditEvents:" << '\n';
         }
 
         // Send all metadata updates
@@ -1049,18 +1049,18 @@ void Server::Receive(float min_time) {
         } catch (const con::InvalidIncomingDataException &e) {
             infostream
                 << "Server::Receive(): InvalidIncomingDataException: what()="
-                << e.what() << std::endl;
+                << e.what() << '\n';
         } catch (const SerializationError &e) {
             infostream << "Server::Receive(): SerializationError: what()="
-                       << e.what() << std::endl;
+                       << e.what() << '\n';
         } catch (const ClientStateError &e) {
             errorstream << "ClientStateError: peer=" << peer_id
-                        << " what()=" << e.what() << std::endl;
+                        << " what()=" << e.what() << '\n';
             DenyAccess(peer_id, SERVER_ACCESSDENIED_UNEXPECTED_DATA);
         } catch (con::PeerNotFoundException &e) {
-            infostream << "Server: PeerNotFoundException" << std::endl;
+            infostream << "Server: PeerNotFoundException" << '\n';
         } catch (ClientNotFoundException &e) {
-            infostream << "Server: ClientNotFoundException" << std::endl;
+            infostream << "Server: ClientNotFoundException" << '\n';
         }
     }
 }
@@ -1134,11 +1134,11 @@ PlayerSAO *Server::StageTwoClientInit(session_t peer_id) {
         if (joined && joined->getPeerId() != PEER_ID_INEXISTENT) {
             actionstream << "Server: Failed to emerge player \"" << playername
                          << "\" (player allocated to another client)"
-                         << std::endl;
+                         << '\n';
             DenyAccess(peer_id, SERVER_ACCESSDENIED_ALREADY_CONNECTED);
         } else {
             errorstream << "Server: " << playername
-                        << ": Failed to emerge player" << std::endl;
+                        << ": Failed to emerge player" << '\n';
             DenyAccess(peer_id, SERVER_ACCESSDENIED_SERVER_FAIL);
         }
         return nullptr;
@@ -1197,7 +1197,7 @@ PlayerSAO *Server::StageTwoClientInit(session_t peer_id) {
         for (const std::string &name : names) {
             actionstream << name << " ";
         }
-        actionstream << player->getName() << std::endl;
+        actionstream << player->getName() << '\n';
     }
     return playersao;
 }
@@ -1220,7 +1220,7 @@ void Server::ProcessData(NetworkPacket *pkt) {
         // Command must be handled into ToServerCommandHandler
         if (command >= TOSERVER_NUM_MSG_TYPES) {
             infostream << "Server: Ignoring unknown command "
-                       << static_cast<unsigned>(command) << std::endl;
+                       << static_cast<unsigned>(command) << '\n';
             return;
         }
 
@@ -1236,7 +1236,7 @@ void Server::ProcessData(NetworkPacket *pkt) {
         if (peer_ser_ver == SER_FMT_VER_INVALID) {
             errorstream << "Server: Peer serialization format invalid. "
                            "Skipping incoming command "
-                        << static_cast<unsigned>(command) << std::endl;
+                        << static_cast<unsigned>(command) << '\n';
             return;
         }
 
@@ -1255,17 +1255,17 @@ void Server::ProcessData(NetworkPacket *pkt) {
                         << static_cast<unsigned>(command) << " for peer id "
                         << peer_id
                         << " but client isn't active yet. Dropping packet."
-                        << std::endl;
+                        << '\n';
             return;
         }
 
         handleCommand(pkt);
     } catch (SendFailedException &e) {
         errorstream << "Server::ProcessData(): SendFailedException: "
-                    << "what=" << e.what() << std::endl;
+                    << "what=" << e.what() << '\n';
     } catch (PacketError &e) {
         actionstream << "Server::ProcessData(): PacketError: "
-                     << "what=" << e.what() << std::endl;
+                     << "what=" << e.what() << '\n';
     }
 }
 
@@ -1283,14 +1283,14 @@ void Server::onMapEditEvent(const MapEditEvent &event) {
 }
 
 void Server::peerAdded(con::IPeer *peer) {
-    verbosestream << "Server::peerAdded(): id=" << peer->id << std::endl;
+    verbosestream << "Server::peerAdded(): id=" << peer->id << '\n';
 
     m_clients.CreateClient(peer->id);
 }
 
 void Server::deletingPeer(con::IPeer *peer, bool timeout) {
     verbosestream << "Server::deletingPeer(): id=" << peer->id
-                  << ", timeout=" << timeout << std::endl;
+                  << ", timeout=" << timeout << '\n';
 
     m_clients.event(peer->id, CSE_Disconnect);
     DeleteClient(peer->id, timeout ? CDR_TIMEOUT : CDR_LEAVE);
@@ -1342,7 +1342,7 @@ void Server::printToConsoleOnly(const std::string &text) {
         m_admin_chat->outgoing_queue.push_back(
             new ChatEventChat("", utf8_to_wide(text)));
     } else {
-        std::cout << text << std::endl;
+        std::cout << text << '\n';
     }
 }
 
@@ -1429,7 +1429,7 @@ void Server::SendItemDef(session_t peer_id, IItemDefManager *itemdef,
 
     // Make data buffer
     verbosestream << "Server: Sending item definitions to id(" << peer_id
-                  << "): size=" << pkt.getSize() << std::endl;
+                  << "): size=" << pkt.getSize() << '\n';
 
     Send(&pkt);
 }
@@ -1452,7 +1452,7 @@ void Server::SendNodeDef(session_t peer_id, const NodeDefManager *nodedef,
 
     // Make data buffer
     verbosestream << "Server: Sending node definitions to id(" << peer_id
-                  << "): size=" << pkt.getSize() << std::endl;
+                  << "): size=" << pkt.getSize() << '\n';
 
     Send(&pkt);
 }
@@ -1895,7 +1895,7 @@ void Server::SendMovePlayer(PlayerSAO *sao) {
                       << " pos=(" << pos.X << "," << pos.Y << "," << pos.Z
                       << ")"
                       << " pitch=" << sao->getLookPitch()
-                      << " yaw=" << sao->getRotation().Y << std::endl;
+                      << " yaw=" << sao->getRotation().Y << '\n';
     }
 
     Send(&pkt);
@@ -2055,7 +2055,7 @@ void Server::SendActiveObjectRemoveAdd(RemoteClient *client,
         ServerActiveObject *obj = m_env->getActiveObject(id);
         if (!obj) {
             warningstream << FUNCTION_NAME
-                          << ": found NULL object id=" << (int)id << std::endl;
+                          << ": found NULL object id=" << (int)id << '\n';
             continue;
         }
 
@@ -2075,7 +2075,7 @@ void Server::SendActiveObjectRemoveAdd(RemoteClient *client,
     verbosestream << "Server::SendActiveObjectRemoveAdd(): "
                   << removed_objects.size() << " removed, "
                   << added_objects.size() << " added, packet size is "
-                  << pkt.getSize() << std::endl;
+                  << pkt.getSize() << '\n';
 }
 
 void Server::SendActiveObjectMessages(session_t peer_id,
@@ -2138,7 +2138,7 @@ s32 Server::playSound(ServerPlayingSound &params, bool ephemeral) {
         RemotePlayer *player = m_env->getPlayer(params.to_player.c_str());
         if (!player) {
             infostream << "Server::playSound: Player \"" << params.to_player
-                       << "\" not found" << std::endl;
+                       << "\" not found" << '\n';
             return -1;
         }
         dst_clients.push_back(player->getPeerId());
@@ -2483,7 +2483,7 @@ bool Server::addMediaFile(const std::string &filename,
     if (!string_allowed(filename, TEXTURENAME_ALLOWED_CHARS)) {
         warningstream
             << "Server: ignoring file as it has disallowed characters: \""
-            << filename << "\"" << std::endl;
+            << filename << "\"" << '\n';
         return false;
     }
     // If name is not in a supported format, ignore it
@@ -2493,7 +2493,7 @@ bool Server::addMediaFile(const std::string &filename,
                                    ".tr", ".po", ".mo", NULL};
     if (removeStringEnd(filename, supported_ext).empty()) {
         infostream << "Server: ignoring unsupported file extension: \""
-                   << filename << "\"" << std::endl;
+                   << filename << "\"" << '\n';
         return false;
     }
     // Ok, attempt to load the file and add to cache
@@ -2506,7 +2506,7 @@ bool Server::addMediaFile(const std::string &filename,
 
     if (filedata.empty()) {
         errorstream << "Server::addMediaFile(): Empty file \"" << filepath
-                    << "\"" << std::endl;
+                    << "\"" << '\n';
         return false;
     }
 
@@ -2519,7 +2519,7 @@ bool Server::addMediaFile(const std::string &filename,
 
     // Put in list
     m_media[filename] = MediaInfo(filepath, sha1_base64);
-    verbosestream << "Server: " << sha1_hex << " is " << filename << std::endl;
+    verbosestream << "Server: " << sha1_hex << " is " << filename << '\n';
 
     if (filedata_to) {
         *filedata_to = std::move(filedata);
@@ -2528,7 +2528,7 @@ bool Server::addMediaFile(const std::string &filename,
 }
 
 void Server::fillMediaCache() {
-    infostream << "Server: Calculating media file checksums" << std::endl;
+    infostream << "Server: Calculating media file checksums" << '\n';
 
     // Collect all media file paths
     std::vector<std::string> paths;
@@ -2560,7 +2560,7 @@ void Server::fillMediaCache() {
     }
 
     infostream << "Server: " << m_media.size() << " media files collected"
-               << std::endl;
+               << '\n';
 }
 
 void Server::sendMediaAnnouncement(session_t peer_id,
@@ -2607,7 +2607,7 @@ void Server::sendMediaAnnouncement(session_t peer_id,
 
     verbosestream << "Server: Announcing files to id(" << peer_id
                   << "): count=" << media_sent << " size=" << pkt.getSize()
-                  << std::endl;
+                  << '\n';
 }
 
 namespace {
@@ -2630,7 +2630,7 @@ void Server::sendRequestedMedia(session_t peer_id,
     assert(client);
 
     infostream << "Server::sendRequestedMedia(): Sending " << tosend.size()
-               << " files to " << client->getName() << std::endl;
+               << " files to " << client->getName() << '\n';
 
     /* Read files and prepare bunches */
 
@@ -2653,7 +2653,7 @@ void Server::sendRequestedMedia(session_t peer_id,
 
         if (it == m_media.end()) {
             errorstream << "Server::sendRequestedMedia(): Client asked for "
-                        << "unknown file \"" << (name) << "\"" << std::endl;
+                        << "unknown file \"" << (name) << "\"" << '\n';
             continue;
         }
         const auto &m = it->second;
@@ -2665,7 +2665,7 @@ void Server::sendRequestedMedia(session_t peer_id,
                 infostream << "Server::sendRequestedMedia(): Client asked has "
                               "requested \""
                            << name << "\" before, not sending it again."
-                           << std::endl;
+                           << '\n';
                 continue;
             }
         }
@@ -2716,7 +2716,7 @@ void Server::sendRequestedMedia(session_t peer_id,
 
         verbosestream << "Server::sendRequestedMedia(): bunch " << i << "/"
                       << num_bunches << " files=" << bunch_size
-                      << " size=" << pkt.getSize() << std::endl;
+                      << " size=" << pkt.getSize() << '\n';
         Send(&pkt);
     }
 }
@@ -2818,7 +2818,7 @@ void Server::sendDetachedInventories(session_t peer_id, bool incremental) {
 void Server::HandlePlayerDeath(PlayerSAO *playersao,
                                const PlayerHPChangeReason &reason) {
     infostream << "Server::DiePlayer(): Player "
-               << playersao->getPlayer()->getName() << " dies" << std::endl;
+               << playersao->getPlayer()->getName() << " dies" << '\n';
 
     playersao->clearParentAttachment();
 
@@ -2939,7 +2939,7 @@ void Server::DeleteClient(session_t peer_id, ClientDeletionReason reason) {
                 actionstream
                     << name << " "
                     << (reason == CDR_TIMEOUT ? "times out." : "leaves game.")
-                    << " List of players: " << os.str() << std::endl;
+                    << " List of players: " << os.str() << '\n';
                 if (m_admin_chat) {
                     m_admin_chat->outgoing_queue.push_back(
                         new ChatEventNick(CET_NICK_REMOVE, name));
@@ -2992,14 +2992,14 @@ void Server::handleChatInterfaceEvent(ChatEvent *evt) {
         m_admin_nick = ((ChatEventNick *)evt)->nick;
         if (!m_script->getAuth(m_admin_nick, NULL, NULL)) {
             errorstream
-                << "You haven't set up an account." << std::endl
+                << "You haven't set up an account." << '\n'
                 << "Please log in using the client as '" << m_admin_nick
-                << "' with a secure password." << std::endl
+                << "' with a secure password." << '\n'
                 << "Until then, you can't execute admin tasks via the console,"
-                << std::endl
+                << '\n'
                 << "and everybody can claim the user account instead of you,"
-                << std::endl
-                << "giving them full control over this server." << std::endl;
+                << '\n'
+                << "giving them full control over this server." << '\n';
         }
     } else {
         assert(evt->type == CET_CHAT);
@@ -3084,7 +3084,7 @@ std::wstring Server::handleChat(const std::string &name, std::wstring wmessage,
         Send the message to others
     */
     actionstream << "CHAT: " << wide_to_utf8(unescape_enriched(line))
-                 << std::endl;
+                 << '\n';
 
     ChatMessage chatmsg(line);
 
@@ -3169,11 +3169,11 @@ std::string Server::getStatusString() {
     }
 
     if (m_env && !((ServerMap *)(&m_env->getMap()))->isSavingEnabled()) {
-        os << std::endl << "# Server: " << " WARNING: Map saving is disabled.";
+        os << '\n' << "# Server: " << " WARNING: Map saving is disabled.";
     }
 
     if (!g_settings->get("motd").empty()) {
-        os << std::endl << "# Server: " << g_settings->get("motd");
+        os << '\n' << "# Server: " << g_settings->get("motd");
     }
 
     return os.str();
@@ -3251,7 +3251,7 @@ bool Server::denyIfBanned(session_t peer_id) {
     if (m_banmanager->isIpBanned(addr_s)) {
         std::string ban_name = m_banmanager->getBanName(addr_s);
         actionstream << "Server: A banned client tried to connect from "
-                     << addr_s << "; banned name was " << ban_name << std::endl;
+                     << addr_s << "; banned name was " << ban_name << '\n';
         DenyAccess(peer_id, SERVER_ACCESSDENIED_CUSTOM_STRING,
                    "Your IP is banned. Banned name was " + ban_name);
         return true;
@@ -3594,11 +3594,11 @@ bool Server::dynamicAddMedia(const DynamicMediaArgs &a) {
         filepath = writeToTempFile(*a.data);
         if (filepath.empty()) {
             errorstream << "Server: failed writing media file \"" << filename
-                        << "\" to disk" << std::endl;
+                        << "\" to disk" << '\n';
             return false;
         }
         verbosestream << "Server: \"" << filename
-                      << "\" temporarily written to " << filepath << std::endl;
+                      << "\" temporarily written to " << filepath << '\n';
     }
 
     // Do some checks
@@ -3607,7 +3607,7 @@ bool Server::dynamicAddMedia(const DynamicMediaArgs &a) {
         // Allow the same path to be "added" again in certain conditions
         if (a.ephemeral || it->second.path != filepath) {
             errorstream << "Server::dynamicAddMedia(): file \"" << filename
-                        << "\" already exists in media cache" << std::endl;
+                        << "\" already exists in media cache" << '\n';
             return false;
         }
     }
@@ -3616,7 +3616,7 @@ bool Server::dynamicAddMedia(const DynamicMediaArgs &a) {
         errorstream << "Server::dynamicAddMedia(): "
                        "adding ephemeral or player-specific media at startup "
                        "is nonsense"
-                    << std::endl;
+                    << '\n';
         return false;
     }
 
@@ -3639,13 +3639,13 @@ bool Server::dynamicAddMedia(const DynamicMediaArgs &a) {
             filepath = writeToTempFile(filedata);
             if (filepath.empty()) {
                 errorstream << "Server: failed creating a copy of media file \""
-                            << filename << "\"" << std::endl;
+                            << filename << "\"" << '\n';
                 m_media.erase(filename);
                 return false;
             }
             verbosestream << "Server: \"" << filename
                           << "\" temporarily copied to " << filepath
-                          << std::endl;
+                          << '\n';
             media_it->second.path = filepath;
         }
 
@@ -3689,7 +3689,7 @@ bool Server::dynamicAddMedia(const DynamicMediaArgs &a) {
                               << "\" (dynamic) could "
                                  "not be delivered to "
                               << pair.second->getName()
-                              << " due to a race condition." << std::endl;
+                              << " due to a race condition." << '\n';
                 continue;
             }
             if (pair.second->getState() < CS_Active) {
@@ -3750,7 +3750,7 @@ bool Server::dynamicAddMedia(const DynamicMediaArgs &a) {
 bool Server::rollbackRevertActions(const std::list<RollbackAction> &actions,
                                    std::list<std::string> *log) {
     infostream << "Server::rollbackRevertActions(len=" << actions.size() << ")"
-               << std::endl;
+               << '\n';
     auto *map = &m_env->getServerMap();
 
     // Fail if no actions to handle
@@ -3772,7 +3772,7 @@ bool Server::rollbackRevertActions(const std::list<RollbackAction> &actions,
             os << "Revert of step (" << num_tried << ") " << action.toString()
                << " failed";
             infostream << "Map::rollbackRevertActions(): " << os.str()
-                       << std::endl;
+                       << '\n';
             if (log) {
                 log->push_back(os.str());
             }
@@ -3781,7 +3781,7 @@ bool Server::rollbackRevertActions(const std::list<RollbackAction> &actions,
             os << "Successfully reverted step (" << num_tried << ") "
                << action.toString();
             infostream << "Map::rollbackRevertActions(): " << os.str()
-                       << std::endl;
+                       << '\n';
             if (log) {
                 log->push_back(os.str());
             }
@@ -3789,7 +3789,7 @@ bool Server::rollbackRevertActions(const std::list<RollbackAction> &actions,
     }
 
     infostream << "Map::rollbackRevertActions(): " << num_failed << "/"
-               << num_tried << " failed" << std::endl;
+               << num_tried << " failed" << '\n';
 
     // Call it done if less than half failed
     return num_failed <= num_tried / 2;
@@ -3842,7 +3842,7 @@ void Server::addShutdownError(const ModError &e) {
     // DO NOT TRANSLATE the `ModError`, it's used by `ui.lua`
     std::string msg = fmtgettext("%s while shutting down: ", "ModError") +
                       e.what() + strgettext("\nCheck debug.txt for details.");
-    errorstream << msg << std::endl;
+    errorstream << msg << '\n';
 
     if (m_shutdown_errmsg) {
         if (m_shutdown_errmsg->empty()) {
@@ -3939,14 +3939,14 @@ void Server::requestShutdown(const std::string &msg, bool reconnect,
         m_shutdown_state.is_requested = true;
         // only print to the infostream, a chat message saying
         // "Server Shutting Down" is sent when the server destructs.
-        infostream << "*** Immediate Server shutdown requested." << std::endl;
+        infostream << "*** Immediate Server shutdown requested." << '\n';
     } else if (delay < 0.0f && m_shutdown_state.isTimerRunning()) {
         // Negative delay, cancel shutdown if requested
         m_shutdown_state.reset();
 
         const char *s = "*** Server shutdown canceled.";
 
-        infostream << s << std::endl;
+        infostream << s << '\n';
         SendChatMessage(PEER_ID_INEXISTENT, utf8_to_wide(s));
         // m_shutdown_state already handled, skip.
         return;
@@ -3957,7 +3957,7 @@ void Server::requestShutdown(const std::string &msg, bool reconnect,
         oss << "*** Server shutting down in "
             << duration_to_string(myround(delay)) << ".";
 
-        infostream << oss.str() << std::endl;
+        infostream << oss.str() << '\n';
         SendChatMessage(PEER_ID_INEXISTENT, utf8_to_wide(oss.str()));
     }
 
@@ -3973,7 +3973,7 @@ Server::emergePlayer(const char *name, session_t peer_id, u16 proto_version) {
 
     // If player is already connected, cancel
     if (player) {
-        infostream << "emergePlayer(): Player already connected" << std::endl;
+        infostream << "emergePlayer(): Player already connected" << '\n';
         return NULL;
     }
 
@@ -3983,7 +3983,7 @@ Server::emergePlayer(const char *name, session_t peer_id, u16 proto_version) {
     if (m_env->getPlayer(peer_id)) {
         infostream << "emergePlayer(): Player with wrong name but same"
                       " peer_id already exists"
-                   << std::endl;
+                   << '\n';
         return NULL;
     }
 
@@ -4019,7 +4019,7 @@ Server::emergePlayer(const char *name, session_t peer_id, u16 proto_version) {
 }
 
 void dedicated_server_loop(Server &server, bool &kill) {
-    verbosestream << "dedicated_server_loop()" << std::endl;
+    verbosestream << "dedicated_server_loop()" << '\n';
 
     IntervalLimiter m_profiler_interval;
 
@@ -4050,15 +4050,15 @@ void dedicated_server_loop(Server &server, bool &kill) {
         */
         if (profiler_print_interval > 0) {
             if (m_profiler_interval.step(steplen, profiler_print_interval)) {
-                infostream << "Profiler:" << std::endl;
+                infostream << "Profiler:" << '\n';
             }
         }
     }
 
-    infostream << "Dedicated server quitting" << std::endl;
+    infostream << "Dedicated server quitting" << '\n';
 
     if (profiler_print_interval > 0) {
-        infostream << "Profiler:" << std::endl;
+        infostream << "Profiler:" << '\n';
     }
 }
 
@@ -4101,7 +4101,7 @@ void Server::broadcastModChannelMessage(const std::string &channel,
     if (message.size() > STRING_MAX_LEN) {
         warningstream << "ModChannel message too long, dropping before sending "
                       << " (" << message.size() << " > " << STRING_MAX_LEN
-                      << ", channel: " << channel << ")" << std::endl;
+                      << ", channel: " << channel << ")" << '\n';
         return;
     }
 
@@ -4182,10 +4182,10 @@ Server::openModStorageDatabase(const std::string &world_path) {
             << "/!\\ You are using the old mod storage files backend. "
             << "This backend is deprecated and may be removed in a future "
                "release /!\\"
-            << std::endl
+            << '\n'
             << "Switching to SQLite3 is advised, "
             << "please read https://wiki.luanti.org/Database_backends."
-            << std::endl;
+            << '\n';
     }
 
     return openModStorageDatabase(backend, world_path, world_mt);
