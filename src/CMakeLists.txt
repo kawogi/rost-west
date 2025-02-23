@@ -138,7 +138,6 @@ set(independent_SRCS
 	debug.cpp
 	face_position_cache.cpp
 	gettext_plural_form.cpp
-	httpfetch.cpp
 	hud.cpp
 	inventory.cpp
 	itemstackmetadata.cpp

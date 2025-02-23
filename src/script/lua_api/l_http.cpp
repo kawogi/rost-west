@@ -7,7 +7,6 @@
 #include "common/c_content.h"
 #include "lua_api/l_http.h"
 #include "cpp_api/s_security.h"
-#include "httpfetch.h"
 #include "settings.h"
 #include "debug.h"
 #include "log.h"

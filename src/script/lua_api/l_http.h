@@ -7,9 +7,6 @@
 #include "lua_api/l_base.h"
 #include "config.h"
 
-struct HTTPFetchRequest;
-struct HTTPFetchResult;
-
 class ModApiHttp : public ModApiBase {
 private:
 	// set_http_api_lua() [internal]

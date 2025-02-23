@@ -8,7 +8,6 @@
 #include "filesys.h"
 #include "gameparams.h"
 #include "gettext.h"
-#include "httpfetch.h"
 #include "log.h"
 #include "log_internal.h"
 #include "network/socket.h"
