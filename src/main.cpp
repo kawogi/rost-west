@@ -57,10 +57,6 @@ static void print_worldspecs(const std::vector<WorldSpec> &worldspecs,
 static void uninit_common();
 static bool read_config_file(const Settings &cmd_args);
 
-static bool game_configure(GameParams *game_params, const Settings &cmd_args);
-static void game_configure_port(GameParams *game_params,
-                                const Settings &cmd_args);
-
 static bool game_configure_world(GameParams *game_params,
                                  const Settings &cmd_args);
 static bool get_world_from_cmdline(GameParams *game_params,
@@ -134,26 +130,29 @@ int main(int argc, char *argv[]) {
     init_gettext();
 
     GameStartData game_params;
-    game_params.is_dedicated_server = true;
 
-    if (!game_configure(&game_params, cmd_args)) {
+    if (cmd_args.exists("port")) {
+        game_params.socket_port = cmd_args.getU16("port");
+    } else {
+        game_params.socket_port = g_settings->getU16("port");
+    }
+
+    if (game_params.socket_port == 0) {
+        game_params.socket_port = DEFAULT_SERVER_PORT;
+    }
+
+    if (!game_configure_world(&game_params, cmd_args)) {
+        errorstream << "No world path specified or found." << '\n';
         return 1;
     }
 
+    game_configure_subgame(&game_params, cmd_args);
+
     sanity_check(!game_params.world_path.empty());
 
-    if (game_params.is_dedicated_server) {
-        return run_dedicated_server(game_params, cmd_args) ? 0 : 1;
-    }
-
-    // Update configuration file
-    if (!g_settings_path.empty()) {
-        g_settings->updateConfigFile(g_settings_path.c_str());
-    }
+    return run_dedicated_server(game_params, cmd_args) ? 0 : 1;
 
     END_DEBUG_EXCEPTION_HANDLER
-
-    return 0;
 }
 
 /*****************************************************************************
@@ -320,36 +319,6 @@ static bool read_config_file(const Settings &cmd_args) {
     return true;
 }
 
-static bool game_configure(GameParams *game_params, const Settings &cmd_args) {
-    game_configure_port(game_params, cmd_args);
-
-    if (!game_configure_world(game_params, cmd_args)) {
-        errorstream << "No world path specified or found." << '\n';
-        return false;
-    }
-
-    game_configure_subgame(game_params, cmd_args);
-
-    return true;
-}
-
-static void game_configure_port(GameParams *game_params,
-                                const Settings &cmd_args) {
-    if (cmd_args.exists("port")) {
-        game_params->socket_port = cmd_args.getU16("port");
-    } else {
-        if (game_params->is_dedicated_server) {
-            game_params->socket_port = g_settings->getU16("port");
-        } else {
-            game_params->socket_port = g_settings->getU16("remote_port");
-        }
-    }
-
-    if (game_params->socket_port == 0) {
-        game_params->socket_port = DEFAULT_SERVER_PORT;
-    }
-}
-
 static bool game_configure_world(GameParams *game_params,
                                  const Settings &cmd_args) {
     if (get_world_from_cmdline(game_params, cmd_args)) {
@@ -439,7 +408,7 @@ static bool auto_select_world(GameParams *game_params) {
         dstream << "Automatically selecting world at [" << world_path << "]"
                 << std::endl;
         // If there are multiple worlds, list them
-    } else if (worldspecs.size() > 1 && game_params->is_dedicated_server) {
+    } else if (worldspecs.size() > 1) {
         rawstream
             << "Multiple worlds are available.\n"
             << "Please select one using --worldname <name> or --world <path>"
@@ -520,20 +489,18 @@ static bool determine_subgame(GameParams *game_params) {
             infostream << "Using commanded gameid [" << gamespec.id << "]"
                        << std::endl;
         } else {
-            if (game_params->is_dedicated_server) {
-                std::string contentdb_url = g_settings->get("contentdb_url");
+            std::string contentdb_url = g_settings->get("contentdb_url");
 
-                // If this is a dedicated server and no gamespec has been
-                // specified, print a friendly error pointing to ContentDB.
-                errorstream
-                    << "To run a " PROJECT_NAME_C
-                       " server, you need to select a game using the "
-                       "'--gameid' argument."
-                    << std::endl
-                    << "Check out " << contentdb_url
-                    << " for a selection of games to pick from and download."
-                    << std::endl;
-            }
+            // If this is a dedicated server and no gamespec has been
+            // specified, print a friendly error pointing to ContentDB.
+            errorstream
+                << "To run a " PROJECT_NAME_C
+                   " server, you need to select a game using the "
+                   "'--gameid' argument."
+                << std::endl
+                << "Check out " << contentdb_url
+                << " for a selection of games to pick from and download."
+                << std::endl;
 
             return false;
         }
