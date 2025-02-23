@@ -48,18 +48,14 @@ typedef std::map<std::string, ValueSpec> OptionList;
  * Private functions
  **********************************************************************/
 
-static void get_env_opts(Settings &args);
-static bool get_cmdline_opts(int argc, char *argv[], Settings *cmd_args);
 static void set_allowed_options(OptionList *allowed_options);
 
 static void print_worldspecs(const std::vector<WorldSpec> &worldspecs,
                              std::ostream &os, bool print_name = true,
                              bool print_path = true);
 
-static bool init_common(const Settings &cmd_args, int argc, char *argv[]);
 static void uninit_common();
 static bool read_config_file(const Settings &cmd_args);
-static void init_log_streams(const Settings &cmd_args);
 
 static bool game_configure(GameParams *game_params, const Settings &cmd_args);
 static void game_configure_port(GameParams *game_params,
@@ -99,10 +95,9 @@ int main(int argc, char *argv[]) {
     g_logger.addOutput(&stderr_output, LL_INFO);
 
     Settings cmd_args;
-    get_env_opts(cmd_args);
-    bool cmd_args_ok = get_cmdline_opts(argc, argv, &cmd_args);
-    if (!cmd_args_ok) {
-        return cmd_args_ok ? 0 : 1;
+    set_allowed_options(&allowed_options);
+    if (!cmd_args.parseCommandLine(argc, argv, allowed_options)) {
+        return 1;
     }
 
     // Debug handler
@@ -111,14 +106,32 @@ int main(int argc, char *argv[]) {
     porting::signal_handler_init();
     porting::initializePaths();
 
-    if (!fs::CreateAllDirs(porting::path_user)) {
-        errorstream << "Cannot create user data directory" << std::endl;
+    set_default_settings();
+
+    sockets_init();
+
+    // Initialize g_settings
+    Settings::createLayer(SL_GLOBAL);
+
+    // Set cleanup callback(s) to run at process exit
+    atexit(uninit_common);
+
+    if (!read_config_file(cmd_args)) {
         return 1;
     }
 
-    if (!init_common(cmd_args, argc, argv)) {
-        return 1;
+    // Initialize random seed
+    {
+        u32 seed = static_cast<u32>(time(nullptr)) << 16;
+        seed |= porting::getTimeUs() & 0xffff;
+        srand(seed);
+        mysrand(seed);
     }
+
+    // Initialize HTTP fetcher
+    httpfetch_init(g_settings->getS32("curl_parallel_limit"));
+
+    init_gettext();
 
     GameStartData game_params;
     game_params.is_dedicated_server = true;
@@ -147,36 +160,6 @@ int main(int argc, char *argv[]) {
  * Startup / Init
  *****************************************************************************/
 
-static void get_env_opts(Settings &args) {
-    // CLICOLOR is a de-facto standard option for colors
-    // <https://bixense.com/clicolors/> CLICOLOR != 0: ANSI colors are supported
-    // (auto-detection, this is the default) CLICOLOR == 0: ANSI colors are NOT
-    // supported
-    const char *clicolor = std::getenv(ENV_CLICOLOR);
-    if (clicolor && std::string(clicolor) == "0") {
-        args.set("color", "never");
-    }
-    // NO_COLOR only specifies that no color is allowed.
-    // Implemented according to <http://no-color.org/>
-    const char *no_color = std::getenv(ENV_NO_COLOR);
-    if (no_color && no_color[0]) {
-        args.set("color", "never");
-    }
-    // CLICOLOR_FORCE is another option, which should turn on colors "no matter
-    // what".
-    const char *clicolor_force = std::getenv(ENV_CLICOLOR_FORCE);
-    if (clicolor_force && std::string(clicolor_force) != "0") {
-        // should ALWAYS have colors, so we ignore tty (no "auto")
-        args.set("color", "always");
-    }
-}
-
-static bool get_cmdline_opts(int argc, char *argv[], Settings *cmd_args) {
-    set_allowed_options(&allowed_options);
-
-    return cmd_args->parseCommandLine(argc, argv, allowed_options);
-}
-
 static void set_allowed_options(OptionList *allowed_options) {
     assert(allowed_options);
     allowed_options->clear();
@@ -185,57 +168,15 @@ static void set_allowed_options(OptionList *allowed_options) {
 #define LOCAL_GAME ""
 
     allowed_options->insert(std::make_pair(
-        "help", ValueSpec(VALUETYPE_FLAG, _("Show allowed options"))));
-    allowed_options->insert(std::make_pair(
-        "version", ValueSpec(VALUETYPE_FLAG, _("Show version information"))));
-    allowed_options->insert(std::make_pair(
         "config", ValueSpec(VALUETYPE_STRING,
                             _("Load configuration from specified file"))));
     allowed_options->insert(std::make_pair(
         "port", ValueSpec(VALUETYPE_STRING, _("Set network port (UDP)"))));
     allowed_options->insert(std::make_pair(
-        "run-unittests",
-        ValueSpec(VALUETYPE_FLAG, _("Run unit tests and exit"))));
-    allowed_options->insert(std::make_pair(
-        "run-benchmarks",
-        ValueSpec(VALUETYPE_FLAG, _("Run benchmarks and exit"))));
-    allowed_options->insert(std::make_pair(
-        "test-module",
-        ValueSpec(VALUETYPE_STRING,
-                  _("Only run the specified test module or benchmark"))));
-    allowed_options->insert(std::make_pair(
-        "map-dir",
-        ValueSpec(VALUETYPE_STRING, _("Same as --world (deprecated)"))));
-    allowed_options->insert(std::make_pair(
         "world", ValueSpec(VALUETYPE_STRING, _("Set world path" LOCAL_GAME))));
     allowed_options->insert(std::make_pair(
         "worldname",
         ValueSpec(VALUETYPE_STRING, _("Set world by name" LOCAL_GAME))));
-    allowed_options->insert(std::make_pair(
-        "worldlist", ValueSpec(VALUETYPE_STRING,
-                               _("Get list of worlds ('path' lists paths, "
-                                 "'name' lists names, 'both' lists both)"))));
-    allowed_options->insert(std::make_pair(
-        "quiet", ValueSpec(VALUETYPE_FLAG, _("Print only errors to console"))));
-    allowed_options->insert(std::make_pair(
-        "color",
-        ValueSpec(VALUETYPE_STRING, _("Coloured logs ('always', 'never' or "
-                                      "'auto'), defaults to 'auto'"))));
-    allowed_options->insert(std::make_pair(
-        "info",
-        ValueSpec(VALUETYPE_FLAG, _("Print more information to console"))));
-    allowed_options->insert(std::make_pair(
-        "verbose", ValueSpec(VALUETYPE_FLAG,
-                             _("Print even more information to console"))));
-    allowed_options->insert(std::make_pair(
-        "trace",
-        ValueSpec(
-            VALUETYPE_FLAG,
-            _("Print enormous amounts of information to log and console"))));
-    allowed_options->insert(std::make_pair(
-        "debugger",
-        ValueSpec(VALUETYPE_FLAG, _("Try to automatically attach a debugger "
-                                    "before starting (convenience option)"))));
     allowed_options->insert(std::make_pair(
         "logfile",
         ValueSpec(VALUETYPE_STRING, _("Set log file path ('' = no logging)"))));
@@ -280,11 +221,11 @@ static void print_worldspecs(const std::vector<WorldSpec> &worldspecs,
         const auto &name = worldspec.name;
         const auto &path = worldspec.path;
         if (print_name && print_path) {
-            os << "\t" << name << "\t\t" << path << std::endl;
+            os << "\t" << name << "\t\t" << path << '\n';
         } else if (print_name) {
-            os << "\t" << name << std::endl;
+            os << "\t" << name << '\n';
         } else if (print_path) {
-            os << "\t" << path << std::endl;
+            os << "\t" << path << '\n';
         }
     }
 }
@@ -326,39 +267,6 @@ template <class T> void getDebuggerArgs(T &out, int i) {
 }
 } // namespace
 
-static bool init_common(const Settings &cmd_args, int argc, char *argv[]) {
-    set_default_settings();
-
-    sockets_init();
-
-    // Initialize g_settings
-    Settings::createLayer(SL_GLOBAL);
-
-    // Set cleanup callback(s) to run at process exit
-    atexit(uninit_common);
-
-    if (!read_config_file(cmd_args)) {
-        return false;
-    }
-
-    init_log_streams(cmd_args);
-
-    // Initialize random seed
-    {
-        u32 seed = static_cast<u32>(time(nullptr)) << 16;
-        seed |= porting::getTimeUs() & 0xffff;
-        srand(seed);
-        mysrand(seed);
-    }
-
-    // Initialize HTTP fetcher
-    httpfetch_init(g_settings->getS32("curl_parallel_limit"));
-
-    init_gettext();
-
-    return true;
-}
-
 static void uninit_common() {
     httpfetch_cleanup();
 
@@ -378,7 +286,7 @@ static bool read_config_file(const Settings &cmd_args) {
         bool r = g_settings->readConfigFile(cmd_args.get("config").c_str());
         if (!r) {
             errorstream << "Could not read configuration from \""
-                        << cmd_args.get("config") << "\"" << std::endl;
+                        << cmd_args.get("config") << "\"" << '\n';
             return false;
         }
         g_settings_path = cmd_args.get("config");
@@ -407,61 +315,16 @@ static bool read_config_file(const Settings &cmd_args) {
             g_settings_path = filenames[0];
         }
     }
-    infostream << "Global configuration file: " << g_settings_path << std::endl;
+    infostream << "Global configuration file: " << g_settings_path << '\n';
 
     return true;
-}
-
-static void init_log_streams(const Settings &cmd_args) {
-    std::string log_filename = porting::path_user + DIR_DELIM + DEBUGFILE;
-
-    if (cmd_args.exists("logfile")) {
-        log_filename = cmd_args.get("logfile");
-    }
-
-    g_logger.removeOutput(&file_log_output);
-    std::string conf_loglev = g_settings->get("debug_log_level");
-
-    if (log_filename.empty() || conf_loglev.empty()) { // No logging
-        return;
-    }
-
-    // Old integer format
-    if (std::isdigit(conf_loglev[0])) {
-        warningstream << "Deprecated use of debug_log_level with an "
-                         "integer value; please update your configuration."
-                      << std::endl;
-        static const char *lev_name[] = {"",     "error",   "action",
-                                         "info", "verbose", "trace"};
-        int lev_i = atoi(conf_loglev.c_str());
-        if (lev_i < 0 || lev_i >= (int)ARRLEN(lev_name)) {
-            warningstream << "Supplied invalid debug_log_level!"
-                             "  Assuming action level."
-                          << std::endl;
-            lev_i = 2;
-        }
-        conf_loglev = lev_name[lev_i];
-    }
-
-    LogLevel log_level = Logger::stringToLevel(conf_loglev);
-    if (log_level == LL_MAX) {
-        warningstream << "Supplied unrecognized debug_log_level; "
-                         "using maximum."
-                      << std::endl;
-    }
-
-    infostream << "Logging to " << log_filename << std::endl;
-
-    file_log_output.setFile(log_filename,
-                            g_settings->getU64("debug_log_size_max") * 1000000);
-    g_logger.addOutputMaxLevel(&file_log_output, log_level);
 }
 
 static bool game_configure(GameParams *game_params, const Settings &cmd_args) {
     game_configure_port(game_params, cmd_args);
 
     if (!game_configure_world(game_params, cmd_args)) {
-        errorstream << "No world path specified or found." << std::endl;
+        errorstream << "No world path specified or found." << '\n';
         return false;
     }
 
