@@ -41,22 +41,7 @@ endif()
 # Set some random things default to not being visible in the GUI
 mark_as_advanced(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)
 
-option(ENABLE_CURL "Enable cURL support for fetching media" TRUE)
-set(USE_CURL FALSE)
-
-if(ENABLE_CURL)
-	find_package(CURL 7.28.0)
-	if (CURL_FOUND)
-		message(STATUS "cURL support enabled.")
-		set(USE_CURL TRUE)
-	endif()
-else()
-	mark_as_advanced(CLEAR CURL_LIBRARY CURL_INCLUDE_DIR)
-endif()
-
-if(NOT USE_CURL)
-	message(WARNING "cURL is required to announce to the server list")
-endif()
+mark_as_advanced(CLEAR CURL_LIBRARY CURL_INCLUDE_DIR)
 
 mark_as_advanced(GETTEXT_INCLUDE_DIR GETTEXT_LIBRARY GETTEXT_MSGFMT)
 message(STATUS "GetText disabled.")
@@ -253,11 +238,6 @@ include_directories(SYSTEM
 	"$<$<PLATFORM_ID:Android>:${SDL2_INCLUDE_DIRS}>"
 )
 
-if(USE_CURL)
-	include_directories(${CURL_INCLUDE_DIR})
-endif()
-
-
 # When cross-compiling assume the user doesn't want to run the executable anyway,
 # otherwise place it in <source dir>/bin/ since Luanti can only run from there.
 if(NOT CMAKE_CROSSCOMPILING)
@@ -320,12 +300,6 @@ endif()
 
 if (USE_OPENSSL)
 	target_link_libraries(${PROJECT_NAME}server OpenSSL::Crypto)
-endif()
-if(USE_CURL)
-	target_link_libraries(
-		${PROJECT_NAME}server
-		${CURL_LIBRARY}
-	)
 endif()
 
 # See issue #4638

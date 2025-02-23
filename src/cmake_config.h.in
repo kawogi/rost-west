@@ -15,7 +15,6 @@
 #define ICON_DIR "@ICONDIR@"
 #cmakedefine01 DEVELOPMENT_BUILD
 #cmakedefine01 ENABLE_UPDATE_CHECKER
-#cmakedefine01 USE_CURL
 #cmakedefine01 USE_LUAJIT
 #cmakedefine01 USE_SYSTEM_GMP
 #cmakedefine01 USE_SYSTEM_JSONCPP
