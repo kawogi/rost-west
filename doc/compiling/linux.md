@@ -16,32 +16,31 @@
 | LuaJIT     | 2.0+    | Bundled Lua 5.1 is used if not present |
 | GMP        | 5.0.0+  | Bundled mini-GMP is used if not present |
 | JsonCPP    | 1.0.0+  | Bundled JsonCPP is used if not present |
-| Curl       | 7.56.0+ | Optional   |
 | OpenSSL    | 3.0+    | Optional (only libcrypto used) |
 
 For Debian/Ubuntu users:
 
-    sudo apt install g++ make libc6-dev cmake libpng-dev libjpeg-dev libgl1-mesa-dev libsqlite3-dev libogg-dev libopenal-dev libcurl4-gnutls-dev libfreetype6-dev zlib1g-dev libgmp-dev libjsoncpp-dev libzstd-dev libluajit-5.1-dev libsdl2-dev
+    sudo apt install g++ make libc6-dev cmake libpng-dev libjpeg-dev libgl1-mesa-dev libsqlite3-dev libogg-dev libopenal-dev libfreetype6-dev zlib1g-dev libgmp-dev libjsoncpp-dev libzstd-dev libluajit-5.1-dev libsdl2-dev
 
 For Fedora users:
 
-    sudo dnf install make automake gcc gcc-c++ kernel-devel cmake libcurl-devel openal-soft-devel libpng-devel libjpeg-devel libogg-devel freetype-devel mesa-libGL-devel zlib-devel jsoncpp-devel gmp-devel sqlite-devel luajit-devel spatialindex-devel libzstd-devel SDL2-devel
+    sudo dnf install make automake gcc gcc-c++ kernel-devel cmake openal-soft-devel libpng-devel libjpeg-devel libogg-devel freetype-devel mesa-libGL-devel zlib-devel jsoncpp-devel gmp-devel sqlite-devel luajit-devel spatialindex-devel libzstd-devel SDL2-devel
 
 For openSUSE users:
 
- sudo zypper install gcc gcc-c++ cmake libjpeg8-devel libpng16-devel openal-soft-devel libcurl-devel sqlite3-devel luajit-devel libzstd-devel Mesa-libGL-devel freetype2-devel SDL2-devel
+ sudo zypper install gcc gcc-c++ cmake libjpeg8-devel libpng16-devel openal-soft-devel sqlite3-devel luajit-devel libzstd-devel Mesa-libGL-devel freetype2-devel SDL2-devel
 
 For Arch users:
 
-    sudo pacman -S --needed base-devel libcurl-gnutls cmake libpng libjpeg-turbo sqlite libogg openal freetype2 jsoncpp gmp luajit zstd sdl2
+    sudo pacman -S --needed base-devel cmake libpng libjpeg-turbo sqlite libogg openal freetype2 jsoncpp gmp luajit zstd sdl2
 
 For Alpine users:
 
-    sudo apk add build-base cmake libpng-dev jpeg-dev mesa-dev sqlite-dev libogg-dev openal-soft-dev curl-dev freetype-dev zlib-dev gmp-dev jsoncpp-dev luajit-dev zstd-dev sdl2-dev
+    sudo apk add build-base cmake libpng-dev jpeg-dev mesa-dev sqlite-dev libogg-dev openal-soft-dev freetype-dev zlib-dev gmp-dev jsoncpp-dev luajit-dev zstd-dev sdl2-dev
 
 For Void users:
 
-    sudo xbps-install cmake libpng-devel jpeg-devel mesa sqlite-devel libogg-devel libopenal-devel libcurl-devel freetype-devel zlib-devel gmp-devel jsoncpp-devel LuaJIT-devel zstd libzstd-devel SDL2-devel
+    sudo xbps-install cmake libpng-devel jpeg-devel mesa sqlite-devel libogg-devel libopenal-devel freetype-devel zlib-devel gmp-devel jsoncpp-devel LuaJIT-devel zstd libzstd-devel SDL2-devel
 
 ## Download
 

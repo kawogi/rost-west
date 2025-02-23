@@ -12,7 +12,6 @@ General options and their default values:
         SemiDebug              - Partially optimized debug build
         RelWithDebInfo         - Release build with debug information
         MinSizeRel             - Release build with -Os passed to compiler to make executable as small as possible
-    ENABLE_CURL=ON             - Build with cURL; Enables use of online mod repo, public serverlist and remote media fetching via http
     ENABLE_OPENSSL=ON          - Build with OpenSSL; Speeds up SHA1 and SHA2 hashing
     ENABLE_LTO=<varies>        - Build with IPO/LTO optimizations (smaller and more efficient than regular build)
     ENABLE_LUAJIT=ON           - Build with LuaJIT (much faster than non-JIT Lua)
@@ -26,8 +25,6 @@ Library specific options:
 
     SDL2_INCLUDE_DIRS               - Only if building with SDL2; directory where SDL.h is located
     SDL2_LIBRARIES                  - Only if building with SDL2; path to libSDL2.a/libSDL2.so/libSDL2.lib
-    CURL_INCLUDE_DIR                - Only if building with cURL; directory where curl.h is located
-    CURL_LIBRARY                    - Only if building with cURL; path to libcurl.a/libcurl.so/libcurl.lib
     FREETYPE_INCLUDE_DIR_freetype2  - Directory that contains files such as ftimage.h
     FREETYPE_INCLUDE_DIR_ft2build   - Directory that contains ft2build.h
     FREETYPE_LIBRARY                - Path to libfreetype.a/libfreetype.so/freetype.lib

@@ -8,9 +8,6 @@ cmake . -LH
 // Choose the type of build. Options are: None;Release;Debug;SemiDebug;RelWithDebInfo;MinSizeRel.
 CMAKE_BUILD_TYPE:STRING=Release
 
-// Enable cURL support for fetching media
-ENABLE_CURL:BOOL=ON
-
 // Use Link Time Optimization
 ENABLE_LTO:BOOL=TRUE
 

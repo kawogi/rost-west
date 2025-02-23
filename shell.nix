@@ -15,7 +15,6 @@ pkgs.mkShell {
     pkgs.libGL
     pkgs.SDL2
     pkgs.openal
-    pkgs.curl
     pkgs.freetype
     pkgs.sqlite
   ];

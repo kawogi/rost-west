@@ -27,8 +27,6 @@ AppDir:
     include:
       - libc6
       - libcrypt1
-      - libcurl3-gnutls
-      - libcurl4
       - libfreetype6
       - libgl1
       - libjpeg-turbo8

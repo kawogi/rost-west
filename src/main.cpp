@@ -108,9 +108,6 @@ int main(int argc, char *argv[]) {
         mysrand(seed);
     }
 
-    // Initialize HTTP fetcher
-    httpfetch_init(g_settings->getS32("curl_parallel_limit"));
-
     init_gettext();
 
     GameStartData game_params;
@@ -228,8 +225,6 @@ static void print_worldspecs(const std::vector<WorldSpec> &worldspecs,
 }
 
 static void uninit_common() {
-    httpfetch_cleanup();
-
     sockets_cleanup();
 
     // It'd actually be okay to leak these but we want to please valgrind...

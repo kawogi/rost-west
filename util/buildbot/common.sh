@@ -3,7 +3,6 @@ CORE_BRANCH=master
 CORE_NAME=minetest
 
 openal_version=1.23.1
-curl_version=8.9.1
 freetype_version=2.13.3
 sqlite3_version=3.46.1
 luajit_version=20240905
@@ -101,10 +100,6 @@ add_cmake_libs () {
 		-DOPENAL_INCLUDE_DIR=$libdir/openal/include/AL
 		-DOPENAL_LIBRARY=$libdir/openal/lib/libOpenAL32.dll.a
 		-DOPENAL_DLL=$libdir/openal/bin/OpenAL32.dll
-
-		-DCURL_DLL="$(_dlls $libdir/curl/bin/libcurl*)"
-		-DCURL_INCLUDE_DIR=$libdir/curl/include
-		-DCURL_LIBRARY=$libdir/curl/lib/libcurl.dll.a
 
 		-DFREETYPE_INCLUDE_DIR_freetype2=$libdir/freetype/include/freetype2
 		-DFREETYPE_INCLUDE_DIR_ft2build=$libdir/freetype/include/freetype2

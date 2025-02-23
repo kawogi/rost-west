@@ -41,8 +41,6 @@ endif()
 # Set some random things default to not being visible in the GUI
 mark_as_advanced(EXECUTABLE_OUTPUT_PATH LIBRARY_OUTPUT_PATH)
 
-mark_as_advanced(CLEAR CURL_LIBRARY CURL_INCLUDE_DIR)
-
 mark_as_advanced(GETTEXT_INCLUDE_DIR GETTEXT_LIBRARY GETTEXT_MSGFMT)
 message(STATUS "GetText disabled.")
 

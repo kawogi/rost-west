@@ -95,26 +95,6 @@ struct HTTPFetchResult
 	}
 };
 
-// Initializes the httpfetch module
-void httpfetch_init(int parallel_limit);
-
-// Stops the httpfetch thread and cleans up resources
-void httpfetch_cleanup();
-
-// Starts an asynchronous HTTP fetch request
-void httpfetch_async(const HTTPFetchRequest &fetch_request);
-
-// If any fetch for the given caller ID is complete, removes it from the
-// result queue, sets the fetch result and returns true. Otherwise returns false.
-bool httpfetch_async_get(u64 caller, HTTPFetchResult &fetch_result);
-
-// Allocates a caller ID for httpfetch_async
-// Not required if you want to set caller = HTTPFETCH_DISCARD
-u64 httpfetch_caller_alloc();
-
-// Allocates a non-predictable caller ID for httpfetch_async
-u64 httpfetch_caller_alloc_secure();
-
 // Frees a caller ID allocated with httpfetch_caller_alloc
 // Note: This can be expensive, because the httpfetch thread is told
 // to stop any ongoing fetches for the given caller.
