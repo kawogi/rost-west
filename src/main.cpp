@@ -22,7 +22,6 @@
 #include "porting.h"
 #include "serialization.h" // SER_FMT_VER_HIGHEST_*
 #include "server.h"
-#include "util/quicktune.h"
 #include "version.h"
 
 // for version information only
@@ -56,7 +55,6 @@ static void set_allowed_options(OptionList *allowed_options);
 static void print_worldspecs(const std::vector<WorldSpec> &worldspecs,
                              std::ostream &os, bool print_name = true,
                              bool print_path = true);
-static void print_modified_quicktune_values();
 
 static bool init_common(const Settings &cmd_args, int argc, char *argv[]);
 static void uninit_common();
@@ -139,8 +137,6 @@ int main(int argc, char *argv[]) {
     if (!g_settings_path.empty()) {
         g_settings->updateConfigFile(g_settings_path.c_str());
     }
-
-    print_modified_quicktune_values();
 
     END_DEBUG_EXCEPTION_HANDLER
 
@@ -290,23 +286,6 @@ static void print_worldspecs(const std::vector<WorldSpec> &worldspecs,
         } else if (print_path) {
             os << "\t" << path << std::endl;
         }
-    }
-}
-
-static void print_modified_quicktune_values() {
-    bool header_printed = false;
-    std::vector<std::string> names = getQuicktuneNames();
-
-    for (const std::string &name : names) {
-        QuicktuneValue val = getQuicktuneValue(name);
-        if (!val.modified) {
-            continue;
-        }
-        if (!header_printed) {
-            dstream << "Modified quicktune values:" << std::endl;
-            header_printed = true;
-        }
-        dstream << name << " = " << val.getString() << std::endl;
     }
 }
 
