@@ -2,27 +2,18 @@
 // SPDX-License-Identifier: LGPL-2.1-or-later
 // Copyright (C) 2010-2013 celeron55, Perttu Ahola <celeron55@gmail.com>
 
-#include "chat_interface.h"
 #include "config.h"
-#include "database/database.h"
 #include "debug.h"
 #include "defaultsettings.h"
 #include "filesys.h"
 #include "gameparams.h"
 #include "gettext.h"
 #include "httpfetch.h"
-#include "irrlicht.h" // createDevice
-#include "irrlicht_changes/printing.h"
-#include "irrlichttypes_bloated.h"
 #include "log.h"
 #include "log_internal.h"
-#include "mapblock.h"
 #include "network/socket.h"
-#include "player.h"
 #include "porting.h"
-#include "serialization.h" // SER_FMT_VER_HIGHEST_*
 #include "server.h"
-#include "version.h"
 
 // for version information only
 extern "C" {
