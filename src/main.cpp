@@ -17,7 +17,6 @@
 #include "log.h"
 #include "log_internal.h"
 #include "mapblock.h"
-#include "migratesettings.h"
 #include "network/socket.h"
 #include "player.h"
 #include "porting.h"
@@ -59,9 +58,6 @@ static void print_worldspecs(const std::vector<WorldSpec> &worldspecs,
                              bool print_path = true);
 static void print_modified_quicktune_values();
 
-static void list_game_ids();
-static void list_worlds(bool print_name, bool print_path);
-static bool create_userdata_path();
 static bool init_common(const Settings &cmd_args, int argc, char *argv[]);
 static void uninit_common();
 static bool read_config_file(const Settings &cmd_args);
@@ -114,66 +110,15 @@ int main(int argc, char *argv[]) {
     // Debug handler
     BEGIN_DEBUG_EXCEPTION_HANDLER
 
-    {
-        auto exe_name =
-            argc > 0 ? lowercase(fs::GetFilenameFromPath(argv[0])) : "";
-        if (str_starts_with(exe_name, "minetest")) {
-            const char *new_ = PROJECT_NAME "server";
-            warningstream << "The executable " << exe_name
-                          << " is a deprecated alias, please use " << new_
-                          << " instead." << std::endl;
-        }
-    }
-
     porting::signal_handler_init();
     porting::initializePaths();
 
-    if (!create_userdata_path()) {
+    if (!fs::CreateAllDirs(porting::path_user)) {
         errorstream << "Cannot create user data directory" << std::endl;
         return 1;
     }
 
-    // List gameids if requested
-    if (cmd_args.exists("gameid") && cmd_args.get("gameid") == "list") {
-        list_game_ids();
-        return 0;
-    }
-
-    // List worlds, world names, and world paths if requested
-    if (cmd_args.exists("worldlist")) {
-        if (cmd_args.get("worldlist") == "name") {
-            list_worlds(true, false);
-        } else if (cmd_args.get("worldlist") == "path") {
-            list_worlds(false, true);
-        } else if (cmd_args.get("worldlist") == "both") {
-            list_worlds(true, true);
-        } else {
-            errorstream << "Invalid --worldlist value: "
-                        << cmd_args.get("worldlist") << std::endl;
-            return 1;
-        }
-        return 0;
-    }
-
     if (!init_common(cmd_args, argc, argv)) {
-        return 1;
-    }
-
-    // Run unit tests
-    if (cmd_args.getFlag("run-unittests")) {
-        errorstream << "Unittest support is not enabled in this binary. "
-                    << "If you want to enable it, compile project with "
-                       "BUILD_UNITTESTS=1 flag."
-                    << std::endl;
-        return 1;
-    }
-
-    // Run benchmarks
-    if (cmd_args.getFlag("run-benchmarks")) {
-        errorstream << "Benchmark support is not enabled in this binary. "
-                    << "If you want to enable it, compile project with "
-                       "BUILD_BENCHMARKS=1 flag."
-                    << std::endl;
         return 1;
     }
 
@@ -332,19 +277,6 @@ static void set_allowed_options(OptionList *allowed_options) {
 #undef LOCAL_GAME
 }
 
-static void list_game_ids() {
-    std::set<std::string> gameids = getAvailableGameIds();
-    for (const std::string &gameid : gameids) {
-        rawstream << gameid << std::endl;
-    }
-}
-
-static void list_worlds(bool print_name, bool print_path) {
-    std::cout << _("Available worlds:") << std::endl;
-    std::vector<WorldSpec> worldspecs = getAvailableWorlds();
-    print_worldspecs(worldspecs, std::cout, print_name, print_path);
-}
-
 static void print_worldspecs(const std::vector<WorldSpec> &worldspecs,
                              std::ostream &os, bool print_name,
                              bool print_path) {
@@ -376,15 +308,6 @@ static void print_modified_quicktune_values() {
         }
         dstream << name << " = " << val.getString() << std::endl;
     }
-}
-
-static bool create_userdata_path() {
-    bool success;
-
-    // Create user data directory
-    success = fs::CreateAllDirs(porting::path_user);
-
-    return success;
 }
 
 namespace {
@@ -438,8 +361,6 @@ static bool init_common(const Settings &cmd_args, int argc, char *argv[]) {
     if (!read_config_file(cmd_args)) {
         return false;
     }
-
-    migrate_settings();
 
     init_log_streams(cmd_args);
 
