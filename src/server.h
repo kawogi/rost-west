@@ -39,7 +39,6 @@ struct ChatInterface;
 class IWritableItemDefManager;
 class NodeDefManager;
 class IWritableCraftDefManager;
-class BanManager;
 class Inventory;
 class ModChannelMgr;
 class RemotePlayer;
@@ -270,11 +269,6 @@ public:
 	void reportPrivsModified(const std::string &name=""); // ""=all
 	void reportInventoryFormspecModified(const std::string &name);
 	void reportFormspecPrependModified(const std::string &name);
-
-	void setIpBanned(const std::string &ip, const std::string &name);
-	void unsetIpBanned(const std::string &ip_or_name);
-	std::string getBanDescription(const std::string &ip_or_name);
-	bool denyIfBanned(session_t peer_id);
 
 	void notifyPlayer(const char *name, const std::wstring &msg);
 	void notifyPlayers(const std::wstring &msg);
@@ -665,9 +659,6 @@ private:
 
 	// server connection
 	std::shared_ptr<con::IConnection> m_con;
-
-	// Ban checking
-	BanManager *m_banmanager = nullptr;
 
 	// Rollback manager (behind m_env_mutex)
 	IRollbackManager *m_rollback = nullptr;

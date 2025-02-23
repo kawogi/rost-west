@@ -316,7 +316,7 @@ int ModApiServer::l_get_player_window_information(lua_State *L)
 int ModApiServer::l_get_ban_list(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
-	lua_pushstring(L, getServer(L)->getBanDescription("").c_str());
+	// TODO re-implement ban list
 	return 1;
 }
 
@@ -324,8 +324,7 @@ int ModApiServer::l_get_ban_list(lua_State *L)
 int ModApiServer::l_get_ban_description(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
-	const char * ip_or_name = luaL_checkstring(L, 1);
-	lua_pushstring(L, getServer(L)->getBanDescription(std::string(ip_or_name)).c_str());
+	// TODO re-implement ban list
 	return 1;
 }
 
@@ -346,7 +345,8 @@ int ModApiServer::l_ban_player(lua_State *L)
 	}
 
 	std::string ip_str = server->getPeerAddress(player->getPeerId()).serializeString();
-	server->setIpBanned(ip_str, name);
+	// TODO re-implement banning
+	// server->setIpBanned(ip_str, name);
 	lua_pushboolean(L, true);
 	return 1;
 }
@@ -402,8 +402,9 @@ int ModApiServer::l_remove_player(lua_State *L)
 int ModApiServer::l_unban_player_or_ip(lua_State *L)
 {
 	NO_MAP_LOCK_REQUIRED;
-	const char * ip_or_name = luaL_checkstring(L, 1);
-	getServer(L)->unsetIpBanned(ip_or_name);
+	// TODO re-implement banning
+	// const char * ip_or_name = luaL_checkstring(L, 1);
+	// getServer(L)->unsetIpBanned(ip_or_name);
 	lua_pushboolean(L, true);
 	return 1;
 }

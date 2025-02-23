@@ -82,9 +82,6 @@ void Server::handleCommand_Init(NetworkPacket* pkt)
 		return;
 	}
 
-	if (denyIfBanned(peer_id))
-		return;
-
 	u8 max_ser_ver; // SER_FMT_VER_HIGHEST_READ (of client)
 	u16 unused;
 	u16 min_net_proto_version;

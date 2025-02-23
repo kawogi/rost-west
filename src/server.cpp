@@ -37,7 +37,6 @@
 #include "remoteplayer.h"
 #include "scripting_server.h"
 #include "serialization.h" // SER_FMT_VER_INVALID
-#include "server/ban.h"
 #include "server/mods.h"
 #include "server/player_sao.h"
 #include "server/rollback.h"
@@ -339,7 +338,6 @@ Server::~Server() {
 
     // Delete the rest in the reverse order of creation
     delete m_game_settings;
-    delete m_banmanager;
     delete m_mod_storage_database;
     delete m_rollback;
     delete m_itemdef;
@@ -376,10 +374,6 @@ void Server::init() {
 
     // Create emerge manager
     m_emerge = std::make_unique<EmergeManager>(this);
-
-    // Create ban manager
-    std::string ban_path = m_path_world + DIR_DELIM "ipban.txt";
-    m_banmanager = new BanManager(ban_path);
 
     // Create mod storage database and begin a save for later
     m_mod_storage_database = openModStorageDatabase(m_path_world);
@@ -941,11 +935,6 @@ void Server::AsyncRunStep(float dtime, bool initial_step) {
         if (counter >= save_interval) {
             counter = 0.0;
             EnvAutoLock lock(this);
-
-            // Save ban file
-            if (m_banmanager->isModified()) {
-                m_banmanager->save();
-            }
 
             // Save changed parts of map
             m_env->getMap().save(MOD_STATE_WRITE_NEEDED);
@@ -3165,38 +3154,6 @@ void Server::reportFormspecPrependModified(const std::string &name) {
         return;
     }
     SendPlayerFormspecPrepend(player->getPeerId());
-}
-
-void Server::setIpBanned(const std::string &ip, const std::string &name) {
-    m_banmanager->add(ip, name);
-
-    auto clients = m_clients.getClientIDs(CS_Created);
-    for (const auto peer_id : clients) {
-        denyIfBanned(peer_id);
-    }
-}
-
-void Server::unsetIpBanned(const std::string &ip_or_name) {
-    m_banmanager->remove(ip_or_name);
-}
-
-std::string Server::getBanDescription(const std::string &ip_or_name) {
-    return m_banmanager->getBanDescription(ip_or_name);
-}
-
-bool Server::denyIfBanned(session_t peer_id) {
-    Address address = getPeerAddress(peer_id);
-    std::string addr_s = address.serializeString();
-
-    if (m_banmanager->isIpBanned(addr_s)) {
-        std::string ban_name = m_banmanager->getBanName(addr_s);
-        actionstream << "Server: A banned client tried to connect from "
-                     << addr_s << "; banned name was " << ban_name << '\n';
-        DenyAccess(peer_id, SERVER_ACCESSDENIED_CUSTOM_STRING,
-                   "Your IP is banned. Banned name was " + ban_name);
-        return true;
-    }
-    return false;
 }
 
 void Server::notifyPlayer(const char *name, const std::wstring &msg) {
